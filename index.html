@@ -9,18 +9,27 @@
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root{--navy:#0B1F2A;--cream:#FDF5D9;--red:#D43D3D;--ink:#EDE6CB;--muted:#C8BEA0;--card:#102636;--track:#0E2230;--lane:#163245}
-  *{box-sizing:border-box} html,body{height:100%;background:var(--navy);color:var(--ink);font-family:"Space Grotesk",system-ui,Arial,Helvetica,sans-serif}
-  h1,h2,h3{margin:0 0 .5rem 0} .wrap{max-width:940px;margin:0 auto;padding:16px 16px 80px}
-  .grid{display:grid;gap:12px} .row{display:flex;gap:8px;flex-wrap:wrap}
+  *{box-sizing:border-box}
+  html,body{height:100%;background:var(--navy);color:var(--ink);font-family:"Space Grotesk",system-ui,Arial,Helvetica,sans-serif}
+  h1,h2,h3{margin:0 0 .5rem 0}
+  .wrap{max-width:940px;margin:0 auto;padding:16px 16px 80px}
+  .grid{display:grid;gap:12px}
+  .row{display:flex;gap:8px;flex-wrap:wrap}
   .card{background:var(--card);border:1px solid #1e3a4a;border-radius:14px;padding:14px}
-  .cta{background:var(--red);color:#fff;border:none;border-radius:12px;padding:12px 16px;font-weight:700}.cta[disabled]{opacity:.5}
+  .cta{background:var(--red);color:#fff;border:none;border-radius:12px;padding:12px 16px;font-weight:700}
+  .cta[disabled]{opacity:.5}
   .ghost{background:transparent;border:1px solid var(--muted);color:var(--ink);border-radius:12px;padding:10px 14px}
   .pill{background:#123042;color:var(--ink);border:1px solid #22465b;border-radius:999px;padding:6px 10px;font-size:.9rem}
-  .label{font-size:.85rem;color:var(--muted)} .input{width:100%;background:#0d2230;color:var(--ink);border:1px solid #254b61;border-radius:10px;padding:10px}
+  .label{font-size:.85rem;color:var(--muted)}
+  .input{width:100%;background:#0d2230;color:var(--ink);border:1px solid #254b61;border-radius:10px;padding:10px}
   .kpi{display:flex;align-items:center;justify-content:space-between;background:#0f2636;border:1px solid #22465b;border-radius:12px;padding:10px 12px}
-  .badge{padding:4px 8px;border-radius:8px;background:#173448;font-size:.85rem} .money{font-weight:700;color:#FFE8A3}
-  .small{font-size:.9rem;color:var(--muted)} .hidden{display:none!important} .list{list-style:none;padding:0;margin:0}
-  .list li{padding:8px 0;border-bottom:1px solid #183244}.list li:last-child{border-bottom:none}
+  .badge{padding:4px 8px;border-radius:8px;background:#173448;font-size:.85rem}
+  .money{font-weight:700;color:#FFE8A3}
+  .small{font-size:.9rem;color:var(--muted)}
+  .hidden{display:none!important}
+  .list{list-style:none;padding:0;margin:0}
+  .list li{padding:8px 0;border-bottom:1px solid #183244}
+  .list li:last-child{border-bottom:none}
 
   /* Race area */
   .race-shell{position:relative;height:72vh;min-height:460px;border-radius:16px;overflow:hidden;background:linear-gradient(#0B1F2A 0 30%,#0A1D2A 30% 100%);border:1px solid #1f3d50}
@@ -39,13 +48,18 @@
   .silhouette{width:44px;height:32px;border-radius:6px;box-shadow:0 0 0 2px rgba(0,0,0,.25) inset}
   .horseTag{background:#0f2a3a;border:1px solid #2b4d60;color:var(--ink);padding:6px 8px;border-radius:10px;font-weight:600;white-space:nowrap}
   .leader{filter:drop-shadow(0 0 10px rgba(212,61,61,.6))}
-  .top2 .horseTag{border-color:#d0be6b}.top1 .horseTag{border-color:#ffd46b}.top3 .horseTag{border-color:#9bd4ff}
+  .top2 .horseTag{border-color:#d0be6b}
+  .top1 .horseTag{border-color:#ffd46b}
+  .top3 .horseTag{border-color:#9bd4ff}
   .ticker{position:absolute;top:12px;left:12px;right:12px;display:flex;gap:8px;flex-wrap:wrap}
   .ticker .chip{background:#0e2b3f;border:1px solid #2a4c60;border-radius:999px;padding:6px 10px;font-size:.9rem}
 
-  @media (min-width:720px){.wrap{padding:20px 20px 88px}.silhouette{width:50px;height:36px}}
+  @media (min-width:720px){
+    .wrap{padding:20px 20px 88px}
+    .silhouette{width:50px;height:36px}
+  }
 
-  /* Odds + Stats */
+  /* Odds + stats */
   .odds{margin-top:8px;display:flex;gap:8px;flex-wrap:wrap}
   .odds .chip{background:#123043;border:1px solid #274c5f;border-radius:999px;padding:6px 10px}
   .statRow{display:flex;gap:8px;align-items:center;margin-top:6px}
@@ -55,13 +69,16 @@
   .legend{display:flex;gap:10px;flex-wrap:wrap;font-size:.85rem;color:#a9c0cd}
   .legend .key{display:flex;gap:6px;align-items:center}
   .legend .swatch{width:14px;height:8px;border-radius:3px}
-  .lg-speed{background:#70d6ff}.lg-stamina{background:#ffd46b}.lg-burst{background:#ff9bb5}
+  .lg-speed{background:#70d6ff}
+  .lg-stamina{background:#ffd46b}
+  .lg-burst{background:#ff9bb5}
 </style>
 </head>
 <body>
 <div class="wrap">
   <header class="row" style="align-items:center;justify-content:space-between">
-    <h1>Photo Finish</h1><div class="pill">20s race • Local Multiplayer</div>
+    <h1>Photo Finish</h1>
+    <div class="pill">20s race • Local Multiplayer</div>
   </header>
 
   <!-- Players -->
@@ -70,14 +87,29 @@
       <h2>Add Players</h2>
       <div class="row">
         <div class="kpi" style="flex:1">
-          <div><div class="label">Starting Balance</div><div class="money" id="startMoneyShow">1000</div></div>
+          <div>
+            <div class="label">Starting Balance</div>
+            <div class="money" id="startMoneyShow">1000</div>
+          </div>
           <input id="startMoney" class="input" type="number" min="100" step="50" value="1000" style="max-width:160px">
         </div>
       </div>
-      <div class="row"><input id="playerName" class="input" placeholder="Player name" style="flex:1"><button id="addPlayer" class="cta">Add</button></div>
-      <div class="row"><button class="ghost quick" data-n="2">Quick add 2</button><button class="ghost quick" data-n="3">3</button><button class="ghost quick" data-n="4">4</button><button class="ghost quick" data-n="5">5</button><button class="ghost quick" data-n="6">6</button></div>
+      <div class="row">
+        <input id="playerName" class="input" placeholder="Player name" style="flex:1">
+        <button id="addPlayer" class="cta">Add</button>
+      </div>
+      <div class="row">
+        <button class="ghost quick" data-n="2">Quick add 2</button>
+        <button class="ghost quick" data-n="3">3</button>
+        <button class="ghost quick" data-n="4">4</button>
+        <button class="ghost quick" data-n="5">5</button>
+        <button class="ghost quick" data-n="6">6</button>
+      </div>
       <ul id="playerList" class="list"></ul>
-      <div class="row"><button id="startGame" class="cta" disabled>Start Game</button><button id="resetAll" class="ghost">Reset</button></div>
+      <div class="row">
+        <button id="startGame" class="cta" disabled>Start Game</button>
+        <button id="resetAll" class="ghost">Reset</button>
+      </div>
     </div>
   </section>
 
@@ -86,7 +118,10 @@
     <div class="card grid" style="gap:10px">
       <h2>Horse Selection</h2>
       <div id="turnBanner" class="kpi">
-        <div><div class="label">Now selecting</div><div id="currentPlayerName" style="font-weight:700"></div></div>
+        <div>
+          <div class="label">Now selecting</div>
+          <div id="currentPlayerName" style="font-weight:700"></div>
+        </div>
         <div class="money">Balance: <span id="currentPlayerBalance">0</span></div>
       </div>
       <div class="legend">
@@ -104,7 +139,10 @@
     <div class="card grid" style="gap:10px">
       <h3>Bet</h3>
       <div class="row">
-        <select id="betType" class="input" style="max-width:180px"><option value="win">Win</option><option value="place">Place (Top 3)</option></select>
+        <select id="betType" class="input" style="max-width:180px">
+          <option value="win">Win</option>
+          <option value="place">Place (Top 3)</option>
+        </select>
         <input id="betAmount" class="input" type="number" min="1" step="10" value="50" style="max-width:160px">
         <button id="lockPick" class="cta" style="flex:1" disabled>Lock Pick</button>
       </div>
@@ -114,13 +152,19 @@
     <div class="card">
       <h3>Summary</h3>
       <ul id="pickList" class="list"></ul>
-      <div class="row"><button id="beginRace" class="cta" disabled>Start Race</button><button id="backToPlayers" class="ghost">Back</button></div>
+      <div class="row">
+        <button id="beginRace" class="cta" disabled>Start Race</button>
+        <button id="backToPlayers" class="ghost">Back</button>
+      </div>
     </div>
   </section>
 
   <!-- Race -->
   <section id="screen-race" class="grid hidden">
-    <div class="card"><h2>Race</h2><div class="small">20 seconds • Vertical track • Clean lead changes</div></div>
+    <div class="card">
+      <h2>Race</h2>
+      <div class="small">20 seconds • Vertical track • Lead changes</div>
+    </div>
     <div class="race-shell">
       <div class="ticker" id="raceTicker"></div>
       <div class="track">
@@ -136,27 +180,58 @@
       </div>
     </div>
     <div class="row" style="position:fixed;left:0;right:0;bottom:0;background:linear-gradient(180deg,rgba(11,31,42,0),rgba(11,31,42,.95));padding:8px 12px 16px">
-      <div style="max-width:940px;margin:0 auto;display:flex;gap:8px;width:100%"><button id="skipToResults" class="ghost" style="flex:1">Skip animation</button></div>
+      <div style="max-width:940px;margin:0 auto;display:flex;gap:8px;width:100%">
+        <button id="skipToResults" class="ghost" style="flex:1">Skip animation</button>
+      </div>
     </div>
   </section>
 
   <!-- Results -->
   <section id="screen-results" class="grid hidden">
-    <div class="card grid" style="gap:8px"><h2>Results</h2><div id="podium" class="row"></div></div>
-    <div class="card"><h3>Final Order</h3><ul id="orderList" class="list"></ul></div>
-    <div class="card"><h3>Player Outcomes</h3><ul id="playerOutcomes" class="list"></ul></div>
-    <div class="row"><button id="nextRound" class="cta">Next Race</button><button id="leavePlayers" class="ghost">Remove Leavers</button><button id="fullReset" class="ghost">Reset Game</button></div>
+    <div class="card grid" style="gap:8px">
+      <h2>Results</h2>
+      <div id="podium" class="row"></div>
+    </div>
+    <div class="card">
+      <h3>Final Order</h3>
+      <ul id="orderList" class="list"></ul>
+    </div>
+    <div class="card">
+      <h3>Player Outcomes</h3>
+      <ul id="playerOutcomes" class="list"></ul>
+    </div>
+    <div class="row">
+      <button id="nextRound" class="cta">Next Race</button>
+      <button id="leavePlayers" class="ghost">Remove Leavers</button>
+      <button id="fullReset" class="ghost">Reset Game</button>
+    </div>
   </section>
 </div>
 
 <script>
 (function(){
   // ----- State
-  const state={players:[],startBalance:1000,round:1,order:[],horses:[],picks:[],race:{duration:20000,trackDistance:3200,t0:0,raf:0,finished:false,results:[],sprites:[]}};
+  const state={
+    players:[],
+    startBalance:1000,
+    round:1,
+    order:[],
+    horses:[],
+    picks:[],
+    race:{duration:20000,trackDistance:3200,t0:0,raf:0,finished:false,results:[],sprites:[]}
+  };
+
   // ----- Helpers
   const $=s=>document.querySelector(s), $$=s=>Array.from(document.querySelectorAll(s));
-  const fmt=n=>Number(n).toLocaleString(), rnd=(a,b)=>Math.random()*(b-a)+a, rndi=(a,b)=>Math.floor(rnd(a,b+1));
-  const clamp=(v,a,b)=>Math.min(b,Math.max(a,v)); const byId=id=>state.players.find(p=>p.id===id);
+  const fmt=n=>Number(n).toLocaleString();
+  const rnd=(a,b)=>Math.random()*(b-a)+a, rndi=(a,b)=>Math.floor(rnd(a,b+1));
+  const clamp=(v,a,b)=>Math.min(b,Math.max(a,v));
+  const byId=id=>state.players.find(p=>p.id===id);
+  const pct=v=>Math.round(clamp(v,0,1)*100);
+  function randn(mu=0,s=1){let u=0,v=0;while(u===0)u=Math.random();while(v===0)v=Math.random();const z=Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);return mu+z*s}
+  function esc(s){return s.replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}
+  function shuffle(a){for(let i=a.length-1;i>0;i--){const j=rndi(0,i);[a[i],a[j]]=[a[j],a[i]]}return a}
+  function groupBy(a,k){return a.reduce((m,o)=>((m[o[k]]??=[]).push(o),m),{})}
 
   // ----- Screens
   const screens={players:$('#screen-players'),select:$('#screen-select'),race:$('#screen-race'),results:$('#screen-results')};
@@ -167,10 +242,22 @@
   $('#resetAll').onclick=fullReset;
   $('#addPlayer').onclick=()=>{const n=playerName.value.trim();if(!n)return;addPlayer(n);playerName.value='';renderPlayers();}
   $$('.quick').forEach(b=>b.onclick=()=>{const N=+b.dataset.n,base=["Alex","Sam","Casey","Jordan","Taylor","Riley","Jamie","Drew","Quinn","Harper"];while(state.players.length<N){addPlayer(base[state.players.length%base.length]+(state.players.length>=base.length?(" "+(state.players.length+1)):""));}renderPlayers();});
-  startMoney.oninput=()=>{const v=Math.max(100,+startMoney.value||1000);state.startBalance=v;startMoneyShow.textContent=fmt(v);}
+  startMoney.oninput=()=>{const v=Math.max(100,+startMoney.value||1000);state.startBalance=v;startMoneyShow.textContent=fmt(v);};
   function addPlayer(name){if(state.players.length>=6)return;state.players.push({id:crypto.randomUUID(),name,balance:state.startBalance,active:true});}
   function removePlayer(id){state.players=state.players.filter(p=>p.id!==id);}
-  function renderPlayers(){playerList.innerHTML='';state.players.forEach(p=>{const li=document.createElement('li');li.innerHTML=`<div class="row" style="align-items:center;justify-content:space-between"><div><strong>${esc(p.name)}</strong> <span class="badge">Balance: <span class="money">${fmt(p.balance)}</span></span></div><div class="row"><button class="ghost" data-id="${p.id}">Remove</button></div></div>`;playerList.appendChild(li);});$$('#playerList button').forEach(b=>b.onclick=()=>{removePlayer(b.dataset.id);renderPlayers();});$('#startGame').disabled=state.players.length<2;}
+  function renderPlayers(){
+    playerList.innerHTML='';
+    state.players.forEach(p=>{
+      const li=document.createElement('li');
+      li.innerHTML=`<div class="row" style="align-items:center;justify-content:space-between">
+        <div><strong>${esc(p.name)}</strong> <span class="badge">Balance: <span class="money">${fmt(p.balance)}</span></span></div>
+        <div class="row"><button class="ghost" data-id="${p.id}">Remove</button></div>
+      </div>`;
+      playerList.appendChild(li);
+    });
+    $$('#playerList button').forEach(b=>b.onclick=()=>{removePlayer(b.dataset.id);renderPlayers();});
+    $('#startGame').disabled=state.players.length<2;
+  }
   $('#startGame').onclick=()=>{state.round=1;startRound();}; renderPlayers();
 
   // ----- Selection
@@ -178,17 +265,31 @@
   const horseGrid=$('#horseGrid'),pickList=$('#pickList'),betType=$('#betType'),betAmount=$('#betAmount'),lockPick=$('#lockPick');
   const beginRace=$('#beginRace'),pickPreview=$('#pickPreview'); $('#backToPlayers').onclick=()=>show('players');
 
-  function startRound(){state.picks=[];state.order=shuffle(state.players.filter(p=>p.active).map(p=>p.id));state.horses=genHorses(6);state.race.finished=false;state.race.results=[];renderSelect();show('select');idx=0;prepTurn();}
+  function startRound(){
+    state.picks=[]; state.order=shuffle(state.players.filter(p=>p.active).map(p=>p.id));
+    state.horses=genHorses(6); state.race.finished=false; state.race.results=[];
+    renderSelect(); show('select'); idx=0; prepTurn();
+  }
   function genHorses(n){
-    const colors=Array.from({length:n},(_,i)=>`hsl(${Math.round(i*360/n)} 70% 55%)`), names=namesUnique(n);
+    const colors=Array.from({length:n},(_,i)=>`hsl(${Math.round(i*360/n)} 70% 55%)`);
+    const names=namesUnique(n);
     return Array.from({length:n},(_,i)=>{
       const speed=clamp(randn(0.65,0.15),0.35,1), stamina=clamp(randn(0.65,0.15),0.35,1), burst=clamp(randn(0.65,0.15),0.35,1);
-      const q=speed*0.5+stamina*0.3+burst*0.2, base=rnd(19.2,21.5)-(q-0.65)*2.0, ft=clamp(base,18.8,22.5)*1000;
-      const win=clamp(1.6+(1-q)*2.4+rnd(0,0.4),1.4,4.6), plc=clamp(win*rnd(0.5,0.7),1.2,Math.max(1.2,win*0.85));
+      const q=speed*0.5+stamina*0.3+burst*0.2;
+      const base=rnd(19.2,21.5)-(q-0.65)*2.0;
+      const ft=clamp(base,18.8,22.5)*1000;
+      const win=clamp(1.6+(1-q)*2.4+rnd(0,0.4),1.4,4.6);
+      const plc=clamp(win*rnd(0.5,0.7),1.2,Math.max(1.2,win*0.85));
       return {id:crypto.randomUUID(),name:names[i],color:colors[i],stats:{speed,stamina,burst,q},finishTime:ft,odds:{win,place:plc}};
     });
   }
-  function namesUnique(n){const A=["Crimson","Silent","Lucky","Misty","Rapid","Royal","Golden","Shadow","Copper","Icy","Celestial","Wild","Noble","Brave","Silver","Velvet","Savvy","Stout","Amber","Indigo"],B=["Blaze","Echo","Stride","Comet","Whisper","Dash","Thorn","Venture","Charm","Orbit","Surge","Monarch","Spirit","Horizon","Anthem","Rally","Signal","Voyage","Badge","Tango"];const used=new Set(),out=[];while(out.length<n){const w1=A[rndi(0,A.length-1)],w2=B[rndi(0,B.length-1)];if(used.has(w1)||used.has(w2))continue;used.add(w1);used.add(w2);out.push(`${w1} ${w2}`);}return out;}
+  function namesUnique(n){
+    const A=["Crimson","Silent","Lucky","Misty","Rapid","Royal","Golden","Shadow","Copper","Icy","Celestial","Wild","Noble","Brave","Silver","Velvet","Savvy","Stout","Amber","Indigo"];
+    const B=["Blaze","Echo","Stride","Comet","Whisper","Dash","Thorn","Venture","Charm","Orbit","Surge","Monarch","Spirit","Horizon","Anthem","Rally","Signal","Voyage","Badge","Tango"];
+    const used=new Set(), out=[];
+    while(out.length<n){const w1=A[rndi(0,A.length-1)], w2=B[rndi(0,B.length-1)]; if(used.has(w1)||used.has(w2)) continue; used.add(w1); used.add(w2); out.push(`${w1} ${w2}`);}
+    return out;
+  }
 
   function renderSelect(){
     horseGrid.innerHTML='';
@@ -212,127 +313,242 @@
     });
     renderPicks();
   }
-  const pct=v=>Math.round(clamp(v,0,1)*100);
 
   let idx=0, selHorse=null;
-  function prepTurn(){ if(idx>=state.order.length){beginRace.disabled=false;turnBanner.classList.add('hidden');return;}
+  function prepTurn(){
+    if(idx>=state.order.length){beginRace.disabled=false;turnBanner.classList.add('hidden');return;}
     beginRace.disabled=true;turnBanner.classList.remove('hidden');selHorse=null;lockPick.disabled=true;
-    const pid=state.order[idx],p=byId(pid);currentPlayerName.textContent=p.name;currentPlayerBalance.textContent=fmt(p.balance);betAmount.value=Math.min(100,p.balance);pickPreview.textContent='';
+    const pid=state.order[idx], p=byId(pid);
+    currentPlayerName.textContent=p.name; currentPlayerBalance.textContent=fmt(p.balance);
+    betAmount.value=Math.min(100,p.balance); pickPreview.textContent='';
     $$('#horseGrid .card').forEach(e=>e.style.outline='1px solid #1e3a4a');
   }
-  function selectHorse(id){selHorse=id; $$('#horseGrid .card').forEach(e=>e.style.outline=e.dataset.hid===id?'2px solid var(--red)':'1px solid #1e3a4a'); updatePreview();}
-  function updatePreview(){const pid=state.order[idx],p=byId(pid),amt=clamp(+betAmount.value||0,1,p.balance);betAmount.value=amt; if(!selHorse){lockPick.disabled=true;pickPreview.textContent='';return;}
-    const h=state.horses.find(x=>x.id===selHorse),t=betType.value,m=t==='win'?h.odds.win:h.odds.place;pickPreview.textContent=`${p.name} → ${h.name} • ${t.toUpperCase()} • ${fmt(amt)} @ ${m.toFixed(2)}x`;lockPick.disabled=false;}
+  function selectHorse(id){
+    selHorse=id;
+    $$('#horseGrid .card').forEach(e=>e.style.outline=e.dataset.hid===id?'2px solid var(--red)':'1px solid #1e3a4a');
+    updatePreview();
+  }
+  function updatePreview(){
+    const pid=state.order[idx], p=byId(pid), amt=clamp(+betAmount.value||0,1,p.balance); betAmount.value=amt;
+    if(!selHorse){lockPick.disabled=true; pickPreview.textContent=''; return;}
+    const h=state.horses.find(x=>x.id===selHorse), t=betType.value, m=t==='win'?h.odds.win:h.odds.place;
+    pickPreview.textContent=`${p.name} → ${h.name} • ${t.toUpperCase()} • ${fmt(amt)} @ ${m.toFixed(2)}x`;
+    lockPick.disabled=false;
+  }
   betType.onchange=updatePreview; betAmount.oninput=updatePreview;
-  lockPick.onclick=()=>{const pid=state.order[idx],p=byId(pid),amt=clamp(+betAmount.value||0,1,p.balance); if(!selHorse||amt<1)return;
+  lockPick.onclick=()=>{const pid=state.order[idx], p=byId(pid), amt=clamp(+betAmount.value||0,1,p.balance); if(!selHorse||amt<1) return;
     state.picks.push({playerId:p.id,horseId:selHorse,type:betType.value,amount:amt}); p.balance-=amt; idx++; renderPicks(); prepTurn();};
-  function renderPicks(){pickList.innerHTML=''; state.order.forEach(pid=>{const p=byId(pid),pick=state.picks.find(x=>x.playerId===pid),li=document.createElement('li'); li.innerHTML=pick?`<strong>${esc(p.name)}</strong> → <span class="pill">${esc(state.horses.find(x=>x.id===pick.horseId).name)}</span> • <span class="badge">${pick.type.toUpperCase()}</span> • <span class="money">${fmt(pick.amount)}</span>`:`<strong>${esc(p.name)}</strong> is choosing…`; pickList.appendChild(li);});}
+  function renderPicks(){
+    pickList.innerHTML='';
+    state.order.forEach(pid=>{
+      const p=byId(pid), pick=state.picks.find(x=>x.playerId===pid), li=document.createElement('li');
+      li.innerHTML = pick
+        ? `<strong>${esc(p.name)}</strong> → <span class="pill">${esc(state.horses.find(x=>x.id===pick.horseId).name)}</span> • <span class="badge">${pick.type.toUpperCase()}</span> • <span class="money">${fmt(pick.amount)}</span>`
+        : `<strong>${esc(p.name)}</strong> is choosing…`;
+      pickList.appendChild(li);
+    });
+  }
 
   $('#beginRace').onclick=()=>{setupRace();show('race');startRace();};
   $('#skipToResults').onclick=()=>endRace(true);
 
-  // ----- Race rendering
-  const lanesViewport=$('#lanesViewport'), lanesWorld=$('#lanesWorld'), finishEl=$('#finishLine'), splitMarks=$('#splitMarks'), gateEl=$('#gate'), bg=$('#bg'), raceTicker=$('#raceTicker');
+  // ----- Race scene
+  const lanesViewport=$('#lanesViewport'), lanesWorld=$('#lanesWorld'), finishEl=$('#finishLine'),
+        splitMarks=$('#splitMarks'), gateEl=$('#gate'), bg=$('#bg'), raceTicker=$('#raceTicker');
 
   function setupRace(){
     lanesWorld.innerHTML=''; lanesWorld.append(bg,finishEl,splitMarks,gateEl); raceTicker.innerHTML='';
-    const TD=state.race.trackDistance, laneGap=66, padTop=24, padBot=24;
+    const TD=state.race.trackDistance, padTop=24, padBot=24;
     const worldH=TD+padTop+padBot; lanesWorld.style.height=worldH+'px'; bg.style.height=worldH+'px';
     finishEl.style.top=padTop+'px'; gateEl.style.bottom=padBot+'px';
-    splitMarks.innerHTML=''; [0.25,0.5,0.75].forEach(f=>{const y=padTop+(TD-TD*f);const s=document.createElement('div');s.className='split';s.style.top=y+'px';const lab=document.createElement('label');lab.textContent=Math.round(f*100)+'%';s.appendChild(lab);splitMarks.appendChild(s);});
-    // sprites
+    splitMarks.innerHTML='';
+    [0.25,0.5,0.75].forEach(f=>{const y=padTop+(TD-TD*f); const s=document.createElement('div'); s.className='split'; s.style.top=y+'px'; const lab=document.createElement('label'); lab.textContent=Math.round(f*100)+'%'; s.appendChild(lab); splitMarks.appendChild(s);});
+
+    // Sprites
     state.race.sprites = state.horses.map((h,i)=>{
       const el=document.createElement('div'); el.className='horse'; el.dataset.hid=h.id;
-      el.style.top=(padBot+i*laneGap)+'px'; el.style.left='14px';
+      el.style.top=(padBot + i*66)+'px'; el.style.left='14px';
       el.style.transform=`translateY(${TD}px)`; // start at gate
       const body=document.createElement('div'); body.className='silhouette'; body.style.background=h.color;
       const tag=document.createElement('div'); tag.className='horseTag'; tag.innerHTML=`${esc(h.name)} <span class="small">(${h.odds.win.toFixed(2)}x / ${h.odds.place.toFixed(2)}x)</span>`;
       el.append(body,tag); lanesWorld.appendChild(el);
-      return {h,el,y:0,vBase:TD/(h.finishTime/1000),plan:plan(h),finished:false,finishTime:null};
+      return {h,el,y:0,vBase:TD/(h.finishTime/1000),plan:pacePlan(h),finished:false,finishTime:null};
     });
-    // ticker
-    state.horses.forEach(h=>{const c=document.createElement('div');c.className='chip';c.innerHTML=`<span class="silhouette" style="display:inline-block;width:14px;height:10px;border-radius:3px;background:${h.color};margin-right:6px"></span>${esc(h.name)} • Win <strong>${h.odds.win.toFixed(2)}x</strong> • Place <strong>${h.odds.place.toFixed(2)}x</strong>`;raceTicker.appendChild(c);});
+
+    // Ticker
+    state.horses.forEach(h=>{
+      const c=document.createElement('div'); c.className='chip';
+      c.innerHTML=`<span class="silhouette" style="display:inline-block;width:14px;height:10px;border-radius:3px;background:${h.color};margin-right:6px"></span>${esc(h.name)} • Win <strong>${h.odds.win.toFixed(2)}x</strong> • Place <strong>${h.odds.place.toFixed(2)}x</strong>`;
+      raceTicker.appendChild(c);
+    });
   }
 
-  function plan(h){const T=h.finishTime;const stops=[0,5000,10000,15000,Math.max(18500,T-2500),T];const mul=Array(stops.length-1).fill(0).map(()=>rnd(0.94,1.06));const a=rndi(1,3),b=rndi(2,4);mul[a]*=rnd(1.10,1.22);mul[b]*=rnd(1.08,1.18);mul[2]*=(0.94+h.stats.stamina*0.12);return{stops,mul};}
+  function pacePlan(h){
+    const T=h.finishTime;
+    const stops=[0,5000,10000,15000,Math.max(18500,T-2500),T];
+    const mul=Array(stops.length-1).fill(0).map(()=>rnd(0.94,1.06));
+    const a=rndi(1,3), b=rndi(2,4);
+    mul[a]*=rnd(1.10,1.22); mul[b]*=rnd(1.08,1.18);
+    mul[2]*=(0.94+h.stats.stamina*0.12);
+    return {stops,mul};
+  }
   function seg(stops,t){for(let i=0;i<stops.length-1;i++){if(t>=stops[i]&&t<stops[i+1])return i}return stops.length-2}
 
+  // ----- Animation with smoothed camera
   function startRace(){
     setTimeout(()=>gateEl.classList.add('open'),400);
-    const TD=state.race.trackDistance; state.race.t0=performance.now(); state.race.finished=false; let last=state.race.t0;
+    const TD=state.race.trackDistance; state.race.t0=performance.now(); state.race.finished=false;
     const vpH=lanesViewport.clientHeight;
+    let last=state.race.t0;
 
-    // Start camera at the gate and pan upward with the pack
+    // Camera starts at the gate
     const bottomStart = Math.max(0, TD - vpH + 40);
-    lanesWorld.style.transform = `translateY(${-bottomStart}px)`;
+    let camY = bottomStart;
+    lanesWorld.style.transform = `translateY(${-camY}px)`;
 
     function frame(now){
       const dt=(now-last)/1000; last=now; const t=now-state.race.t0;
       let allFinished=true;
+
       for(const S of state.race.sprites){
         if(S.finished) continue;
-        const i=seg(S.plan.stops,t); let v=S.vBase*S.plan.mul[i]; v*=1+0.02*Math.sin((t/1000)*(1.2+S.h.stats.burst*1.6));
+        const i=seg(S.plan.stops,t);
+        let v=S.vBase*S.plan.mul[i];
+        v*=1+0.02*Math.sin((t/1000)*(1.2+S.h.stats.burst*1.6));
         S.y += v*dt;
-        const lastI=S.plan.stops.length-2;
-        if(i===lastI){const rt=(S.h.finishTime-t)/1000, rd=TD-S.y; if(rt>0){v=v*0.5+(rd/rt)*0.5; S.y+=v*dt;}}
-        if(S.y>=TD){S.y=TD; S.finished=true; S.finishTime=Math.max(t,0); state.race.results.push({horseId:S.h.id,finishTime:S.finishTime});}
-        else allFinished=false;
-        S.el.style.transform=`translateY(${TD-S.y}px)`; // 0 at finish, TD at gate
-      }
-      // camera from bottom to top following leader
-      const lead=Math.max(...state.race.sprites.map(s=>s.y));
-      const worldTop = Math.max(0, bottomStart - lead);
-      lanesWorld.style.transform = `translateY(${-worldTop}px)`;
 
-      // live top-3
-      const live=[...state.race.sprites].sort((a,b)=>b.y-a.y); live.forEach((S,i)=>{S.el.classList.remove('top1','top2','top3','leader'); if(i===0)S.el.classList.add('top1','leader'); if(i===1)S.el.classList.add('top2'); if(i===2)S.el.classList.add('top3');});
-      if(allFinished || t>=state.race.duration+3000){endRace(false);return;}
+        // solve last segment to finish cleanly
+        const lastI=S.plan.stops.length-2;
+        if(i===lastI){
+          const rt=(S.h.finishTime-t)/1000, rd=TD-S.y;
+          if(rt>0){ v=v*0.5 + (rd/rt)*0.5; S.y += v*dt; }
+        }
+
+        if(S.y>=TD){ S.y=TD; S.finished=true; S.finishTime=Math.max(t,0); state.race.results.push({horseId:S.h.id,finishTime:S.finishTime});}
+        else allFinished=false;
+
+        // Move sprite: 0 at finish, TD at gate
+        S.el.style.transform=`translateY(${TD-S.y}px)`;
+      }
+
+      // Smoothed camera that never outruns the leaders
+      const lead = Math.max(...state.race.sprites.map(s=>s.y));
+      const tail = vpH*0.35;                          // keep some field on screen
+      const target = clamp(bottomStart - (lead - tail), 0, bottomStart);
+      camY += (target - camY) * 0.08;                 // easing
+      // keep leader within top band
+      const leaderScreenY = lead - camY;
+      if (leaderScreenY < vpH*0.25) camY = Math.max(0, lead - vpH*0.25);
+      lanesWorld.style.transform = `translateY(${-camY}px)`;
+
+      // Live top-3
+      const live=[...state.race.sprites].sort((a,b)=>b.y-a.y);
+      live.forEach((S,i)=>{S.el.classList.remove('top1','top2','top3','leader'); if(i===0)S.el.classList.add('top1','leader'); if(i===1)S.el.classList.add('top2'); if(i===2)S.el.classList.add('top3');});
+
+      if(allFinished || t>=state.race.duration+3000){ endRace(false); return; }
       state.race.raf=requestAnimationFrame(frame);
     }
     state.race.raf=requestAnimationFrame(frame);
   }
 
   function endRace(skip){
-    if(state.race.finished)return; state.race.finished=true; if(state.race.raf)cancelAnimationFrame(state.race.raf);
+    if(state.race.finished) return;
+    state.race.finished=true;
+    if(state.race.raf) cancelAnimationFrame(state.race.raf);
+
     if(skip){
-      const TD=state.race.trackDistance, vpH=lanesViewport.clientHeight;
+      const TD=state.race.trackDistance;
       const ord=[...state.race.sprites].sort((a,b)=>b.y-a.y);
       ord.forEach((S,i)=>{S.finishTime=20000+i*120+rnd(0,60);S.y=TD;S.el.style.transform=`translateY(${TD-S.y}px)`;});
       state.race.results=ord.map(S=>({horseId:S.h.id,finishTime:S.finishTime}));
-      // snap camera to finish
-      lanesWorld.style.transform=`translateY(0px)`;
+      lanesWorld.style.transform=`translateY(0px)`; // snap to finish
     }else if(state.race.results.length!==state.horses.length){
       const remain=state.horses.filter(h=>!state.race.results.find(r=>r.horseId===h.id));
-      const base=Math.max(...state.race.results.map(r=>r.finishTime)); remain.forEach((h,i)=>state.race.results.push({horseId:h.id,finishTime:base+100+i*50}));
+      const base=Math.max(...state.race.results.map(r=>r.finishTime));
+      remain.forEach((h,i)=>state.race.results.push({horseId:h.id,finishTime:base+100+i*50}));
     }
+
     state.race.results.sort((a,b)=>a.finishTime-b.finishTime);
     settle(); renderResults(); show('results');
   }
 
-  // ----- Payouts + Results
-  function settle(){const order=state.race.results.map(r=>r.horseId), first=order[0], top3=new Set(order.slice(0,3));
-    state.picks.forEach(pk=>{const h=state.horses.find(x=>x.id===pk.horseId), p=byId(pk.playerId); let win=0;
-      if(pk.type==='win'&&pk.horseId===first) win=pk.amount*h.odds.win; else if(pk.type==='place'&&top3.has(pk.horseId)) win=pk.amount*h.odds.place;
-      if(win>0)p.balance+=Math.floor(win); pk.win=Math.floor(win); pk.result=win>0?'WIN':'LOSE';});
+  // ----- Payouts and results
+  function settle(){
+    const order=state.race.results.map(r=>r.horseId);
+    const first=order[0];
+    const top3=new Set(order.slice(0,3));
+    state.picks.forEach(pk=>{
+      const h=state.horses.find(x=>x.id===pk.horseId);
+      const p=byId(pk.playerId);
+      let win=0;
+      if(pk.type==='win' && pk.horseId===first) win=pk.amount*h.odds.win;
+      else if(pk.type==='place' && top3.has(pk.horseId)) win=pk.amount*h.odds.place;
+      if(win>0) p.balance+=Math.floor(win);
+      pk.win=Math.floor(win);
+      pk.result=win>0?'WIN':'LOSE';
+    });
   }
+
   const podium=$('#podium'), orderList=$('#orderList'), playerOutcomes=$('#playerOutcomes');
   $('#nextRound').onclick=()=>{state.round++;startRound();};
   $('#leavePlayers').onclick=()=>{state.players=state.players.filter(p=>p.active&&p.balance>0); if(state.players.length<2){alert('Not enough players.'); fullReset(); return;} state.round++; startRound();};
   $('#fullReset').onclick=fullReset;
 
   function renderResults(){
-    podium.innerHTML=''; const ord=state.race.results.map(r=>({h:state.horses.find(x=>x.id===r.horseId),t:r.finishTime}));
-    const medals=['🥇','🥈','🥉']; ord.slice(0,3).forEach((o,i)=>{const d=document.createElement('div');d.className='kpi';d.innerHTML=`<div class="row" style="align-items:center;gap:8px"><span style="font-size:1.25rem">${medals[i]}</span><div class="silhouette" style="background:${o.h.color}"></div><strong>${esc(o.h.name)}</strong></div><div class="small">Time: ${(o.t/1000).toFixed(2)}s</div>`;podium.appendChild(d);});
-    orderList.innerHTML=''; ord.forEach((o,i)=>{const li=document.createElement('li');const bettors=state.picks.filter(pk=>pk.horseId===o.h.id).map(pk=>byId(pk.playerId).name); li.innerHTML=`<div class="row" style="justify-content:space-between;align-items:center"><div class="row" style="align-items:center;gap:8px"><div class="badge">#${i+1}</div><div class="silhouette" style="background:${o.h.color}"></div><strong>${esc(o.h.name)}</strong></div><div class="small">${bettors.length?("Picked by: "+bettors.map(esc).join(', ')):"No picks"}</div></div>`;orderList.appendChild(li);});
-    playerOutcomes.innerHTML=''; const by=groupBy(state.picks,'playerId'); Object.entries(by).forEach(([pid,arr])=>{const p=byId(pid),li=document.createElement('li'); const rows=arr.map(pk=>{const h=state.horses.find(x=>x.id===pk.horseId);return `<div class="row" style="justify-content:space-between"><div>${pk.type.toUpperCase()} • <span class="pill">${esc(h.name)}</span> • <span class="small">${fmt(pk.amount)} bet</span></div><div class="${pk.win>0?'money':''}">${pk.result} ${pk.win>0?('+ '+fmt(pk.win)):' '}</div></div>`}).join(''); li.innerHTML=`<div class="row" style="justify-content:space-between;align-items:center"><strong>${esc(p.name)}</strong><div>Balance: <span class="money">${fmt(p.balance)}</span></div></div><div class="card" style="margin-top:8px">${rows}</div>`; playerOutcomes.appendChild(li);});
+    podium.innerHTML='';
+    const ord=state.race.results.map(r=>({h:state.horses.find(x=>x.id===r.horseId),t:r.finishTime}));
+    const medals=['🥇','🥈','🥉'];
+    ord.slice(0,3).forEach((o,i)=>{
+      const d=document.createElement('div'); d.className='kpi';
+      d.innerHTML=`<div class="row" style="align-items:center;gap:8px">
+        <span style="font-size:1.25rem">${medals[i]}</span>
+        <div class="silhouette" style="background:${o.h.color}"></div>
+        <strong>${esc(o.h.name)}</strong>
+      </div>
+      <div class="small">Time: ${(o.t/1000).toFixed(2)}s</div>`;
+      podium.appendChild(d);
+    });
+
+    orderList.innerHTML='';
+    ord.forEach((o,i)=>{
+      const li=document.createElement('li');
+      const bettors=state.picks.filter(pk=>pk.horseId===o.h.id).map(pk=>byId(pk.playerId).name);
+      li.innerHTML=`<div class="row" style="justify-content:space-between;align-items:center">
+        <div class="row" style="align-items:center;gap:8px">
+          <div class="badge">#${i+1}</div>
+          <div class="silhouette" style="background:${o.h.color}"></div>
+          <strong>${esc(o.h.name)}</strong>
+        </div>
+        <div class="small">${bettors.length?("Picked by: "+bettors.map(esc).join(', ')):"No picks"}</div>
+      </div>`;
+      orderList.appendChild(li);
+    });
+
+    playerOutcomes.innerHTML='';
+    const by=groupBy(state.picks,'playerId');
+    Object.entries(by).forEach(([pid,arr])=>{
+      const p=byId(pid), li=document.createElement('li');
+      const rows=arr.map(pk=>{
+        const h=state.horses.find(x=>x.id===pk.horseId);
+        return `<div class="row" style="justify-content:space-between">
+          <div>${pk.type.toUpperCase()} • <span class="pill">${esc(h.name)}</span> • <span class="small">${fmt(pk.amount)} bet</span></div>
+          <div class="${pk.win>0?'money':''}">${pk.result} ${pk.win>0?('+ '+fmt(pk.win)):' '}</div>
+        </div>`;
+      }).join('');
+      li.innerHTML=`<div class="row" style="justify-content:space-between;align-items:center">
+        <strong>${esc(p.name)}</strong>
+        <div>Balance: <span class="money">${fmt(p.balance)}</span></div>
+      </div>
+      <div class="card" style="margin-top:8px">${rows}</div>`;
+      playerOutcomes.appendChild(li);
+    });
   }
 
-  // ----- Utils
-  function shuffle(a){for(let i=a.length-1;i>0;i--){const j=rndi(0,i);[a[i],a[j]]=[a[j],a[i]]}return a}
-  function groupBy(a,k){return a.reduce((m,o)=>((m[o[k]]??=[]).push(o),m),{})}
-  function randn(mu=0,s=1){let u=0,v=0;while(u===0)u=Math.random();while(v===0)v=Math.random();const z=Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);return mu+z*s}
-  function esc(s){return s.replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}
-  function fullReset(){state.players=[];state.round=1;state.order=[];state.horses=[];state.picks=[];state.race={duration:20000,trackDistance:3200,t0:0,raf:0,finished:false,results:[],sprites:[]}; renderPlayers(); show('players');}
+  function fullReset(){
+    state.players=[]; state.round=1; state.order=[]; state.horses=[]; state.picks=[];
+    state.race={duration:20000,trackDistance:3200,t0:0,raf:0,finished:false,results:[],sprites:[]};
+    renderPlayers(); show('players');
+  }
 })();
 </script>
 </body>
