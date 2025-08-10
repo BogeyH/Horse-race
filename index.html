@@ -1,4 +1,5 @@
 <!doctype html>
+
 <html lang="en">
 <head>
   <meta charset="utf-8" />
@@ -11,141 +12,144 @@
       --win:#31c48d; --loss:#f05252;
     }
     *{box-sizing:border-box}
-    html,body{margin:0;height:100%;font-family:Inter,system-ui,Segoe UI,Roboto,Arial,sans-serif;color:var(--ink);background:var(--paper)}
+    html,body{margin:0;height:100%;font-family:Inter,system-ui,Segoe UI,Roboto,Arial,sans-serif;color:var(--ink);background:var(--paper)}/* MARQUEE HEADER */
+header{position:sticky;top:0;z-index:60;padding:10px 12px;border-bottom:1px solid #12344a;background:linear-gradient(180deg,#0b1f2a,#0b2536)}
+.marquee{display:flex;align-items:center;gap:10px}
+.sign{position:relative;display:inline-flex;align-items:center;padding:6px 14px;border-radius:16px;background:#081723;box-shadow:0 0 0 2px #183344 inset, 0 0 40px rgba(247,215,116,.08) inset}
+.bulbs{position:absolute;inset:-6px;pointer-events:none;display:grid;grid-template-columns:repeat(16,1fr);gap:4px;filter:drop-shadow(0 0 6px rgba(247,215,116,.45))}
+.bulbs span{width:6px;height:6px;border-radius:50%;background:#5b4a18;animation:blink 1.4s linear infinite}
+.bulbs span:nth-child(odd){animation-delay:.7s}
+@keyframes blink{50%{background:var(--gold)}}
+.logo{font-weight:900;letter-spacing:.6px;color:var(--gold)}
+.status{margin-left:auto;font-variant-numeric:tabular-nums;color:var(--muted)}
+.players-bar{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px}
+.pill{display:flex;gap:8px;align-items:center;padding:8px 12px;border-radius:999px;background:#0f2a3c;border:1px solid #16384d;font-size:14px}
+.pill .dot{width:10px;height:10px;border-radius:50%}
+.pill .bal{font-variant-numeric:tabular-nums;font-weight:800}
 
-    /* MARQUEE HEADER */
-    header{position:sticky;top:0;z-index:60;padding:10px 12px;border-bottom:1px solid #12344a;background:linear-gradient(180deg,#0b1f2a,#0b2536)}
-    .marquee{display:flex;align-items:center;gap:10px}
-    .sign{position:relative;display:inline-flex;align-items:center;padding:6px 14px;border-radius:16px;background:#081723;box-shadow:0 0 0 2px #183344 inset, 0 0 40px rgba(247,215,116,.08) inset}
-    .bulbs{position:absolute;inset:-6px;pointer-events:none;display:grid;grid-template-columns:repeat(16,1fr);gap:4px;filter:drop-shadow(0 0 6px rgba(247,215,116,.45))}
-    .bulbs span{width:6px;height:6px;border-radius:50%;background:#5b4a18;animation:blink 1.4s linear infinite}
-    .bulbs span:nth-child(odd){animation-delay:.7s}
-    @keyframes blink{50%{background:var(--gold)}}
-    .logo{font-weight:900;letter-spacing:.6px;color:var(--gold)}
-    .status{margin-left:auto;font-variant-numeric:tabular-nums;color:var(--muted)}
-    .players-bar{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px}
-    .pill{display:flex;gap:8px;align-items:center;padding:8px 12px;border-radius:999px;background:#0f2a3c;border:1px solid #16384d;font-size:14px}
-    .pill .dot{width:10px;height:10px;border-radius:50%}
-    .pill .bal{font-variant-numeric:tabular-nums;font-weight:800}
+/* LAYOUT */
+.screen{padding:12px 12px 196px;max-width:1000px;margin:0 auto}
+.section{font-size:12px;letter-spacing:.04em;color:var(--muted);text-transform:uppercase;margin:10px 2px}
+.row{display:flex;gap:8px;align-items:center}
+.stack{display:flex;flex-direction:column;gap:10px}
 
-    /* LAYOUT */
-    .screen{padding:12px 12px 196px;max-width:1000px;margin:0 auto}
-    .section{font-size:12px;letter-spacing:.04em;color:var(--muted);text-transform:uppercase;margin:10px 2px}
-    .row{display:flex;gap:8px;align-items:center}
-    .stack{display:flex;flex-direction:column;gap:10px}
+/* BUTTONS */
+.btn{padding:10px 14px;border:1px solid #e9dec2;border-radius:12px;background:var(--cream);color:var(--navy);cursor:pointer;font-weight:700}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff;box-shadow:0 6px 18px rgba(212,61,61,.28)}
+.btn.ghost{background:#f8f0d6;color:#0b1f2a}
+.btn[disabled]{opacity:.5;cursor:not-allowed}
+.switch{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted)}
 
-    /* BUTTONS */
-    .btn{padding:10px 14px;border:1px solid #e9dec2;border-radius:12px;background:var(--cream);color:var(--navy);cursor:pointer;font-weight:700}
-    .btn.primary{background:var(--accent);border-color:var(--accent);color:#fff;box-shadow:0 6px 18px rgba(212,61,61,.28)}
-    .btn.ghost{background:#f8f0d6;color:#0b1f2a}
-    .btn[disabled]{opacity:.5;cursor:not-allowed}
-    .switch{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted)}
+input[type="text"],input[type="number"],select{width:100%;padding:12px;border:1px solid #1a3a4f;border-radius:10px;background:#0f2433;color:var(--cream);font:inherit}
+.card{border:1px solid #153244;border-radius:16px;background:#0f1f2b;box-shadow:0 2px 16px rgba(0,0,0,.35)}
 
-    input[type="text"],input[type="number"],select{width:100%;padding:12px;border:1px solid #1a3a4f;border-radius:10px;background:#0f2433;color:var(--cream);font:inherit}
-    .card{border:1px solid #153244;border-radius:16px;background:#0f1f2b;box-shadow:0 2px 16px rgba(0,0,0,.35)}
+/* DRAFT */
+.turns{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
+.turn{display:flex;gap:6px;align-items:center;padding:6px 10px;border-radius:10px;border:1px solid #16384d;background:#0f2433;font-size:12px}
+.turn.active{outline:2px solid var(--accent)}
+.callout{position:sticky;top:82px;z-index:40;margin:6px 0;padding:12px;border-radius:14px;background:#102536;border:1px solid #16384d;display:flex;gap:10px;align-items:center}
+.callout .who{font-weight:800;font-size:16px}
+.callout .bal{font-variant-numeric:tabular-nums;font-weight:800;color:#ffe9a6}
 
-    /* DRAFT */
-    .turns{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
-    .turn{display:flex;gap:6px;align-items:center;padding:6px 10px;border-radius:10px;border:1px solid #16384d;background:#0f2433;font-size:12px}
-    .turn.active{outline:2px solid var(--accent)}
-    .callout{position:sticky;top:82px;z-index:40;margin:6px 0;padding:12px;border-radius:14px;background:#102536;border:1px solid #16384d;display:flex;gap:10px;align-items:center}
-    .callout .who{font-weight:800;font-size:16px}
-    .callout .bal{font-variant-numeric:tabular-nums;font-weight:800;color:#ffe9a6}
+.horses{display:grid;grid-template-columns:1fr;gap:12px}
+@media(min-width:640px){.horses{grid-template-columns:1fr 1fr}}
+.horse-card{position:relative;display:grid;grid-template-columns:80px 1fr auto;gap:12px;align-items:center;padding:14px}
+.horse-card.selected{outline:2px solid var(--accent)}
+.taken{position:absolute;top:8px;right:8px;font-size:12px;background:#5c1a1a;color:#fff;border-radius:8px;padding:3px 8px}
+.name-lg{font-weight:900;font-size:18px;letter-spacing:.2px;color:var(--cream)}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.chip{font-size:11px;border:1px solid #21465d;color:#e6f2f8;background:#0b2536;border-radius:999px;padding:2px 8px}
+.badge{font-weight:900;border:2px solid #e9dec2;border-radius:12px;padding:6px 10px;min-width:84px;text-align:center;background:#fdf5d9;color:#0b1f2a;font-size:16px}
+.sub{font-size:12px;color:var(--muted)}
 
-    .horses{display:grid;grid-template-columns:1fr;gap:12px}
-    @media(min-width:640px){.horses{grid-template-columns:1fr 1fr}}
-    .horse-card{position:relative;display:grid;grid-template-columns:80px 1fr auto;gap:12px;align-items:center;padding:14px}
-    .horse-card.selected{outline:2px solid var(--accent)}
-    .taken{position:absolute;top:8px;right:8px;font-size:12px;background:#5c1a1a;color:#fff;border-radius:8px;padding:3px 8px}
-    .name-lg{font-weight:900;font-size:18px;letter-spacing:.2px;color:var(--cream)}
-    .chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
-    .chip{font-size:11px;border:1px solid #21465d;color:#e6f2f8;background:#0b2536;border-radius:999px;padding:2px 8px}
-    .badge{font-weight:900;border:2px solid #e9dec2;border-radius:12px;padding:6px 10px;min-width:84px;text-align:center;background:#fdf5d9;color:#0b1f2a;font-size:16px}
-    .sub{font-size:12px;color:var(--muted)}
+/* BET DOCK */
+.dock{position:fixed;left:0;right:0;bottom:0;background:linear-gradient(180deg,rgba(11,31,42,.9),#0b1f2a);border-top:1px solid #143349;padding:12px;z-index:80;padding-bottom:calc(12px + env(safe-area-inset-bottom));}
+.betbar{display:grid;gap:8px;align-items:center}
+.bet-input{font-weight:900;font-size:20px;letter-spacing:.3px;padding:14px;background:#0f2433;color:var(--cream);border:2px solid #e9dec2}
+.bet-type{background:#0f2433;color:var(--cream)}
+.chips-row{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px}
+.chips-row .btn{flex:0 0 auto;padding:8px 10px}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.summary{font-size:14px;background:#0f2433;border:1px solid #16384d;padding:10px 12px;border-radius:12px;font-weight:800}
 
-    /* BET DOCK */
-    .dock{position:fixed;left:0;right:0;bottom:0;background:linear-gradient(180deg,rgba(11,31,42,.9),#0b1f2a);border-top:1px solid #143349;padding:12px;z-index:80;padding-bottom:calc(12px + env(safe-area-inset-bottom));}
-    .betbar{display:grid;gap:8px;align-items:center}
-    .bet-input{font-weight:900;font-size:20px;letter-spacing:.3px;padding:14px;background:#0f2433;color:var(--cream);border:2px solid #e9dec2}
-    .bet-type{background:#0f2433;color:var(--cream)}
-    .chips-row{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px}
-    .chips-row .btn{flex:0 0 auto;padding:8px 10px}
-    .actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-    .summary{font-size:14px;background:#0f2433;border:1px solid #16384d;padding:10px 12px;border-radius:12px;font-weight:800}
+@media(min-width:560px){
+  .betbar{grid-template-columns:1fr 160px auto auto;grid-template-areas:
+    'amount type chips actions'
+    'summary summary summary summary'}
+  .bet-input{grid-area:amount}
+  .bet-type{grid-area:type}
+  .chips-row{grid-area:chips}
+  .actions{grid-area:actions}
+  .summary{grid-area:summary}
+}
+@media(max-width:559px){
+  .betbar{grid-template-columns:1fr;grid-template-areas:
+    'amount'
+    'type'
+    'chips'
+    'actions'
+    'summary'}
+  .bet-input{grid-area:amount}
+  .bet-type{grid-area:type}
+  .chips-row{grid-area:chips}
+  .actions{grid-area:actions}
+  .summary{grid-area:summary}
+}
 
-    @media(min-width:560px){
-      .betbar{grid-template-columns:1fr 160px auto auto;grid-template-areas:
-        'amount type chips actions'
-        'summary summary summary summary'}
-      .bet-input{grid-area:amount}
-      .bet-type{grid-area:type}
-      .chips-row{grid-area:chips}
-      .actions{grid-area:actions}
-      .summary{grid-area:summary}
-    }
-    @media(max-width:559px){
-      .betbar{grid-template-columns:1fr;grid-template-areas:
-        'amount'
-        'type'
-        'chips'
-        'actions'
-        'summary'}
-      .bet-input{grid-area:amount}
-      .bet-type{grid-area:type}
-      .chips-row{grid-area:chips}
-      .actions{grid-area:actions}
-      .summary{grid-area:summary}
-    }
+/* TRACK + PAGEANTRY */
+.track-wrap{border:1px solid #153244;border-radius:16px;background:linear-gradient(#0e2840 0 33%, #0b2536 33% 34%, #153b2d 34%);box-shadow:inset 0 6px 40px rgba(0,0,0,.35);padding:12px;position:relative}
+.grandstand{position:absolute;inset:0 0 auto 0;height:70px;background:linear-gradient(180deg,rgba(12,28,40,.8),rgba(12,28,40,0));border-bottom:1px solid rgba(255,255,255,.05);pointer-events:none}
+.flags{position:absolute;left:12px;top:6px;display:flex;gap:6px}
+.flag{width:14px;height:10px;border:1px solid #1a3a4f;border-radius:2px;animation:wave 1.6s ease-in-out infinite}
+.flag:nth-child(2){animation-delay:.2s}
+.flag:nth-child(3){animation-delay:.4s}
+@keyframes wave{50%{transform:skewY(8deg) translateY(1px)}}
 
-    /* TRACK + PAGEANTRY */
-    .track-wrap{border:1px solid #153244;border-radius:16px;background:linear-gradient(#0e2840 0 33%, #0b2536 33% 34%, #153b2d 34%);box-shadow:inset 0 6px 40px rgba(0,0,0,.35);padding:12px;position:relative}
-    .grandstand{position:absolute;inset:0 0 auto 0;height:70px;background:linear-gradient(180deg,rgba(12,28,40,.8),rgba(12,28,40,0));border-bottom:1px solid rgba(255,255,255,.05);pointer-events:none}
-    .flags{position:absolute;left:12px;top:6px;display:flex;gap:6px}
-    .flag{width:14px;height:10px;border:1px solid #1a3a4f;border-radius:2px;animation:wave 1.6s ease-in-out infinite}
-    .flag:nth-child(2){animation-delay:.2s}
-    .flag:nth-child(3){animation-delay:.4s}
-    @keyframes wave{50%{transform:skewY(8deg) translateY(1px)}}
+.viewport{position:relative;overflow:hidden;border-radius:12px;background:linear-gradient(90deg,#1a3144,#122838)}
+.fx{position:absolute;inset:0;pointer-events:none}
+.starter{position:absolute;left:18px;top:14px;display:flex;gap:6px;align-items:center;padding:6px 8px;border-radius:10px;background:#081d2a;border:1px solid #17384b}
+.lamp{width:12px;height:12px;border-radius:50%;background:#2b2b2b;box-shadow:0 0 0 1px #000 inset}
+.lamp.on.red{background:#d43d3d;box-shadow:0 0 12px #d43d3d}
+.lamp.on.yellow{background:#f7d774;box-shadow:0 0 12px #f7d774}
+.lamp.on.green{background:#3bc97c;box-shadow:0 0 12px #3bc97c}
 
-    .viewport{position:relative;overflow:hidden;border-radius:12px;background:linear-gradient(90deg,#1a3144,#122838)}
-    .fx{position:absolute;inset:0;pointer-events:none}
-    .starter{position:absolute;left:18px;top:14px;display:flex;gap:6px;align-items:center;padding:6px 8px;border-radius:10px;background:#081d2a;border:1px solid #17384b}
-    .lamp{width:12px;height:12px;border-radius:50%;background:#2b2b2b;box-shadow:0 0 0 1px #000 inset}
-    .lamp.on.red{background:#d43d3d;box-shadow:0 0 12px #d43d3d}
-    .lamp.on.yellow{background:#f7d774;box-shadow:0 0 12px #f7d774}
-    .lamp.on.green{background:#3bc97c;box-shadow:0 0 12px #3bc97c}
+.track{position:relative;height:calc(58px * 8 + 8px); width:3600px}
+.lane{position:relative;display:flex;align-items:center;height:58px;border-top:1px dashed rgba(255,255,255,.08)}
+.lane:first-child{border-top:none}
+.runner{position:absolute;left:8px;display:flex;align-items:center;gap:8px;transition:transform .12s cubic-bezier(.22,.61,.36,1)}
+.runner .name{font-size:12px;padding:2px 8px;border-radius:999px;background:#0f2433;border:1px solid #16384d;color:var(--cream)}
+.runner .tag{font-size:11px;color:#1b1b1b;background:var(--gold);padding:2px 6px;border-radius:6px;font-weight:800}
+.runner.player .name{border-color:var(--accent);box-shadow:0 0 0 2px rgba(212,61,61,.25)}
+.finish{position:absolute;left:3450px;top:0;bottom:0;width:10px;background:repeating-linear-gradient(180deg,#fff,#fff 8px,#222 8px,#222 16px);opacity:.95}
 
-    .track{position:relative;height:calc(58px * 8 + 8px); width:3600px}
-    .lane{position:relative;display:flex;align-items:center;height:58px;border-top:1px dashed rgba(255,255,255,.08)}
-    .lane:first-child{border-top:none}
-    .runner{position:absolute;left:8px;display:flex;align-items:center;gap:8px;transition:transform .12s cubic-bezier(.22,.61,.36,1)}
-    .runner .name{font-size:12px;padding:2px 8px;border-radius:999px;background:#0f2433;border:1px solid #16384d;color:var(--cream)}
-    .runner .tag{font-size:11px;color:#1b1b1b;background:var(--gold);padding:2px 6px;border-radius:6px;font-weight:800}
-    .runner.player .name{border-color:var(--accent);box-shadow:0 0 0 2px rgba(212,61,61,.25)}
-    .finish{position:absolute;left:3450px;top:0;bottom:0;width:10px;background:repeating-linear-gradient(180deg,#fff,#fff 8px,#222 8px,#222 16px);opacity:.95}
+.pos{font-size:11px;font-weight:700;padding:2px 6px;border-radius:8px;border:1px solid #1a3a4f;background:#0e2030;color:var(--cream)}
+.pos.p1{background:var(--accent);border-color:var(--accent)}
+.pos.p2{background:#d9c9a0;color:#1a1a1a;border-color:#d9c9a0}
+.pos.p3{background:#7aa1b8}
 
-    .pos{font-size:11px;font-weight:700;padding:2px 6px;border-radius:8px;border:1px solid #1a3a4f;background:#0e2030;color:var(--cream)}
-    .pos.p1{background:var(--accent);border-color:var(--accent)}
-    .pos.p2{background:#d9c9a0;color:#1a1a1a;border-color:#d9c9a0}
-    .pos.p3{background:#7aa1b8}
+.countdown{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:58px;color:#fff;text-shadow:0 2px 16px rgba(0,0,0,.55);pointer-events:none}
+.announcer{margin-top:8px;font-size:14px}
+.leaderboard{margin-top:8px}
+.board{display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center}
+.rank{width:26px;height:26px;border-radius:999px;background:#102a3b;display:flex;align-items:center;justify-content:center;border:1px solid #1a3a4f}
 
-    .countdown{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:58px;color:#fff;text-shadow:0 2px 16px rgba(0,0,0,.55);pointer-events:none}
-    .announcer{margin-top:8px;font-size:14px}
-    .leaderboard{margin-top:8px}
-    .board{display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center}
-    .rank{width:26px;height:26px;border-radius:999px;background:#102a3b;display:flex;align-items:center;justify-content:center;border:1px solid #1a3a4f}
+/* DIALOGS */
+dialog{border:none;border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,.45);padding:16px;max-width:680px;background:#0f1f2b;color:var(--cream);border:1px solid #153244}
+dialog::backdrop{background:rgba(0,0,0,.55)}
+.turn-modal h2{margin:0 0 6px 0;font-size:20px}
+.turn-modal .big{font-size:32px;font-weight:900}
+.turn-modal .bal{font-variant-numeric:tabular-nums;color:#ffe9a6;font-weight:900}
+.turn-modal .row{justify-content:flex-end}
 
-    /* DIALOGS */
-    dialog{border:none;border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,.45);padding:16px;max-width:680px;background:#0f1f2b;color:var(--cream);border:1px solid #153244}
-    dialog::backdrop{background:rgba(0,0,0,.55)}
-    .turn-modal h2{margin:0 0 6px 0;font-size:20px}
-    .turn-modal .big{font-size:32px;font-weight:900}
-    .turn-modal .bal{font-variant-numeric:tabular-nums;color:#ffe9a6;font-weight:900}
-    .turn-modal .row{justify-content:flex-end}
+/* RESULTS flair */
+.podium{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;align-items:end}
+.podium .step{background:#0c2330;border:1px solid #143449;border-radius:10px;text-align:center;padding:6px 6px 10px}
+.podium .g{background:linear-gradient(#f7d774,#b28e2b);color:#1a1a1a}
 
-    /* RESULTS flair */
-    .podium{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;align-items:end}
-    .podium .step{background:#0c2330;border:1px solid #143449;border-radius:10px;text-align:center;padding:6px 6px 10px}
-    .podium .g{background:linear-gradient(#f7d774,#b28e2b);color:#1a1a1a}
+/* Setup CTA */
+.setup-cta{position:sticky;bottom:0;z-index:50;background:linear-gradient(180deg,rgba(11,31,42,.2),#0b1f2a);padding:10px;border-top:1px solid #143349;border-bottom-left-radius:16px;border-bottom-right-radius:16px}
+.setup-hint{font-size:12px;color:var(--muted);margin:4px 2px 8px}
+
   </style>
 </head>
 <body>
@@ -159,45 +163,40 @@
       <div class="status" id="status">Setup</div>
     </div>
     <div class="players-bar" id="players-bar"></div>
-  </header>
-
-  <!-- Setup -->
-  <main class="screen" id="setup">
+  </header>  <!-- Setup -->  <main class="screen" id="setup">
     <div class="section">Add players</div>
     <div class="card" style="padding:12px">
       <div id="player-list" class="stack"></div>
       <div class="row">
         <input id="new-player" type="text" placeholder="Player name"/>
-        <button class="btn" id="add-player">Add</button>
+        <button class="btn" id="add-player">+ Add player</button>
       </div>
       <div class="row" style="justify-content:space-between">
-        <div class="sub">Starting balance</div>
-        <input id="start-balance" type="number" value="1000" min="100" step="50" style="width:120px"/>
+        <label class="sub" for="start-balance">Starting balance</label>
+        <input id="start-balance" type="number" value="1000" min="100" step="50" style="width:140px" inputmode="numeric"/>
+      </div>
+      <div class="setup-hint" id="setup-hint">Need at least 2 players.</div>
+      <div class="row" style="gap:6px;flex-wrap:wrap">
+        <button class="btn ghost" id="quick-2">Quick start (2)</button>
+        <button class="btn ghost" id="quick-4">Quick start (4)</button>
+      </div>
+      <div class="setup-cta">
+        <button id="start-draft" class="btn primary" disabled style="width:100%">Start game</button>
       </div>
     </div>
-    <div class="row" style="margin-top:10px">
-      <button id="start-draft" class="btn primary" disabled>Start draft</button>
-    </div>
-  </main>
-
-  <!-- Draft -->
-  <main class="screen" id="draft" hidden>
+  </main>  <!-- Draft -->  <main class="screen" id="draft" hidden>
     <div class="section"><span id="turn-label">Draft</span></div>
-    <div id="turns" class="turns"></div>
+    <div id="turns" class="turns"></div><div class="callout" id="callout" hidden>
+  <div class="dot" id="callout-dot" style="width:12px;height:12px;border-radius:50%"></div>
+  <div class="who" id="callout-who"></div>
+  <div class="sub">Balance:</div>
+  <div class="bal" id="callout-bal"></div>
+</div>
 
-    <div class="callout" id="callout" hidden>
-      <div class="dot" id="callout-dot" style="width:12px;height:12px;border-radius:50%"></div>
-      <div class="who" id="callout-who"></div>
-      <div class="sub">Balance:</div>
-      <div class="bal" id="callout-bal"></div>
-    </div>
+<div id="horse-grid" class="horses"></div>
+<p class="sub" id="fav-hint" style="margin-top:6px"></p>
 
-    <div id="horse-grid" class="horses"></div>
-    <p class="sub" id="fav-hint" style="margin-top:6px"></p>
-  </main>
-
-  <!-- Race -->
-  <main class="screen" id="race" hidden>
+  </main>  <!-- Race -->  <main class="screen" id="race" hidden>
     <div class="section">Race — Scrolling straight line (20s)</div>
     <div class="track-wrap">
       <div class="grandstand"></div>
@@ -219,10 +218,7 @@
     <div class="row" style="margin-top:10px">
       <button class="btn primary" id="next-race" hidden>Next race</button>
     </div>
-  </main>
-
-  <!-- Bottom bet dock -->
-  <div class="dock" id="dock" hidden>
+  </main>  <!-- Bottom bet dock -->  <div class="dock" id="dock" hidden>
     <div class="betbar">
       <input id="bet-amount" class="bet-input" type="number" inputmode="numeric" pattern="[0-9]*" min="1" placeholder="Bet amount" aria-label="Bet amount" />
       <select id="bet-type" class="bet-type" aria-label="Bet type">
@@ -242,18 +238,14 @@
       </div>
       <div id="bet-summary" class="summary">—</div>
     </div>
-  </div>
-
-  <dialog id="turn-modal" class="turn-modal">
+  </div>  <dialog id="turn-modal" class="turn-modal">
     <h2>It is your turn</h2>
     <div class="big" id="tm-name">Player</div>
     <div style="margin:6px 0 14px 0">Balance: <span class="bal" id="tm-bal">1,000</span></div>
     <div class="row">
       <button class="btn" id="tm-begin">Start selection</button>
     </div>
-  </dialog>
-
-  <dialog id="result-modal">
+  </dialog>  <dialog id="result-modal">
     <h3 id="result-title" style="margin:4px 0 8px">Results</h3>
     <div id="result-body" style="margin-bottom:12px"></div>
     <div class="sub" id="result-sub"></div>
@@ -261,11 +253,9 @@
       <button class="btn" id="again">Next race</button>
       <button class="btn" id="reset">Reset</button>
     </div>
-  </dialog>
-
-<script>
+  </dialog><script>
 (function(){
-  const NUM_LANES = 8;
+  const NUM_LANES = 8; // also max players
   const RACE_DURATION = 20000; // 20s (screen experience)
   const PLACE_FACTOR = 0.55;
 
@@ -277,66 +267,89 @@
     turnOrder: [],
     turnPtr: 0,
     turnReady: true,
-    finishOrder: [], // precomputed race finish order
-    finishTimes: []  // per-horse finish times in ms, aligned to finishOrder
+    finishOrder: [],
+    finishTimes: []
   };
 
   const el = (id)=>document.getElementById(id);
   const qs = (s)=>document.querySelector(s);
   const fmt = (n)=>Number(n).toLocaleString(undefined,{maximumFractionDigits:0});
 
-  // Safe ID generator (avoids crypto.randomUUID() crashes on older browsers)
   function uid(){
     try{ if(window.crypto && crypto.randomUUID) return crypto.randomUUID(); }catch(e){}
     return 'id-' + Math.random().toString(36).slice(2) + '-' + Date.now();
   }
 
-  // Audio (WebAudio, no files)
+  // Audio
   let audioCtx = null; try{ audioCtx = typeof AudioContext!=="undefined"? new AudioContext(): null; }catch(e){ audioCtx=null; }
   const sfxEnabled = ()=> el('sfx')?.checked && audioCtx;
-  function tone(freq, time, type='sine', gain=0.05, t0){
-    if(!sfxEnabled()) return; const now = t0 ?? audioCtx.currentTime; const o = audioCtx.createOscillator(); const g = audioCtx.createGain();
-    o.type = type; o.frequency.value=freq; g.gain.value=gain; o.connect(g); g.connect(audioCtx.destination); o.start(now); o.stop(now+time); return {o,g};
-  }
-  function fanfare(){ if(!sfxEnabled()) return; const now = audioCtx.currentTime; tone(466,.18,'square',.05,now); tone(587,.18,'square',.05,now+.19); tone(698,.24,'square',.06,now+.40); tone(880,.32,'square',.06,now+.74); }
-  function crowdCheer(){ if(!sfxEnabled()) return; const now=audioCtx.currentTime; tone(220,.4,'sawtooth',.01,now); tone(330,.5,'sawtooth',.01,now+.1); }
+  function tone(freq, time, type='sine', gain=0.05, t0){ if(!sfxEnabled()) return; const now=t0??audioCtx.currentTime; const o=audioCtx.createOscillator(); const g=audioCtx.createGain(); o.type=type; o.frequency.value=freq; g.gain.value=gain; o.connect(g); g.connect(audioCtx.destination); o.start(now); o.stop(now+time); }
+  function fanfare(){ if(!sfxEnabled()) return; const now=audioCtx.currentTime; tone(466,.18,'square',.05,now); tone(587,.18,'square',.05,now+.19); tone(698,.24,'square',.06,now+.40); tone(880,.32,'square',.06,now+.74); }
 
-  // Confetti FX
+  // Confetti
   const confetti = (()=>{ let ctx,w,h,parts=[]; const N=140; function init(){ const c=el('fx'); ctx=c.getContext('2d'); w=c.width=c.clientWidth; h=c.height=c.clientHeight; parts=[]; for(let i=0;i<N;i++){ parts.push({x:Math.random()*w,y:-Math.random()*h,r:4+Math.random()*4,vY:1+Math.random()*3,vX:-1+Math.random()*2,rot:Math.random()*6}); } } function draw(){ if(!ctx) return; ctx.clearRect(0,0,w,h); parts.forEach(p=>{ p.y+=p.vY; p.x+=p.vX; p.rot+=0.08; if(p.y>h) p.y=-10; ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.rot); ctx.fillStyle=`hsl(${(p.y/4)%360} 80% 60%)`; ctx.fillRect(-p.r/2,-p.r/2,p.r,p.r); ctx.restore(); }); requestAnimationFrame(draw);} return {start(){init(); draw();}, stop(){const c=el('fx'); if(c) c.getContext('2d').clearRect(0,0,c.width,c.height);} } )();
 
   // Utils
   function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]] } return a }
   function playerColor(i){ const h = Math.round((i*137.508) % 360); return `hsl(${h} 70% 60%)`; }
 
-  // --------- Setup ---------
+  // ---------- Setup Screen ----------
   function renderSetup(){
     el('status').textContent='Setup';
     const list = el('player-list'); list.innerHTML='';
+
     state.players.forEach((p,i)=>{
       const row = document.createElement('div'); row.className='row';
-      row.innerHTML = `<input type="text" value="${p.name}" data-i="${i}"/>
-                       <span class="sub">${fmt(p.balance)} credits</span>
-                       <button class=\"btn\" data-del=\"${i}\">Remove</button>`;
-      row.querySelector('input').addEventListener('input', e=>{ p.name=e.target.value.trim(); updatePlayersBar(); });
-      row.querySelector('[data-del]').addEventListener('click', ()=>{ state.players.splice(i,1); renderSetup(); updateStartDisabled(); updatePlayersBar(); });
+      row.innerHTML = `
+        <span class="sub" style="min-width:70px">Player ${i+1}</span>
+        <input type="text" value="${p.name}" data-i="${i}" placeholder="Name"/>
+        <button class=\"btn\" data-del=\"${i}\" aria-label=\"Remove\">🗑</button>`;
+      row.querySelector('input').addEventListener('input', e=>{ p.name=e.target.value; updatePlayersBar(); });
+      row.querySelector('[data-del]').addEventListener('click', ()=>{ state.players.splice(i,1); renderSetup(); });
       list.appendChild(row);
     });
-    updateStartDisabled(); updatePlayersBar();
-  }
-  function updateStartDisabled(){ el('start-draft').disabled = state.players.length<2; }
 
-  el('add-player').addEventListener('click', ()=>{
-    const name = el('new-player').value.trim() || `Player ${state.players.length+1}`;
+    refreshStartCTA();
+    updatePlayersBar();
+    el('new-player').placeholder = `Player ${state.players.length+1} name`;
+  }
+
+  function refreshStartCTA(){
+    const count = state.players.length;
+    const hint = el('setup-hint');
+    if(count<2){ hint.textContent = `Need at least 2 players (current: ${count}).`; }
+    else if(count>NUM_LANES){ hint.textContent = `Max ${NUM_LANES} players. Remove ${count-NUM_LANES} to continue.`; }
+    else { hint.textContent = `${count} ready. Tap Start.`; }
+    el('start-draft').disabled = !(count>=2 && count<=NUM_LANES);
+  }
+
+  function addPlayer(name){
+    if(state.players.length>=NUM_LANES){ refreshStartCTA(); return; }
     const bal = Math.max(100, Number(el('start-balance').value||1000));
     const color = playerColor(state.players.length);
-    state.players.push({id:uid(), name, balance:bal, color, betType:'win', bet:0, horseIndex:null});
-    el('new-player').value=''; renderSetup();
+    const safeName = (name||'').trim() || `Player ${state.players.length+1}`;
+    state.players.push({id:uid(), name:safeName, balance:bal, color, betType:'win', bet:0, horseIndex:null});
+    renderSetup();
+    el('new-player').focus();
+  }
+
+  el('add-player').addEventListener('click', ()=>{ addPlayer(el('new-player').value); el('new-player').value=''; });
+  el('new-player').addEventListener('keydown', (e)=>{ if(e.key==='Enter'){ addPlayer(el('new-player').value); el('new-player').value=''; } });
+
+  el('quick-2').addEventListener('click', ()=>{ state.players=[]; addPlayer('Player 1'); addPlayer('Player 2'); });
+  el('quick-4').addEventListener('click', ()=>{ state.players=[]; for(let i=1;i<=4;i++) addPlayer('Player '+i); });
+
+  el('start-balance').addEventListener('input', ()=>{ /* live hint only */ refreshStartCTA(); });
+
+  el('start-draft').addEventListener('click', ()=>{
+    const startBal = Math.max(100, Number(el('start-balance').value||1000));
+    state.players.forEach(p=>{ p.balance = startBal; });
+    startDraft();
   });
 
-  el('start-draft').addEventListener('click', ()=>{ startDraft(); });
   el('back-setup').addEventListener('click', ()=>{ show('setup'); });
 
-  // --------- Draft ---------
+  // ---------- Draft ----------
   function startDraft(){
     state.picks=[]; state.turnOrder = shuffle([...Array(state.players.length).keys()]); state.turnPtr=0; state.turnReady=true;
     state.horses = generateHorses(Math.min(NUM_LANES, Math.max(state.players.length+2,6)));
@@ -369,10 +382,7 @@
     try{ el('turn-modal').showModal(); fanfare(); }catch(e){ }
   }
 
-  el('tm-begin').addEventListener('click',()=>{
-    try{ el('turn-modal').close(); }catch(e){}
-    setTimeout(()=>{ el('bet-amount').focus(); }, 50);
-  });
+  el('tm-begin').addEventListener('click',()=>{ try{ el('turn-modal').close(); }catch(e){} setTimeout(()=>{ el('bet-amount').focus(); }, 50); });
 
   function generateHorses(n){
     const names = uniqueHorseNames(n);
@@ -477,7 +487,7 @@
     else { startRace(); }
   });
 
-  // --------- Race (SMOOTH model with fixed finish order) ---------
+  // ---------- Race (smooth, fixed finish order) ----------
   function startRace(){
     el('status').textContent='Race'; show('race'); el('dock').hidden=true; el('next-race').hidden=true; el('leaderboard').hidden=false;
     const viewport = el('viewport'); const track = el('track'); track.innerHTML = '<div class="countdown" id="countdown"></div><div class="finish"></div>';
@@ -494,22 +504,18 @@
       lane.appendChild(runner); lanes.push({lane, runner});
     }
 
-    // Precompute finish order and times. Winner -> shortest time. Everyone finishes by ~19.5–20.0s
     const weights = state.horses.map(h=>1/h.odds);
     state.finishOrder = weights.map((w,i)=>({i,w})).sort((a,b)=>b.w-a.w).map(x=>x.i);
-    const fastest = 19200 + Math.random()*300; // ~19.2–19.5s
-    const spread = 900; // total spread across field ~0.9s
+    const fastest = 19200 + Math.random()*300;
+    const spread = 900;
     state.finishTimes = Array.from({length:lanes.length}, (_,rank)=> fastest + (rank*(spread/(lanes.length-1||1))));
-    // Map to per-index times
     const finishTimeByIndex = new Array(lanes.length).fill(0);
     state.finishOrder.forEach((horseIdx,rank)=>{ finishTimeByIndex[horseIdx] = state.finishTimes[rank]; });
 
-    // Lights + countdown sequence
     const cd = el('countdown'); const seq = ['3','2','1','Go!']; let ci=0; cd.textContent=seq[ci];
     setTimeout(()=>el('lampR').classList.add('on','red'), 80);
     setTimeout(()=>el('lampY').classList.add('on','yellow'), 380);
     setTimeout(()=>el('lampG').classList.add('on','green'), 740);
-
     const cdInt = setInterval(()=>{ ci++; if(ci<seq.length){ cd.textContent=seq[ci]; }
       else { clearInterval(cdInt); cd.remove(); runRace(viewport, lanes, finishTimeByIndex); } }, 600);
   }
@@ -519,55 +525,42 @@
     const announcer = el('announcer'); announcer.textContent = 'They are off...';
     const board = el('board');
 
-    const trackLength = 3500; // px
-    // Gentle motion envelopes per horse (phase + wobble), shrinks near finish so order stabilizes.
+    const trackLength = 3500;
     const phases = lanes.map(()=>Math.random()*Math.PI*2);
-
-    // Debounce lead announcements
     let lastLeader = -1; let leaderSince = 0; const LEADER_HOLD_MS = 450; let leadSwitches=0;
-
     const maxFinish = Math.max(...finishTimeByIndex);
 
     function tick(now){
       const elapsed = Math.min(now-start, maxFinish);
-      const tms = elapsed; // ms
+      const tms = elapsed;
 
       const xs = lanes.map((_,i)=>{
         const T = finishTimeByIndex[i];
-        let base = Math.min(1, tms / T); // ideal normalized progress
-        // two slow waves (smooth surges) — amplitude tapers as finish nears
-        const amp = 0.045 * (1 - base); // at start up to 4.5%, near end ~0
-        const w1 = 2*Math.PI / 2200; // ~0.45Hz
-        const w2 = 2*Math.PI / 1400; // ~0.7Hz
+        let base = Math.min(1, tms / T);
+        const amp = 0.045 * (1 - base);
+        const w1 = 2*Math.PI / 2200; const w2 = 2*Math.PI / 1400;
         const offset = amp * ( Math.sin(w1*tms + phases[i]) * 0.6 + Math.sin(w2*tms + phases[i]*1.3) * 0.4 );
         const prog = Math.max(0, Math.min(1, base + offset));
         return 50 + prog * trackLength;
       });
 
-      // Apply transforms
       xs.forEach((x,i)=>{ lanes[i].runner.style.transform = `translateX(${x}px)`; });
 
-      // Determine current race order by position (for UI only). After everyone finishes, we will lock podium using finishOrder.
       const orderNow = xs.map((x,i)=>({i,x})).sort((a,b)=>b.x-a.x).map(o=>o.i);
 
-      // Top 3 markers
       lanes.forEach(L=>{ const posEl=L.runner.querySelector('.pos'); posEl.hidden=true; });
       [0,1,2].forEach(rank=>{ const idx = orderNow[rank]; if(idx==null) return; const posEl = lanes[idx].runner.querySelector('.pos'); posEl.hidden=false; posEl.textContent=rank===0?'1st':rank===1?'2nd':'3rd'; posEl.className='pos '+(rank===0?'p1':rank===1?'p2':'p3'); });
 
-      // Smooth leader change announcements
       const leader = orderNow[0];
       if(leader!==lastLeader){ lastLeader = leader; leaderSince = now; }
       if(now - leaderSince > LEADER_HOLD_MS){ announcer.textContent = `${state.horses[leader].name} in front...`; if(leadSwitches===0 || orderNow[0]!==orderNow[1]){ leadSwitches++; } leaderSince = Infinity; }
 
-      // Follow leader with camera
       const maxX = xs[orderNow[0]];
       const viewCenter = Math.max(0, maxX - (el('viewport').clientWidth*0.6));
       el('viewport').scrollTo({left:viewCenter, behavior:'auto'});
 
-      // Live board
       board.innerHTML = orderNow.slice(0,5).map((idx,rank)=>{ const pick = state.picks.find(p=>p.horseIndex===idx); const hName = String(state.horses[idx].name||`Horse ${idx+1}`); return `<div class=\"rank\">${rank+1}</div><div>${hName}${pick?` <span class=\"sub\">(${pick.playerName})</span>`:''}</div><div class=\"sub\">${Math.round(xs[idx])} px</div>`; }).join('');
 
-      // Call race beats
       const frac = tms / maxFinish;
       if(frac>0.22 && frac<0.26) announcer.textContent = 'Settling into rhythm.';
       else if(frac>0.52 && frac<0.56) announcer.textContent = 'Midway — moves brewing.';
@@ -677,13 +670,10 @@
     bar.innerHTML = (state.players||[]).map(p=>`<span class=\"pill\"><span class=\"dot\" style=\"background:${p.color}\"></span><strong>${p.name}</strong><span class=\"bal\">${fmt(p.balance)}</span></span>`).join('');
   }
 
-  // Boot — use safe uid() to avoid crashes on old browsers
-  state.players = [
-    {id:uid(), name:'Player 1', balance:1000, color:playerColor(0), betType:'win', bet:0, horseIndex:null},
-    {id:uid(), name:'Player 2', balance:1000, color:playerColor(1), betType:'win', bet:0, horseIndex:null}
-  ];
+  // Boot — empty; user adds or quick-starts
+  state.players = [];
   renderSetup();
+  el('new-player').focus();
 })();
-</script>
-</body>
+</script></body>
 </html>
