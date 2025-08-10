@@ -113,7 +113,7 @@ input[type="text"],input[type="number"],select{width:100%;padding:12px;border:1p
 .lamp.on.yellow{background:#f7d774;box-shadow:0 0 12px #f7d774}
 .lamp.on.green{background:#3bc97c;box-shadow:0 0 12px #3bc97c}
 
-.track{position:relative;height:calc(58px * 8 + 8px); width:3600px}
+.track{position:relative;height:calc(58px * 6 + 8px); width:3600px}
 .lane{position:relative;display:flex;align-items:center;height:58px;border-top:1px dashed rgba(255,255,255,.08)}
 .lane:first-child{border-top:none}
 .runner{position:absolute;left:8px;display:flex;align-items:center;gap:8px;transition:transform .12s cubic-bezier(.22,.61,.36,1)}
@@ -165,22 +165,23 @@ dialog::backdrop{background:rgba(0,0,0,.55)}
     </div>
     <div class="players-bar" id="players-bar"></div>
   </header>  <!-- Setup -->  <main class="screen" id="setup">
-    <div class="section">Add players</div>
+    <div class="section">Add players (up to 6)</div>
     <div class="card" style="padding:12px">
       <div id="player-list" class="stack"></div>
-      <div class="row">
+      <div class="row" style="gap:6px;flex-wrap:wrap">
         <input id="new-player" type="text" placeholder="Player name"/>
         <button class="btn" id="add-player">+ Add player</button>
+        <button class="btn ghost" id="quick-2">2</button>
+        <button class="btn ghost" id="quick-3">3</button>
+        <button class="btn ghost" id="quick-4">4</button>
+        <button class="btn ghost" id="quick-5">5</button>
+        <button class="btn ghost" id="quick-6">6</button>
       </div>
       <div class="row" style="justify-content:space-between">
         <label class="sub" for="start-balance">Starting balance</label>
         <input id="start-balance" type="number" value="1000" min="100" step="50" style="width:140px" inputmode="numeric"/>
       </div>
       <div class="setup-hint" id="setup-hint">Need at least 2 players.</div>
-      <div class="row" style="gap:6px;flex-wrap:wrap">
-        <button class="btn ghost" id="quick-2">Quick start (2)</button>
-        <button class="btn ghost" id="quick-4">Quick start (4)</button>
-      </div>
       <div class="setup-cta">
         <button id="start-draft" class="btn primary" disabled style="width:100%">Start game</button>
       </div>
@@ -256,7 +257,7 @@ dialog::backdrop{background:rgba(0,0,0,.55)}
     </div>
   </dialog><script>
 (function(){
-  const NUM_LANES = 8; // also max players
+  const NUM_LANES = 6; // also max players
   const RACE_DURATION = 20000; // 20s (screen experience)
   const PLACE_FACTOR = 0.55;
 
@@ -337,7 +338,11 @@ dialog::backdrop{background:rgba(0,0,0,.55)}
   el('add-player').addEventListener('click', ()=>{ addPlayer(el('new-player').value); el('new-player').value=''; });
   el('new-player').addEventListener('keydown', (e)=>{ if(e.key==='Enter'){ addPlayer(el('new-player').value); el('new-player').value=''; } });
 
-  el('quick-2').addEventListener('click', ()=>{ state.players=[]; addPlayer('Player 1'); addPlayer('Player 2'); });
+  el('quick-2').addEventListener('click', ()=>{ state.players=[]; for(let i=1;i<=2;i++) addPlayer('Player '+i); });
+  el('quick-3').addEventListener('click', ()=>{ state.players=[]; for(let i=1;i<=3;i++) addPlayer('Player '+i); });
+  el('quick-4').addEventListener('click', ()=>{ state.players=[]; for(let i=1;i<=4;i++) addPlayer('Player '+i); });
+  el('quick-5').addEventListener('click', ()=>{ state.players=[]; for(let i=1;i<=5;i++) addPlayer('Player '+i); });
+  el('quick-6').addEventListener('click', ()=>{ state.players=[]; for(let i=1;i<=6;i++) addPlayer('Player '+i); }); addPlayer('Player 2'); });
   el('quick-4').addEventListener('click', ()=>{ state.players=[]; for(let i=1;i<=4;i++) addPlayer('Player '+i); });
 
   el('start-balance').addEventListener('input', ()=>{ /* live hint only */ refreshStartCTA(); });
@@ -349,7 +354,7 @@ dialog::backdrop{background:rgba(0,0,0,.55)}
   // ---------- Draft ----------
   function startDraft(){
     state.picks=[]; state.turnOrder = shuffle([...Array(state.players.length).keys()]); state.turnPtr=0; state.turnReady=true;
-    state.horses = generateHorses(Math.min(NUM_LANES, Math.max(state.players.length+2,6)));
+    state.horses = generateHorses(NUM_LANES);
     show('draft'); renderTurns(); renderDraft();
     el('dock').hidden=false; el('bet-amount').value=''; el('bet-type').value='win';
     updatePlayersBar(); updateBetSummary();
@@ -407,9 +412,9 @@ dialog::backdrop{background:rgba(0,0,0,.55)}
     } else { el('fav-hint').textContent=''; }
 
     state.horses.forEach((h,i)=>{
-      const taken = state.picks.some(pk=>pk.horseIndex===i);
+      const taken = false; // duplicates allowed
       const card = document.createElement('button');
-      card.className='card horse-card'; card.type='button'; card.disabled = taken;
+      card.className='card horse-card'; card.type='button'; card.disabled = false; // allow duplicates
       const hName = String(h.name||`Horse ${i+1}`);
       card.innerHTML = `
         <div>${h.img}</div>
@@ -424,11 +429,8 @@ dialog::backdrop{background:rgba(0,0,0,.55)}
         <div>
           <div class="badge">${h.odds.toFixed(2)}x</div>
           <div class="sub" style="text-align:center">Place ${h.placeOdds.toFixed(2)}x</div>
-        </div>
-        <span class="taken" ${taken? '':'hidden'}>Selected</span>`;
-      if(taken){
-        const pick = state.picks.find(pk=>pk.horseIndex===i);
-        if(pick) card.querySelector('.taken').textContent = `Selected by ${pick.playerName}`;
+        </div>`;
+      /* duplicate picks allowed; no taken labeling */`;
       }
       card.addEventListener('click',()=>selectHorse(i, card));
       grid.appendChild(card);
@@ -489,7 +491,7 @@ dialog::backdrop{background:rgba(0,0,0,.55)}
     el('status').textContent='Race'; show('race'); el('dock').hidden=true; el('next-race').hidden=true; el('leaderboard').hidden=false;
     const viewport = el('viewport'); const track = el('track'); track.innerHTML = '<div class="countdown" id="countdown"></div><div class="finish"></div>';
 
-    const lanesCount = Math.min(NUM_LANES, state.horses.length);
+    const lanesCount = NUM_LANES;
     const pickByHorse = new Map(state.picks.map(p=>[p.horseIndex,p]));
 
     const lanes=[];
