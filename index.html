@@ -21,7 +21,7 @@
   .ghost{background:transparent;border:1px solid var(--muted);color:var(--ink);border-radius:12px;padding:10px 14px}
   .pill{background:#123042;color:var(--ink);border:1px solid #22465b;border-radius:999px;padding:6px 10px;font-size:.9rem}
   .label{font-size:.85rem;color:var(--muted)}
-  .input{width:100%;background:#0d2230;color:var(--ink);border:1px solid #254b61;border-radius:10px;padding:10px}
+  .input{width:100%;background:#0d2230;color:#EDE6CB;border:1px solid #254b61;border-radius:10px;padding:10px}
   .kpi{display:flex;align-items:center;justify-content:space-between;background:#0f2636;border:1px solid #22465b;border-radius:12px;padding:10px 12px}
   .badge{padding:4px 8px;border-radius:8px;background:#173448;font-size:.85rem}
   .money{font-weight:700;color:#FFE8A3}
@@ -31,7 +31,7 @@
   .list li{padding:8px 0;border-bottom:1px solid #183244}
   .list li:last-child{border-bottom:none}
 
-  /* Race area */
+  /* Race */
   .race-shell{position:relative;height:72vh;min-height:460px;border-radius:16px;overflow:hidden;background:linear-gradient(#0B1F2A 0 30%,#0A1D2A 30% 100%);border:1px solid #1f3d50}
   .track{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:flex-end;padding:0 8px 64px}
   .lanesViewport{position:relative;margin:0 auto;width:min(720px,100%);height:100%;overflow:hidden}
@@ -42,11 +42,11 @@
   .finishLine{position:absolute;left:8px;right:8px;height:10px;background:repeating-linear-gradient(90deg,#eee 0 18px,#111 18px 36px);border:1px solid #223f51;border-left:none;border-right:none}
   .split{position:absolute;left:8px;right:8px;height:2px;background:#1f3f52;opacity:.5}
   .split label{position:absolute;right:6px;top:-10px;font-size:.75rem;color:#93b7c9}
-  .gate{position:absolute;left:8px;right:8px;height:14px;background:repeating-linear-gradient(90deg,#eee 0 18px,#111 18px 36px);border-top:1px solid #223f51;transform-origin:top;transform:scaleY(1);transition:transform .45s ease}
+  .gate{position:absolute;left:8px;right:8px;height:14px;background:repeating-linear-gradient(90deg,#eee 0 18px,#111 18px 36px);border-bottom:1px solid #223f51;transform-origin:top;transform:scaleY(1);transition:transform .45s ease}
   .gate.open{transform:scaleY(0)}
   .horse{position:absolute;display:flex;align-items:center;gap:10px;left:14px;transform:translateY(0)}
   .silhouette{width:44px;height:32px;border-radius:6px;box-shadow:0 0 0 2px rgba(0,0,0,.25) inset}
-  .horseTag{background:#0f2a3a;border:1px solid #2b4d60;color:var(--ink);padding:6px 8px;border-radius:10px;font-weight:600;white-space:nowrap}
+  .horseTag{background:#0f2a3a;border:1px solid #2b4d60;color:#EDE6CB;padding:6px 8px;border-radius:10px;font-weight:600;white-space:nowrap}
   .leader{filter:drop-shadow(0 0 10px rgba(212,61,61,.6))}
   .top2 .horseTag{border-color:#d0be6b}
   .top1 .horseTag{border-color:#ffd46b}
@@ -59,7 +59,7 @@
     .silhouette{width:50px;height:36px}
   }
 
-  /* Stats + odds */
+  /* Cards: stats + odds */
   .odds{margin-top:8px;display:flex;gap:8px;flex-wrap:wrap}
   .odds .chip{background:#123043;border:1px solid #274c5f;border-radius:999px;padding:6px 10px}
   .statRow{display:flex;gap:8px;align-items:center;margin-top:6px}
@@ -137,7 +137,7 @@
 
   <!-- Race -->
   <section id="screen-race" class="grid hidden">
-    <div class="card"><h2>Race</h2><div class="small">20 seconds • Top-to-bottom • Lead changes</div></div>
+    <div class="card"><h2>Race</h2><div class="small">20 seconds • Top to bottom • Front pack camera</div></div>
     <div class="race-shell">
       <div class="ticker" id="raceTicker"></div>
       <div class="track">
@@ -168,6 +168,30 @@
 
 <script>
 (function(){
+  // ----- Real horse names (200)
+  const REAL_NAMES = [
+"Secretariat","Man o’ War","Seabiscuit","Citation","War Admiral","Affirmed","Alydar","Spectacular Bid","Sunday Silence","Easy Goer",
+"Northern Dancer","Ruffian","Zenyatta","Black Caviar","Frankel","American Pharoah","Justify","Flightline","Arrogate","Curlin",
+"Ghostzapper","Gun Runner","California Chrome","Winx","Phar Lap","Omaha","Whirlaway","Count Fleet","Gallant Fox","Native Dancer",
+"Bold Ruler","Nashua","Kelso","Buckpasser","Forego","John Henry","Damascus","Dr. Fager","Alysheba","Cigar",
+"Invasor","Peintre Celebre","Dancing Brave","Dubai Millennium","Sea The Stars","Galileo","Montjeu","Deep Impact","Harbinger","Enable",
+"Tiger Roll","Red Rum","Desert Orchid","Kauto Star","Sprinter Sacre","Denman","Big Brown","Smarty Jones","Funny Cide","Barbaro",
+"Rags to Riches","Lady’s Secret","Winning Colors","Genuine Risk","Serena’s Song","Personal Ensign","Beholder","Monomoy Girl","Rachel Alexandra","Havre de Grace",
+"Blind Luck","Songbird","Tepin","Goldikova","Treve","Miesque","Dahlia","Ouija Board","Fantastic Light","Highland Reel",
+"Crystal Ocean","Poet’s Word","Desert Crown","Hurricane Run","Almanzor","Sottsass","Vadeni","Paddington","Ace Impact","City of Troy",
+"Auguste Rodin","Baaeed","Palace Pier","Pinatubo","Too Darn Hot","Blue Point","Lord Kanaloa","Lys Gracieux","Chrono Genesis","Almond Eye",
+"Drefong","Nature Strip","Anamoe","Giga Kick","I Wish I Win","Verry Elleegant","Incentivise","Romantic Warrior","Golden Sixty","Beauty Generation",
+"Able Friend","Silent Witness","Sacred Kingdom","Fairy King Prawn","Lucky Sweynesse","Wellington","Lucky Nine","Pakistan Star","Aerovelocity","Danon Smash",
+"Satono Crown","Kizuna","Real Steel","Victoire Pisa","Just A Way","Orfevre","Buena Vista","Vodka","Daiwa Scarlet","Admire Moon",
+"Heart’s Cry","King Kamehameha","El Condor Pasa","Agnes World","Agnes Digital","Eishin Preston","Stay Gold","Duramente","Contrail","Daring Tact",
+"Loves Only You","Titleholder","Equinox","Liberty Island","Do Deuce","Stars on Earth","Songline","Schnell Meister","Gran Alegria","Indy Champ",
+"Maurice","Harp Star","Gentildonna","Gold Ship","Epiphaneia","Le Vent Se Leve","Chuwa Wizard","T O Keynes","Ushba Tesoro","Panthalassa",
+"Cafe Pharoah","Yoshida","Mind Your Biscuits","Lava Man","Game On Dude","Mucho Macho Man","Paynter","Bayern","Frosted","Honor Code",
+"Tonalist","Palace Malice","Will Take Charge","Shackleford","Dullahan","Hansen","Union Rags","Orb","Palace Episode","Street Sense",
+"Hard Spun","Any Given Saturday","Lawyer Ron","Quality Road","Animal Kingdom","Gio Ponti","Big Drama","Blame","Summer Bird","Mine That Bird",
+"Da’ Tara","Proud Spell","Eight Belles","Dialed In","Always Dreaming","Tapwrit","Essential Quality","Epicenter","Forte","Goldikova II"
+];
+
   // ----- State
   const state={
     players:[], startBalance:1000, round:1, order:[], horses:[], picks:[],
@@ -182,12 +206,19 @@
   // ----- Helpers
   const $=s=>document.querySelector(s), $$=s=>Array.from(document.querySelectorAll(s));
   const fmt=n=>Number(n).toLocaleString(), rnd=(a,b)=>Math.random()*(b-a)+a, rndi=(a,b)=>Math.floor(rnd(a,b+1));
-  const clamp=(v,a,b)=>Math.min(b,Math.max(a,v)); const byId=id=>state.players.find(p=>p.id===id);
+  const clamp=(v,a,b)=>Math.min(b,Math.max(a,v));
+  const byId=id=>state.players.find(p=>p.id===id);
   const pct=v=>Math.round(clamp(v,0,1)*100);
   function randn(mu=0,s=1){let u=0,v=0;while(u===0)u=Math.random();while(v===0)v=Math.random();const z=Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);return mu+z*s}
   function esc(s){return s.replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;","&gt;":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}
   function shuffle(a){for(let i=a.length-1;i>0;i--){const j=rndi(0,i);[a[i],a[j]]=[a[j],a[i]]}return a}
   function groupBy(a,k){return a.reduce((m,o)=>((m[o[k]]??=[]).push(o),m),{})}
+  function sampleNamesFromList(n){
+    const pool=[...REAL_NAMES];
+    const out=[];
+    while(out.length<n && pool.length){ out.push(...pool.splice(rndi(0,pool.length-1),1)); }
+    return out.slice(0,n);
+  }
 
   // ----- Screens
   const screens={players:$('#screen-players'),select:$('#screen-select'),race:$('#screen-race'),results:$('#screen-results')};
@@ -227,20 +258,14 @@
     renderSelect(); show('select'); idx=0; prepTurn();
   }
   function genHorses(n){
-    const colors=Array.from({length:n},(_,i)=>`hsl(${Math.round(i*360/n)} 70% 55%)`), names=namesUnique(n);
+    const colors=Array.from({length:n},(_,i)=>`hsl(${Math.round(i*360/n)} 70% 55%)`);
+    const names=sampleNamesFromList(n);
     return Array.from({length:n},(_,i)=>{
       const speed=clamp(randn(0.65,0.15),0.35,1), stamina=clamp(randn(0.65,0.15),0.35,1), burst=clamp(randn(0.65,0.15),0.35,1);
       const q=speed*0.5+stamina*0.3+burst*0.2, base=rnd(19.2,21.5)-(q-0.65)*2.0, ft=clamp(base,18.8,22.5)*1000;
       const win=clamp(1.6+(1-q)*2.4+rnd(0,0.4),1.4,4.6), plc=clamp(win*rnd(0.5,0.7),1.2,Math.max(1.2,win*0.85));
       return {id:crypto.randomUUID(),name:names[i],color:colors[i],stats:{speed,stamina,burst,q},finishTime:ft,odds:{win,place:plc}};
     });
-  }
-  function namesUnique(n){
-    const A=["Crimson","Silent","Lucky","Misty","Rapid","Royal","Golden","Shadow","Copper","Icy","Celestial","Wild","Noble","Brave","Silver","Velvet","Savvy","Stout","Amber","Indigo"];
-    const B=["Blaze","Echo","Stride","Comet","Whisper","Dash","Thorn","Venture","Charm","Orbit","Surge","Monarch","Spirit","Horizon","Anthem","Rally","Signal","Voyage","Badge","Tango"];
-    const used=new Set(), out=[];
-    while(out.length<n){const w1=A[rndi(0,A.length-1)], w2=B[rndi(0,B.length-1)]; if(used.has(w1)||used.has(w2)) continue; used.add(w1); used.add(w2); out.push(`${w1} ${w2}`);}
-    return out;
   }
 
   function renderSelect(){
@@ -311,11 +336,9 @@
     state.race.worldHeight=worldH; state.race.padTop=padTop; state.race.padBot=padBot;
 
     lanesWorld.style.height=worldH+'px'; bg.style.height=worldH+'px';
-    // top gate, bottom finish
     gateEl.style.top=padTop+'px';
     finishEl.style.bottom=padBot+'px';
 
-    // splits from top to bottom
     splitMarks.innerHTML='';
     [0.25,0.5,0.75].forEach(f=>{
       const y=padTop + TD*f;
@@ -354,7 +377,7 @@
   }
   function seg(stops,t){for(let i=0;i<stops.length-1;i++){if(t>=stops[i]&&t<stops[i+1])return i}return stops.length-2}
 
-  // ----- Animation (top -> bottom, camera follows leaders)
+  // ----- Animation (camera follows front battle)
   function startRace(){
     setTimeout(()=>gateEl.classList.add('open'),350);
 
@@ -364,9 +387,8 @@
     const vpH=lanesViewport.clientHeight;
     let last=state.race.t0;
 
-    // camera starts at top with horses
     const maxCam = Math.max(0, state.race.worldHeight - vpH);
-    let camY = 0;
+    let camY = 0; // start at top with the gate
     lanesWorld.style.transform = `translateY(${-camY}px)`;
 
     function frame(now){
@@ -378,53 +400,54 @@
 
         const i=seg(S.plan.stops,t);
         let v=S.vBase*S.plan.mul[i];
-        v*=1+0.02*Math.sin((t/1000)*(1.2+S.h.stats.burst*1.6)); // micro-variations
+        v*=1+0.02*Math.sin((t/1000)*(1.2+S.h.stats.burst*1.6));
         S.y += v*dt;
 
-        // solve final segment so all meet their target finish windows
+        // tighten finish window
         const lastI=S.plan.stops.length-2;
         if(i===lastI){
           const rt=(S.h.finishTime-t)/1000, rd=TD-S.y;
           if(rt>0){ v=v*0.5 + (rd/rt)*0.5; S.y += v*dt; }
         }
 
-        // record crossing once
         if(!S.crossed && S.y>=TD){
-          S.crossed=true;
-          S.crossTime=t;
-          S.rank=state.race.rankCounter++;
+          S.crossed=true; S.crossTime=t; S.rank=state.race.rankCounter++;
           state.race.results.push({horseId:S.h.id,finishTime:S.crossTime,rank:S.rank});
         }
 
-        // let them run off the track after finish
-        if(S.y>=TD+runoff){
-          S.y=TD+runoff;
-          S.offtrack=true;
-        }else{
-          allOff=false;
-        }
+        if(S.y>=TD+runoff){ S.y=TD+runoff; S.offtrack=true; }
+        else allOff=false;
 
-        // move sprite: y from 0 (gate) to TD+runoff (off track)
         S.el.style.transform=`translateY(${S.y}px)`;
       }
 
-      // camera: follow the front of the *pack that has not crossed yet*
-      const pack = state.race.sprites.filter(s=>!s.crossed);
-      const lead = pack.length? Math.max(...pack.map(s=>s.y)) : Math.max(...state.race.sprites.map(s=>s.y));
-      const focusWorldY = state.race.padTop + lead; // world coords
-      // keep leader around 65% of the viewport height
-      const target = clamp(focusWorldY - vpH*0.65, 0, maxCam);
-      camY += (target - camY) * 0.08;
-
-      // safety: leader should not fall below 80% of the screen
-      const leaderScreenY = focusWorldY - camY;
-      if (leaderScreenY > vpH*0.80){
-        camY = clamp(focusWorldY - vpH*0.80, 0, maxCam);
+      // ---- Camera on the front battle (top-2 average), never the tail
+      const contenders = state.race.sprites.filter(s=>!s.crossed);
+      let y1, y2;
+      if (contenders.length>=2){
+        const sorted=[...contenders].sort((a,b)=>b.y-a.y);
+        y1=sorted[0].y; y2=sorted[1].y;
+      }else{
+        const sorted=[...state.race.sprites].sort((a,b)=>b.y-a.y);
+        y1=sorted[0].y; y2=sorted[1]?.y ?? (sorted[0].y - 120);
       }
+      const focusY = (y1 + y2) * 0.5;
+      const focusWorldY = state.race.padTop + focusY;
+
+      // target keeps the duel slightly above center
+      const target = clamp(focusWorldY - vpH*0.55, 0, maxCam);
+      camY += (target - camY) * 0.12; // responsive but smooth
+
+      // keep the leader between 35% and 75% of the screen
+      const leaderWorldY = state.race.padTop + y1;
+      const leaderScreenY = leaderWorldY - camY;
+      if (leaderScreenY < vpH*0.35) camY = clamp(leaderWorldY - vpH*0.35, 0, maxCam);
+      if (leaderScreenY > vpH*0.75) camY = clamp(leaderWorldY - vpH*0.75, 0, maxCam);
+
       lanesWorld.style.transform = `translateY(${-camY}px)`;
 
-      // live top-3 based on the current *pack* (or everyone if all crossed)
-      const liveBase = pack.length? pack : state.race.sprites;
+      // live top-3 highlight
+      const liveBase = contenders.length? contenders : state.race.sprites;
       const live=[...liveBase].sort((a,b)=>b.y-a.y);
       state.race.sprites.forEach(S=>S.el.classList.remove('top1','top2','top3','leader'));
       live.forEach((S,i)=>{ if(i===0)S.el.classList.add('top1','leader'); else if(i===1)S.el.classList.add('top2'); else if(i===2)S.el.classList.add('top3'); });
@@ -443,7 +466,6 @@
     const TD=state.race.trackDistance, runoff=state.race.runoff;
 
     if(skip){
-      // order by current progress; lock ranks in that order
       const order=[...state.race.sprites].sort((a,b)=>b.y-a.y);
       order.forEach((S,i)=>{
         if(!S.crossed){
@@ -452,10 +474,8 @@
         }
         S.y=TD+runoff; S.offtrack=true; S.el.style.transform=`translateY(${S.y}px)`;
       });
-      // snap camera near finish
       lanesWorld.style.transform=`translateY(${-(state.race.worldHeight - lanesViewport.clientHeight)}px)`;
     }else{
-      // if any failed to cross due to time cap, force cross in place order
       const remain=state.race.sprites.filter(s=>!s.crossed).sort((a,b)=>b.y-a.y);
       if(remain.length){
         const base=(state.race.results.at(-1)?.finishTime)||20000;
