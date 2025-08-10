@@ -12,45 +12,52 @@
     }
     *{box-sizing:border-box}
     html,body{margin:0;height:100%;font-family:Inter,system-ui,Segoe UI,Roboto,Arial,sans-serif;color:var(--ink);background:var(--paper)}
-    header{padding:12px 16px;background:linear-gradient(180deg,#0b1f2a,#0b2536);border-bottom:1px solid #12344a;position:sticky;top:0;z-index:40;display:flex;flex-direction:column;gap:8px}
+    header{padding:12px 16px;background:linear-gradient(180deg,#0b1f2a,#0b2536);border-bottom:1px solid #12344a;position:sticky;top:0;z-index:50;display:flex;flex-direction:column;gap:8px}
     .topbar{display:flex;justify-content:space-between;align-items:center}
     .status{font-variant-numeric:tabular-nums;color:var(--muted)}
     .players-bar{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px}
-    .pill{display:flex;gap:8px;align-items:center;padding:8px 12px;border-radius:999px;background:#0f2a3c;border:1px solid #16384d;font-size:13px}
+    .pill{display:flex;gap:8px;align-items:center;padding:8px 12px;border-radius:999px;background:#0f2a3c;border:1px solid #16384d;font-size:14px}
     .pill .dot{width:10px;height:10px;border-radius:50%}
-    .pill .bal{font-variant-numeric:tabular-nums;font-weight:700}
+    .pill .bal{font-variant-numeric:tabular-nums;font-weight:800}
 
     .screen{padding:12px 12px 120px;max-width:980px;margin:0 auto}
     .section{font-size:12px;letter-spacing:.04em;color:var(--muted);text-transform:uppercase;margin:10px 2px}
     .row{display:flex;gap:8px;align-items:center}
     .stack{display:flex;flex-direction:column;gap:10px}
 
-    .btn{padding:10px 14px;border:1px solid #1a3a4f;border-radius:12px;background:#0f2a3c;color:var(--cream);cursor:pointer}
+    /* Buttons: light bg for contrast */
+    .btn{padding:10px 14px;border:1px solid #e9dec2;border-radius:12px;background:var(--cream);color:var(--navy);cursor:pointer;font-weight:700}
     .btn.primary{background:var(--accent);border-color:var(--accent);color:#fff;box-shadow:0 6px 18px rgba(212,61,61,.28)}
-    .btn.ghost{background:#0f2433}
+    .btn.ghost{background:#f8f0d6;color:#0b1f2a}
     .btn[disabled]{opacity:.5;cursor:not-allowed}
 
     input[type="text"],input[type="number"],select{width:100%;padding:12px;border:1px solid #1a3a4f;border-radius:10px;background:#0f2433;color:var(--cream);font:inherit}
     .card{border:1px solid #153244;border-radius:16px;background:#0f1f2b;box-shadow:0 2px 16px rgba(0,0,0,.35)}
 
-    /* Draft grid */
-    .horses{display:grid;grid-template-columns:1fr;gap:10px}
-    @media(min-width:560px){.horses{grid-template-columns:1fr 1fr}}
-    .horse-card{position:relative;display:grid;grid-template-columns:64px 1fr auto;gap:10px;align-items:center;padding:12px}
-    .horse-card.selected{outline:2px solid var(--accent)}
-    .taken{position:absolute;top:8px;right:8px;font-size:11px;background:#5c1a1a;color:#fff;border-radius:8px;padding:2px 6px}
-    .badge{font-weight:700;border:1px solid #16384d;border-radius:10px;padding:4px 8px;min-width:74px;text-align:center;background:#0b2536}
-    .sub{font-size:12px;color:var(--muted)}
-
-    /* Turn order */
+    /* Draft: turn order + banner */
     .turns{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
     .turn{display:flex;gap:6px;align-items:center;padding:6px 10px;border-radius:10px;border:1px solid #16384d;background:#0f2433;font-size:12px}
     .turn.active{outline:2px solid var(--accent)}
+    .callout{position:sticky;top:60px;z-index:40;margin:6px 0;padding:12px;border-radius:14px;background:#102536;border:1px solid #16384d;display:flex;gap:10px;align-items:center}
+    .callout .who{font-weight:800;font-size:16px}
+    .callout .bal{font-variant-numeric:tabular-nums;font-weight:800;color:#ffe9a6}
+
+    /* Draft grid made more readable */
+    .horses{display:grid;grid-template-columns:1fr;gap:12px}
+    @media(min-width:640px){.horses{grid-template-columns:1fr 1fr}}
+    .horse-card{position:relative;display:grid;grid-template-columns:72px 1fr auto;gap:12px;align-items:center;padding:14px}
+    .horse-card.selected{outline:2px solid var(--accent)}
+    .taken{position:absolute;top:8px;right:8px;font-size:12px;background:#5c1a1a;color:#fff;border-radius:8px;padding:3px 8px}
+    .name-lg{font-weight:900;font-size:18px;letter-spacing:.2px}
+    .chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+    .chip{font-size:11px;border:1px solid #21465d;color:#e6f2f8;background:#0b2536;border-radius:999px;padding:2px 8px}
+    .badge{font-weight:900;border:2px solid #e9dec2;border-radius:12px;padding:6px 10px;min-width:84px;text-align:center;background:#fdf5d9;color:#0b1f2a;font-size:16px}
+    .sub{font-size:12px;color:var(--muted)}
 
     /* Bottom bar */
-    .dock{position:fixed;left:0;right:0;bottom:0;background:linear-gradient(180deg,rgba(11,31,42,.6),#0b1f2a);border-top:1px solid #143349;padding:10px 12px;z-index:50}
+    .dock{position:fixed;left:0;right:0;bottom:0;background:linear-gradient(180deg,rgba(11,31,42,.6),#0b1f2a);border-top:1px solid #143349;padding:10px 12px;z-index:60}
     .dock-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-    .summary{margin-left:auto;font-size:13px;background:#0f2433;border:1px solid #16384d;padding:8px 10px;border-radius:10px}
+    .summary{margin-left:auto;font-size:14px;background:#0f2433;border:1px solid #16384d;padding:10px 12px;border-radius:12px;font-weight:800}
 
     /* Straight track with scrolling */
     .track-wrap{border:1px solid #153244;border-radius:16px;background:linear-gradient(#0e2840 0 42%, #0b2536 42% 43%, #153b2d 43%);box-shadow:inset 0 6px 40px rgba(0,0,0,.35);padding:12px}
@@ -77,11 +84,12 @@
     .board{display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center}
     .rank{width:26px;height:26px;border-radius:999px;background:#102a3b;display:flex;align-items:center;justify-content:center;border:1px solid #1a3a4f}
 
-    dialog{border:none;border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,.45);padding:16px;max-width:680px;background:#0f1f2b;color:var(--cream);border:1px solid #153244}
+    dialog{border:none;border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,.45);padding:16px;max-width:640px;background:#0f1f2b;color:var(--cream);border:1px solid #153244}
     dialog::backdrop{background:rgba(0,0,0,.55)}
-    table{width:100%;border-collapse:collapse}
-    th,td{padding:8px;border-bottom:1px solid #12344a;text-align:left;font-size:14px}
-    th{font-size:12px;text-transform:uppercase;color:var(--muted)}
+    .turn-modal h2{margin:0 0 6px 0;font-size:20px}
+    .turn-modal .big{font-size:32px;font-weight:900}
+    .turn-modal .bal{font-variant-numeric:tabular-nums;color:#ffe9a6;font-weight:900}
+    .turn-modal .row{justify-content:flex-end}
   </style>
 </head>
 <body>
@@ -116,6 +124,15 @@
   <main class="screen" id="draft" hidden>
     <div class="section"><span id="turn-label">Draft</span></div>
     <div id="turns" class="turns"></div>
+
+    <!-- Call player banner (sticky) -->
+    <div class="callout" id="callout" hidden>
+      <div class="dot" id="callout-dot" style="width:12px;height:12px;border-radius:50%"></div>
+      <div class="who" id="callout-who"></div>
+      <div class="sub">Balance:</div>
+      <div class="bal" id="callout-bal"></div>
+    </div>
+
     <div id="horse-grid" class="horses"></div>
     <p class="sub" id="fav-hint" style="margin-top:6px"></p>
   </main>
@@ -160,6 +177,16 @@
     </div>
   </div>
 
+  <!-- Turn modal (explicit call + balance before selection) -->
+  <dialog id="turn-modal" class="turn-modal">
+    <h2>It is your turn</h2>
+    <div class="big" id="tm-name">Player</div>
+    <div style="margin:6px 0 14px 0">Balance: <span class="bal" id="tm-bal">1,000</span></div>
+    <div class="row">
+      <button class="btn" id="tm-begin">Start selection</button>
+    </div>
+  </dialog>
+
   <!-- Results -->
   <dialog id="result-modal">
     <h3 id="result-title" style="margin:4px 0 8px">Results</h3>
@@ -182,16 +209,18 @@
     picks: [],   // per race
     horses: [],
     order: [],
-    turnOrder: [], // array of player indexes in random order
-    turnPtr: 0     // pointer into turnOrder
+    turnOrder: [], // indexes in random order
+    turnPtr: 0,
+    turnReady: false
   };
 
   const el = (id)=>document.getElementById(id);
   const qs = (s)=>document.querySelector(s);
   const fmt = (n)=>Number(n).toLocaleString(undefined,{maximumFractionDigits:0});
 
-  // Utility
+  // Utils
   function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]] } return a }
+  function playerColor(i){ const h = Math.round((i*137.508) % 360); return `hsl(${h} 70% 60%)`; }
 
   // --------- Setup ---------
   function renderSetup(){
@@ -221,70 +250,14 @@
   el('start-draft').addEventListener('click', ()=>{ startDraft(); });
   el('back-setup').addEventListener('click', ()=>{ show('setup'); });
 
-  // Player colors (distinct HSLs)
-  function playerColor(i){ const h = Math.round((i*137.508) % 360); return `hsl(${h} 70% 60%)`; }
-
-  // --------- Names / colors / images ---------
-  const TITLES=["Sir","Lady","Captain","Saint","Baron","Count","Duke","Doctor","General","Mister","Queen","King","Chief","Major","El","La"];
-  const ADJ=["Midnight","Lucky","Crimson","Silver","Velvet","Rapid","Quiet","Neon","Maple","Royal","Rocket","Golden","Storm","River","Cinder","Icy","Amber","Shadow","Copper","Brave","Blue","Scarlet","Ivory","Turbo","Jet","Mellow","Northern","Western","Urban","Wild","Bold","Spry","Swift","Gilded","Rusty","Misty","Solar","Lunar","Pepper","Noble","Bright","Nimble","Prime","Verdant","Granite","Iron","Maritime","Sable","Ruby"];
-  const NOUN=["Comet","Whisper","Dash","Valor","Charm","Rider","Phantom","Ember","Voyager","Blaze","Echo","Tempo","Spirit","Horizon","Mirage","Thunder","Quasar","Bandit","Biscuit","Falcon","Clover","Nova","Ranger","Marble","Nimbus","Hustle","Rebel","Monarch","Harbor","Zephyr","Harrier","Beacon","Strider","Oracle","Signal","Pioneer","Vector","Summit","Caper","Riddle","Cipher","Pilot","Anchor"];
-
-  function uniqueHorseNames(n){
-    const t = shuffle([...TITLES]);
-    const a = shuffle([...ADJ]);
-    const b = shuffle([...NOUN]);
-    const names=[]; let ti=0, ai=0, bi=0;
-    for(let i=0;i<n;i++){
-      const useTitle = Math.random()<0.35 && ti<t.length;
-      const title = useTitle ? t[ti++]+' ' : '';
-      const adj = a[ai++] || `Unique${i}`;
-      const noun = b[bi++] || `Name${i}`;
-      names.push((title+adj+' '+noun).trim());
-    }
-    return names;
-  }
-
-  function colorPalette(n){
-    const cols=[]; const s=70,l=55;
-    for(let i=0;i<n;i++){
-      const h = Math.round((360/n)*i + Math.random()*8) % 360;
-      cols.push(`hsl(${h} ${s}% ${l}%)`);
-    }
-    return cols;
-  }
-
-  function horseSVG(color, cloth){
-    const pattern = [
-      '<rect x="-4" y="-16" width="26" height="14" rx="3" fill="#fff" stroke="#222"/><path d="M-4 -8 h26" stroke="#222"/>',
-      '<rect x="-4" y="-16" width="26" height="14" rx="3" fill="#fff" stroke="#222"/><circle cx="9" cy="-9" r="4" fill="#222"/>',
-      '<rect x="-4" y="-16" width="26" height="14" rx="3" fill="#fff" stroke="#222"/><path d="M-4 -14 l26 14" stroke="#222"/>',
-      '<rect x="-4" y="-16" width="26" height="14" rx="3" fill="#fff" stroke="#222"/><path d="M-4 -12 h26" stroke="#222"/><path d="M-4 -10 h26" stroke="#222"/>'
-    ][cloth%4];
-    return `<?xml version="1.0"?><svg width="56" height="40" viewBox="0 0 140 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-      <g fill="${color}" stroke="#222" stroke-width="2">
-        <ellipse cx="60" cy="60" rx="36" ry="22"/>
-        <circle cx="100" cy="58" r="16"/>
-        <path d="M108 46 l18 -18 l8 8 l-12 14 z"/>
-        <circle cx="112" cy="54" r="2" fill="#000"/>
-        <rect x="20" y="70" width="14" height="18" rx="3"/>
-        <rect x="58" y="72" width="14" height="18" rx="3"/>
-        <rect x="94" y="72" width="14" height="18" rx="3"/>
-      </g>
-      <g transform="translate(86,76)" stroke="#222">${pattern}</g>
-    </svg>`
-  }
-
   // --------- Draft ---------
   function startDraft(){
-    state.picks=[];
-    state.turnOrder = shuffle([...Array(state.players.length).keys()]);
-    state.turnPtr = 0;
+    state.picks=[]; state.turnOrder = shuffle([...Array(state.players.length).keys()]); state.turnPtr=0; state.turnReady=false;
     state.horses = generateHorses(Math.min(NUM_LANES, Math.max(state.players.length+2,6)));
-    show('draft');
-    renderTurns();
-    renderDraft();
+    show('draft'); renderTurns(); renderDraft();
     el('dock').hidden=false; el('bet-amount').value=''; el('bet-type').value='win';
     updatePlayersBar(); updateBetSummary();
+    openTurnGate();
   }
 
   function currentPlayer(){ return state.players[state.turnOrder[state.turnPtr]]; }
@@ -294,10 +267,28 @@
     state.turnOrder.forEach((pi,idx)=>{
       const p = state.players[pi];
       const chip = document.createElement('div'); chip.className='turn'+(idx===state.turnPtr?' active':'');
-      chip.innerHTML = `<span class="dot" style="background:${p.color}"></span><strong>${p.name}</strong><span class="sub">Bal ${fmt(p.balance)}</span>`;
+      chip.innerHTML = `<span class="dot" style="width:10px;height:10px;border-radius:50%;background:${p.color}"></span><strong>${p.name}</strong><span class="sub">Bal ${fmt(p.balance)}</span>`;
       wrap.appendChild(chip);
     });
   }
+
+  // Gate modal + sticky banner
+  function openTurnGate(){
+    const p = currentPlayer(); state.turnReady=false;
+    el('tm-name').textContent = p.name;
+    el('tm-bal').textContent = fmt(p.balance);
+    el('callout-who').textContent = `${p.name} is picking`;
+    el('callout-bal').textContent = fmt(p.balance);
+    el('callout-dot').style.background = p.color;
+    el('callout').hidden = false;
+    el('turn-modal').showModal();
+  }
+
+  el('tm-begin').addEventListener('click',()=>{
+    state.turnReady=true; el('turn-modal').close();
+    // focus bet input for quick entry
+    setTimeout(()=>{ el('bet-amount').focus(); }, 50);
+  });
 
   function generateHorses(n){
     const names = uniqueHorseNames(n);
@@ -325,12 +316,16 @@
     state.horses.forEach((h,i)=>{
       const taken = state.picks.some(pk=>pk.horseIndex===i);
       const card = document.createElement('button');
-      card.className='card horse-card'; card.type='button'; card.disabled = taken;
+      card.className='card horse-card'; card.type='button'; card.disabled = taken || !state.turnReady;
       card.innerHTML = `
         <div>${h.img}</div>
         <div>
-          <div style="font-weight:700">${h.name}</div>
-          <div class="sub">Speed ${h.attr.speed|0} • Stamina ${h.attr.stamina|0} • Burst ${h.attr.burst|0}</div>
+          <div class="name-lg">${h.name}</div>
+          <div class="chips">
+            <span class="chip">Speed ${h.attr.speed|0}</span>
+            <span class="chip">Stamina ${h.attr.stamina|0}</span>
+            <span class="chip">Burst ${h.attr.burst|0}</span>
+          </div>
         </div>
         <div>
           <div class="badge">${h.odds.toFixed(2)}x</div>
@@ -349,6 +344,7 @@
   }
 
   function selectHorse(i, card){
+    if(!state.turnReady) return;
     const p = currentPlayer(); p.horseIndex = i;
     document.querySelectorAll('.horse-card').forEach(c=>c.classList.remove('selected'));
     card.classList.add('selected');
@@ -359,7 +355,7 @@
   function updateLock(){
     const p = currentPlayer();
     const bet = Number(el('bet-amount').value||0);
-    el('lock-pick').disabled = !(p?.horseIndex!=null && bet>0 && bet<=p.balance);
+    el('lock-pick').disabled = !(state.turnReady && p?.horseIndex!=null && bet>0 && bet<=p.balance);
   }
 
   function updateBetSummary(){
@@ -385,8 +381,8 @@
     p.bet = Number(el('bet-amount').value||0);
     p.betType = el('bet-type').value;
     state.picks.push({playerId:p.id, playerName:p.name, horseIndex:p.horseIndex, bet:p.bet, betType:p.betType});
-    state.turnPtr++;
-    if(state.turnPtr < state.turnOrder.length){ el('bet-amount').value=''; renderTurns(); renderDraft(); updateBetSummary(); }
+    state.turnPtr++; state.turnReady=false;
+    if(state.turnPtr < state.turnOrder.length){ el('bet-amount').value=''; renderTurns(); renderDraft(); updateBetSummary(); openTurnGate(); }
     else { startRace(); }
   });
 
@@ -539,18 +535,68 @@
     el('race').hidden  = which!=='race';
   }
 
-  // Boot with two players default
+  // --------- Names helpers ---------
+  const TITLES=["Sir","Lady","Captain","Saint","Baron","Count","Duke","Doctor","General","Mister","Queen","King","Chief","Major","El","La"];
+  const ADJ=["Midnight","Lucky","Crimson","Silver","Velvet","Rapid","Quiet","Neon","Maple","Royal","Rocket","Golden","Storm","River","Cinder","Icy","Amber","Shadow","Copper","Brave","Blue","Scarlet","Ivory","Turbo","Jet","Mellow","Northern","Western","Urban","Wild","Bold","Spry","Swift","Gilded","Rusty","Misty","Solar","Lunar","Pepper","Noble","Bright","Nimble","Prime","Verdant","Granite","Iron","Maritime","Sable","Ruby"];
+  const NOUN=["Comet","Whisper","Dash","Valor","Charm","Rider","Phantom","Ember","Voyager","Blaze","Echo","Tempo","Spirit","Horizon","Mirage","Thunder","Quasar","Bandit","Biscuit","Falcon","Clover","Nova","Ranger","Marble","Nimbus","Hustle","Rebel","Monarch","Harbor","Zephyr","Harrier","Beacon","Strider","Oracle","Signal","Pioneer","Vector","Summit","Caper","Riddle","Cipher","Pilot","Anchor"];
+
+  function uniqueHorseNames(n){
+    const t = shuffle([...TITLES]);
+    const a = shuffle([...ADJ]);
+    const b = shuffle([...NOUN]);
+    const names=[]; let ti=0, ai=0, bi=0;
+    for(let i=0;i<n;i++){
+      const useTitle = Math.random()<0.35 && ti<t.length;
+      const title = useTitle ? t[ti++]+' ' : '';
+      const adj = a[ai++] || `Unique${i}`;
+      const noun = b[bi++] || `Name${i}`;
+      names.push((title+adj+' '+noun).trim());
+    }
+    return names;
+  }
+
+  function colorPalette(n){
+    const cols=[]; const s=70,l=55;
+    for(let i=0;i<n;i++){
+      const h = Math.round((360/n)*i + Math.random()*8) % 360;
+      cols.push(`hsl(${h} ${s}% ${l}%)`);
+    }
+    return cols;
+  }
+
+  function horseSVG(color, cloth){
+    const pattern = [
+      '<rect x="-4" y="-16" width="26" height="14" rx="3" fill="#fff" stroke="#222"/><path d="M-4 -8 h26" stroke="#222"/>',
+      '<rect x="-4" y="-16" width="26" height="14" rx="3" fill="#fff" stroke="#222"/><circle cx="9" cy="-9" r="4" fill="#222"/>',
+      '<rect x="-4" y="-16" width="26" height="14" rx="3" fill="#fff" stroke="#222"/><path d="M-4 -14 l26 14" stroke="#222"/>',
+      '<rect x="-4" y="-16" width="26" height="14" rx="3" fill="#fff" stroke="#222"/><path d="M-4 -12 h26" stroke="#222"/><path d="M-4 -10 h26" stroke="#222"/>'
+    ][cloth%4];
+    return `<?xml version="1.0"?><svg width="64" height="46" viewBox="0 0 140 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <g fill="${color}" stroke="#222" stroke-width="2">
+        <ellipse cx="60" cy="60" rx="36" ry="22"/>
+        <circle cx="100" cy="58" r="16"/>
+        <path d="M108 46 l18 -18 l8 8 l-12 14 z"/>
+        <circle cx="112" cy="54" r="2" fill="#000"/>
+        <rect x="20" y="70" width="14" height="18" rx="3"/>
+        <rect x="58" y="72" width="14" height="18" rx="3"/>
+        <rect x="94" y="72" width="14" height="18" rx="3"/>
+      </g>
+      <g transform="translate(86,76)" stroke="#222">${pattern}</g>
+    </svg>`
+  }
+
+  // --------- Race payout & results ---------
+  function updatePlayersBar(){
+    const bar = document.getElementById('players-bar');
+    bar.innerHTML = (state.players||[]).map(p=>`<span class=\"pill\"><span class=\"dot\" style=\"background:${p.color}\"></span><strong>${p.name}</strong><span class=\"bal\">${fmt(p.balance)}</span></span>`).join('');
+  }
+
+  // Boot
   state.players = [
     {id:crypto.randomUUID(), name:'Player 1', balance:1000, color:playerColor(0), betType:'win', bet:0, horseIndex:null},
     {id:crypto.randomUUID(), name:'Player 2', balance:1000, color:playerColor(1), betType:'win', bet:0, horseIndex:null}
   ];
   renderSetup();
-
-  // Players bar helpers
-  window.updatePlayersBar = function(){
-    const bar = document.getElementById('players-bar');
-    bar.innerHTML = (state.players||[]).map(p=>`<span class=\"pill\"><span class=\"dot\" style=\"background:${p.color}\"></span><strong>${p.name}</strong><span class=\"bal\">${fmt(p.balance)}</span></span>`).join('');
-  }
 })();
 </script>
 </body>
