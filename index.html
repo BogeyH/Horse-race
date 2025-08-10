@@ -48,7 +48,7 @@
     .horse-card{position:relative;display:grid;grid-template-columns:72px 1fr auto;gap:12px;align-items:center;padding:14px}
     .horse-card.selected{outline:2px solid var(--accent)}
     .taken{position:absolute;top:8px;right:8px;font-size:12px;background:#5c1a1a;color:#fff;border-radius:8px;padding:3px 8px}
-    .name-lg{font-weight:900;font-size:18px;letter-spacing:.2px}
+    .name-lg{font-weight:900;font-size:18px;letter-spacing:.2px;color:var(--cream)}
     .chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
     .chip{font-size:11px;border:1px solid #21465d;color:#e6f2f8;background:#0b2536;border-radius:999px;padding:2px 8px}
     .badge{font-weight:900;border:2px solid #e9dec2;border-radius:12px;padding:6px 10px;min-width:84px;text-align:center;background:#fdf5d9;color:#0b1f2a;font-size:16px}
@@ -211,7 +211,7 @@
     order: [],
     turnOrder: [], // indexes in random order
     turnPtr: 0,
-    turnReady: false
+    turnReady: true // default true so selection is never blocked
   };
 
   const el = (id)=>document.getElementById(id);
@@ -252,12 +252,12 @@
 
   // --------- Draft ---------
   function startDraft(){
-    state.picks=[]; state.turnOrder = shuffle([...Array(state.players.length).keys()]); state.turnPtr=0; state.turnReady=false;
+    state.picks=[]; state.turnOrder = shuffle([...Array(state.players.length).keys()]); state.turnPtr=0; state.turnReady=true; // allow selection immediately
     state.horses = generateHorses(Math.min(NUM_LANES, Math.max(state.players.length+2,6)));
     show('draft'); renderTurns(); renderDraft();
     el('dock').hidden=false; el('bet-amount').value=''; el('bet-type').value='win';
     updatePlayersBar(); updateBetSummary();
-    openTurnGate();
+    openTurnGate(); // still show call + balance, but not required to click
   }
 
   function currentPlayer(){ return state.players[state.turnOrder[state.turnPtr]]; }
@@ -274,19 +274,19 @@
 
   // Gate modal + sticky banner
   function openTurnGate(){
-    const p = currentPlayer(); state.turnReady=false;
+    const p = currentPlayer();
     el('tm-name').textContent = p.name;
     el('tm-bal').textContent = fmt(p.balance);
     el('callout-who').textContent = `${p.name} is picking`;
     el('callout-bal').textContent = fmt(p.balance);
     el('callout-dot').style.background = p.color;
     el('callout').hidden = false;
-    el('turn-modal').showModal();
+    // show, but don't block selection
+    try{ el('turn-modal').showModal(); }catch(e){ /* ignore if not supported */ }
   }
 
   el('tm-begin').addEventListener('click',()=>{
-    state.turnReady=true; el('turn-modal').close();
-    // focus bet input for quick entry
+    try{ el('turn-modal').close(); }catch(e){}
     setTimeout(()=>{ el('bet-amount').focus(); }, 50);
   });
 
@@ -300,7 +300,7 @@
       const temper = 30 + Math.random()*70;
       const score = 0.5*speed + 0.3*stamina + 0.2*burst;
       const odds = Math.max(1.4, Math.round((1/((score)/(n*50)*0.9))*10)/10);
-      return {name,color:colors[i],img:horseSVG(colors[i],i),attr:{speed,stamina,burst,temper},odds,placeOdds:Math.max(1.2,Math.round(odds*PLACE_FACTOR*10)/10)}
+      return {name:String(name||`Horse ${i+1}`),color:colors[i],img:horseSVG(colors[i],i),attr:{speed,stamina,burst,temper},odds,placeOdds:Math.max(1.2,Math.round(odds*PLACE_FACTOR*10)/10)}
     });
   }
 
@@ -310,17 +310,20 @@
     qs('#turn-label').textContent = `${p.name}: pick your horse & bet`;
 
     const grid = el('horse-grid'); grid.innerHTML='';
-    const favIdx = state.horses.map(h=>1/h.odds).indexOf(Math.max(...state.horses.map(h=>1/h.odds)));
-    el('fav-hint').textContent = `Favorite: ${state.horses[favIdx].name} (${state.horses[favIdx].odds.toFixed(2)}x)`;
+    if(state.horses.length){
+      const favIdx = state.horses.map(h=>1/h.odds).indexOf(Math.max(...state.horses.map(h=>1/h.odds)));
+      el('fav-hint').textContent = `Favorite: ${state.horses[favIdx].name} (${state.horses[favIdx].odds.toFixed(2)}x)`;
+    } else { el('fav-hint').textContent=''; }
 
     state.horses.forEach((h,i)=>{
       const taken = state.picks.some(pk=>pk.horseIndex===i);
       const card = document.createElement('button');
-      card.className='card horse-card'; card.type='button'; card.disabled = taken || !state.turnReady;
+      card.className='card horse-card'; card.type='button'; card.disabled = taken; // never blocked by turnReady
+      const hName = String(h.name||`Horse ${i+1}`);
       card.innerHTML = `
         <div>${h.img}</div>
         <div>
-          <div class="name-lg">${h.name}</div>
+          <div class="name-lg">${hName}</div>
           <div class="chips">
             <span class="chip">Speed ${h.attr.speed|0}</span>
             <span class="chip">Stamina ${h.attr.stamina|0}</span>
@@ -344,7 +347,6 @@
   }
 
   function selectHorse(i, card){
-    if(!state.turnReady) return;
     const p = currentPlayer(); p.horseIndex = i;
     document.querySelectorAll('.horse-card').forEach(c=>c.classList.remove('selected'));
     card.classList.add('selected');
@@ -355,7 +357,7 @@
   function updateLock(){
     const p = currentPlayer();
     const bet = Number(el('bet-amount').value||0);
-    el('lock-pick').disabled = !(state.turnReady && p?.horseIndex!=null && bet>0 && bet<=p.balance);
+    el('lock-pick').disabled = !(p?.horseIndex!=null && bet>0 && bet<=p.balance);
   }
 
   function updateBetSummary(){
@@ -381,7 +383,7 @@
     p.bet = Number(el('bet-amount').value||0);
     p.betType = el('bet-type').value;
     state.picks.push({playerId:p.id, playerName:p.name, horseIndex:p.horseIndex, bet:p.bet, betType:p.betType});
-    state.turnPtr++; state.turnReady=false;
+    state.turnPtr++;
     if(state.turnPtr < state.turnOrder.length){ el('bet-amount').value=''; renderTurns(); renderDraft(); updateBetSummary(); openTurnGate(); }
     else { startRace(); }
   });
@@ -398,7 +400,8 @@
     for(let i=0;i<lanesCount;i++){
       const lane = document.createElement('div'); lane.className='lane'; track.appendChild(lane);
       const runner = document.createElement('div'); runner.className='runner'; if(pickByHorse.has(i)) runner.classList.add('player');
-      runner.innerHTML = state.horses[i].img + `<span class="pos" hidden></span>` + `<span class="name">${state.horses[i].name}</span>` + (pickByHorse.has(i)? `<span class="tag">${pickByHorse.get(i).playerName}</span>`:'' );
+      const hName = String(state.horses[i].name||`Horse ${i+1}`);
+      runner.innerHTML = state.horses[i].img + `<span class="pos" hidden></span>` + `<span class="name">${hName}</span>` + (pickByHorse.has(i)? `<span class="tag">${pickByHorse.get(i).playerName}</span>`:'' );
       lane.appendChild(runner); lanes.push({lane, runner});
     }
 
@@ -474,7 +477,8 @@
 
       board.innerHTML = order.slice(0,5).map((idx,rank)=>{
         const pick = state.picks.find(p=>p.horseIndex===idx);
-        return `<div class=\"rank\">${rank+1}</div><div>${state.horses[idx].name}${pick?` <span class=\"sub\">(${pick.playerName})</span>`:''}</div><div class=\"sub\">${Math.round(xs[idx])} px</div>`;
+        const hName = String(state.horses[idx].name||`Horse ${idx+1}`);
+        return `<div class=\"rank\">${rank+1}</div><div>${hName}${pick?` <span class=\"sub\">(${pick.playerName})</span>`:''}</div><div class=\"sub\">${Math.round(xs[idx])} px</div>`;
       }).join('');
 
       if(t>0.2 && t<0.23) announcer.textContent = 'They bunch at the quarter!';
@@ -499,7 +503,7 @@
       const win = (p.betType==='win' && hi===first) || (p.betType==='place' && (hi===first || hi===second));
       const odds = p.betType==='win'? h.odds : h.placeOdds;
       const delta = win ? Math.floor(p.bet*odds) : -p.bet;
-      p.balance += delta; rows.push({name:p.name, horse:h.name, bet:p.bet, betType:p.betType, odds, delta});
+      p.balance += delta; rows.push({name:p.name, horse:String(h.name||`Horse`), bet:p.bet, betType:p.betType, odds, delta});
       p.horseIndex=null; p.bet=0; p.betType='win';
     });
     updatePlayersBar();
@@ -508,7 +512,7 @@
       <div style=\"display:grid;grid-template-columns:1fr 1fr;gap:12px\">
         <div>
           <div style=\"font-weight:700;margin-bottom:6px\">Podium</div>
-          <div class=\"sub\">1. ${state.horses[first].name} (${state.horses[first].odds.toFixed(2)}x)<br>2. ${state.horses[second].name} (${state.horses[second].odds.toFixed(2)}x)</div>
+          <div class=\"sub\">1. ${String(state.horses[first].name||'Horse 1')} (${state.horses[first].odds.toFixed(2)}x)<br>2. ${String(state.horses[second].name||'Horse 2')} (${state.horses[second].odds.toFixed(2)}x)</div>
         </div>
         <div>
           <table>
