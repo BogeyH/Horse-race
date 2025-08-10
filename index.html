@@ -8,10 +8,14 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  :root{--navy:#0B1F2A;--cream:#FDF5D9;--red:#D43D3D;--ink:#EDE6CB;--muted:#C8BEA0;--card:#102636;--track:#0E2230}
+  :root{
+    --navy:#0B1F2A;--cream:#FDF5D9;--red:#D43D3D;--ink:#EDE6CB;--muted:#C8BEA0;--card:#102636;--track:#0E2230;
+    --horse-w:44px;                 /* icon width */
+    --lane-w:calc(var(--horse-w)*1.5); /* requested lane width = 1.5x icon */
+  }
   *{box-sizing:border-box}
-  html,body{height:100%;background:var(--navy);color:var(--ink);font-family:"Space Grotesk",system-ui,Arial,Helvetica,sans-serif}
-  h1,h2,h3{margin:0 0 .5rem 0}
+  html,body{height:100%;background:var(--navy);color:var(--ink);font-family:"Space Grotesk",system-ui,Arial,sans-serif}
+  h1,h2,h3{margin:0 0 .5rem}
   .wrap{max-width:940px;margin:0 auto;padding:16px 16px 80px}
   .grid{display:grid;gap:12px}
   .row{display:flex;gap:8px;flex-wrap:wrap}
@@ -42,11 +46,17 @@
   .finishLine{position:absolute;left:8px;right:8px;height:10px;background:repeating-linear-gradient(90deg,#eee 0 18px,#111 18px 36px);border:1px solid #223f51;border-left:none;border-right:none}
   .split{position:absolute;left:8px;right:8px;height:2px;background:#1f3f52;opacity:.5}
   .split label{position:absolute;right:6px;top:-10px;font-size:.75rem;color:#93b7c9}
-  .gate{position:absolute;left:8px;right:8px;height:14px;background:repeating-linear-gradient(90deg,#eee 0 18px,#111 18px 36px);border-bottom:1px solid #223f51;transform-origin:top;transform:scaleY(1);transition:transform .45s ease}
+  .gate{position:absolute;left:8px;right:8px;height:14px;background:repeating-linear-gradient(90deg,#eee 0 18px,#111 18px 36px);border-bottom:1px solid #223f51;transform-origin:top;transform:scaleY(1);transition:transform .35s ease}
   .gate.open{transform:scaleY(0)}
-  .horse{position:absolute;display:flex;align-items:center;gap:10px;left:14px;transform:translateY(0)}
-  .silhouette{width:44px;height:32px;border-radius:6px;box-shadow:0 0 0 2px rgba(0,0,0,.25) inset}
-  .horseTag{background:#0f2a3a;border:1px solid #2b4d60;color:#EDE6CB;padding:6px 8px;border-radius:10px;font-weight:600;white-space:nowrap}
+  .laneGuides{position:absolute;top:0;bottom:0;left:0;right:0;pointer-events:none}
+  .laneGuides .guide{position:absolute;top:0;bottom:0;width:1px;background:#2a4c60;opacity:.5}
+
+  .horse{position:absolute;display:flex;align-items:center;gap:8px;transform:translate(0,0)}
+  .silhouette{width:var(--horse-w);height:32px;border-radius:6px;box-shadow:0 0 0 2px rgba(0,0,0,.25) inset}
+  .horseTag{background:#0f2a3a;border:1px solid #2b4d60;color:#EDE6CB;padding:6px 8px;border-radius:10px;font-weight:600;white-space:nowrap;display:flex;align-items:center;gap:8px}
+  .posBadge{min-width:34px;text-align:center;border-radius:8px;background:#173448;border:1px solid #31576a;padding:2px 6px;font-weight:700}
+  .icons{display:flex;align-items:center;gap:4px}
+  .icon{width:16px;height:16px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:.65rem;color:#0e1b23;font-weight:800}
   .leader{filter:drop-shadow(0 0 10px rgba(212,61,61,.6))}
   .top2 .horseTag{border-color:#d0be6b}
   .top1 .horseTag{border-color:#ffd46b}
@@ -54,12 +64,18 @@
   .ticker{position:absolute;top:12px;left:12px;right:12px;display:flex;gap:8px;flex-wrap:wrap}
   .ticker .chip{background:#0e2b3f;border:1px solid #2a4c60;border-radius:999px;padding:6px 10px;font-size:.9rem}
 
+  /* Countdown overlay */
+  .countdown{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:5;pointer-events:none;
+    background:radial-gradient( circle at 50% 45%, rgba(10,25,35,.45), rgba(10,25,35,.75) 60%, rgba(10,25,35,.9) 100%);}
+  .countNum{font-size:12vmin;font-weight:800;color:#fff;text-shadow:0 2px 0 rgba(0,0,0,.35)}
+  .countGo{font-size:9vmin;color:#FFE8A3}
+
   @media (min-width:720px){
     .wrap{padding:20px 20px 88px}
-    .silhouette{width:50px;height:36px}
+    .silhouette{height:36px}
   }
 
-  /* Cards: stats + odds */
+  /* Odds + stats in selection */
   .odds{margin-top:8px;display:flex;gap:8px;flex-wrap:wrap}
   .odds .chip{background:#123043;border:1px solid #274c5f;border-radius:999px;padding:6px 10px}
   .statRow{display:flex;gap:8px;align-items:center;margin-top:6px}
@@ -137,18 +153,20 @@
 
   <!-- Race -->
   <section id="screen-race" class="grid hidden">
-    <div class="card"><h2>Race</h2><div class="small">20 seconds • Top to bottom • Front pack camera</div></div>
+    <div class="card"><h2>Race</h2><div class="small">20 seconds • Top to bottom • Leader camera</div></div>
     <div class="race-shell">
       <div class="ticker" id="raceTicker"></div>
       <div class="track">
         <div class="lanesViewport" id="lanesViewport">
           <div class="lanesWorld" id="lanesWorld">
             <div class="bg" id="bg"></div>
+            <div class="laneGuides" id="laneGuides"></div>
             <div id="finishLine" class="finishLine"></div>
             <div id="splitMarks"></div>
             <div id="gate" class="gate"></div>
             <!-- horse sprites appended here -->
           </div>
+          <div class="countdown hidden" id="countdown"><div id="countNum" class="countNum">3</div></div>
         </div>
       </div>
     </div>
@@ -168,38 +186,16 @@
 
 <script>
 (function(){
-  // ----- Real horse names (200)
-  const REAL_NAMES = [
-"Secretariat","Man o’ War","Seabiscuit","Citation","War Admiral","Affirmed","Alydar","Spectacular Bid","Sunday Silence","Easy Goer",
-"Northern Dancer","Ruffian","Zenyatta","Black Caviar","Frankel","American Pharoah","Justify","Flightline","Arrogate","Curlin",
-"Ghostzapper","Gun Runner","California Chrome","Winx","Phar Lap","Omaha","Whirlaway","Count Fleet","Gallant Fox","Native Dancer",
-"Bold Ruler","Nashua","Kelso","Buckpasser","Forego","John Henry","Damascus","Dr. Fager","Alysheba","Cigar",
-"Invasor","Peintre Celebre","Dancing Brave","Dubai Millennium","Sea The Stars","Galileo","Montjeu","Deep Impact","Harbinger","Enable",
-"Tiger Roll","Red Rum","Desert Orchid","Kauto Star","Sprinter Sacre","Denman","Big Brown","Smarty Jones","Funny Cide","Barbaro",
-"Rags to Riches","Lady’s Secret","Winning Colors","Genuine Risk","Serena’s Song","Personal Ensign","Beholder","Monomoy Girl","Rachel Alexandra","Havre de Grace",
-"Blind Luck","Songbird","Tepin","Goldikova","Treve","Miesque","Dahlia","Ouija Board","Fantastic Light","Highland Reel",
-"Crystal Ocean","Poet’s Word","Desert Crown","Hurricane Run","Almanzor","Sottsass","Vadeni","Paddington","Ace Impact","City of Troy",
-"Auguste Rodin","Baaeed","Palace Pier","Pinatubo","Too Darn Hot","Blue Point","Lord Kanaloa","Lys Gracieux","Chrono Genesis","Almond Eye",
-"Drefong","Nature Strip","Anamoe","Giga Kick","I Wish I Win","Verry Elleegant","Incentivise","Romantic Warrior","Golden Sixty","Beauty Generation",
-"Able Friend","Silent Witness","Sacred Kingdom","Fairy King Prawn","Lucky Sweynesse","Wellington","Lucky Nine","Pakistan Star","Aerovelocity","Danon Smash",
-"Satono Crown","Kizuna","Real Steel","Victoire Pisa","Just A Way","Orfevre","Buena Vista","Vodka","Daiwa Scarlet","Admire Moon",
-"Heart’s Cry","King Kamehameha","El Condor Pasa","Agnes World","Agnes Digital","Eishin Preston","Stay Gold","Duramente","Contrail","Daring Tact",
-"Loves Only You","Titleholder","Equinox","Liberty Island","Do Deuce","Stars on Earth","Songline","Schnell Meister","Gran Alegria","Indy Champ",
-"Maurice","Harp Star","Gentildonna","Gold Ship","Epiphaneia","Le Vent Se Leve","Chuwa Wizard","T O Keynes","Ushba Tesoro","Panthalassa",
-"Cafe Pharoah","Yoshida","Mind Your Biscuits","Lava Man","Game On Dude","Mucho Macho Man","Paynter","Bayern","Frosted","Honor Code",
-"Tonalist","Palace Malice","Will Take Charge","Shackleford","Dullahan","Hansen","Union Rags","Orb","Palace Episode","Street Sense",
-"Hard Spun","Any Given Saturday","Lawyer Ron","Quality Road","Animal Kingdom","Gio Ponti","Big Drama","Blame","Summer Bird","Mine That Bird",
-"Da’ Tara","Proud Spell","Eight Belles","Dialed In","Always Dreaming","Tapwrit","Essential Quality","Epicenter","Forte","Goldikova II"
-];
+  // ----- Real horse names (200) — same list you approved
+  const REAL_NAMES=[ "Secretariat","Man o’ War","Seabiscuit","Citation","War Admiral","Affirmed","Alydar","Spectacular Bid","Sunday Silence","Easy Goer","Northern Dancer","Ruffian","Zenyatta","Black Caviar","Frankel","American Pharoah","Justify","Flightline","Arrogate","Curlin","Ghostzapper","Gun Runner","California Chrome","Winx","Phar Lap","Omaha","Whirlaway","Count Fleet","Gallant Fox","Native Dancer","Bold Ruler","Nashua","Kelso","Buckpasser","Forego","John Henry","Damascus","Dr. Fager","Alysheba","Cigar","Invasor","Peintre Celebre","Dancing Brave","Dubai Millennium","Sea The Stars","Galileo","Montjeu","Deep Impact","Harbinger","Enable","Tiger Roll","Red Rum","Desert Orchid","Kauto Star","Sprinter Sacre","Denman","Big Brown","Smarty Jones","Funny Cide","Barbaro","Rags to Riches","Lady’s Secret","Winning Colors","Genuine Risk","Serena’s Song","Personal Ensign","Beholder","Monomoy Girl","Rachel Alexandra","Havre de Grace","Blind Luck","Songbird","Tepin","Goldikova","Treve","Miesque","Dahlia","Ouija Board","Fantastic Light","Highland Reel","Crystal Ocean","Poet’s Word","Desert Crown","Hurricane Run","Almanzor","Sottsass","Vadeni","Paddington","Ace Impact","City of Troy","Auguste Rodin","Baaeed","Palace Pier","Pinatubo","Too Darn Hot","Blue Point","Lord Kanaloa","Lys Gracieux","Chrono Genesis","Almond Eye","Drefong","Nature Strip","Anamoe","Giga Kick","I Wish I Win","Verry Elleegant","Incentivise","Romantic Warrior","Golden Sixty","Beauty Generation","Able Friend","Silent Witness","Sacred Kingdom","Fairy King Prawn","Lucky Sweynesse","Wellington","Lucky Nine","Pakistan Star","Aerovelocity","Danon Smash","Satono Crown","Kizuna","Real Steel","Victoire Pisa","Just A Way","Orfevre","Buena Vista","Vodka","Daiwa Scarlet","Admire Moon","Heart’s Cry","King Kamehameha","El Condor Pasa","Agnes World","Agnes Digital","Eishin Preston","Stay Gold","Duramente","Contrail","Daring Tact","Loves Only You","Titleholder","Equinox","Liberty Island","Do Deuce","Stars on Earth","Songline","Schnell Meister","Gran Alegria","Indy Champ","Maurice","Harp Star","Gentildonna","Gold Ship","Epiphaneia","Le Vent Se Leve","Chuwa Wizard","T O Keynes","Ushba Tesoro","Panthalassa","Cafe Pharoah","Yoshida","Mind Your Biscuits","Lava Man","Game On Dude","Mucho Macho Man","Paynter","Bayern","Frosted","Honor Code","Tonalist","Palace Malice","Will Take Charge","Shackleford","Dullahan","Hansen","Union Rags","Orb","Palace Episode","Street Sense","Hard Spun","Any Given Saturday","Lawyer Ron","Quality Road","Animal Kingdom","Gio Ponti","Big Drama","Blame","Summer Bird","Mine That Bird","Da’ Tara","Proud Spell","Eight Belles","Dialed In","Always Dreaming","Tapwrit","Essential Quality","Epicenter","Forte","Goldikova II" ];
 
   // ----- State
   const state={
     players:[], startBalance:1000, round:1, order:[], horses:[], picks:[],
     race:{
-      duration:20000, trackDistance:3200, runoff:80,
-      t0:0, raf:0, finished:false,
-      results:[], sprites:[],
-      worldHeight:0, padTop:24, padBot:24, rankCounter:1
+      duration:20000, trackDistance:3200, runoff:100,
+      t0:0, raf:0, finished:false, results:[], sprites:[],
+      worldHeight:0, padTop:24, padBot:24, rankCounter:1, started:false
     }
   };
 
@@ -213,12 +209,10 @@
   function esc(s){return s.replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;","&gt;":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}
   function shuffle(a){for(let i=a.length-1;i>0;i--){const j=rndi(0,i);[a[i],a[j]]=[a[j],a[i]]}return a}
   function groupBy(a,k){return a.reduce((m,o)=>((m[o[k]]??=[]).push(o),m),{})}
-  function sampleNamesFromList(n){
-    const pool=[...REAL_NAMES];
-    const out=[];
-    while(out.length<n && pool.length){ out.push(...pool.splice(rndi(0,pool.length-1),1)); }
-    return out.slice(0,n);
-  }
+  function sampleNamesFromList(n){const pool=[...REAL_NAMES], out=[]; while(out.length<n && pool.length){ out.push(...pool.splice(rndi(0,pool.length-1),1)); } return out.slice(0,n); }
+  const ordinal=n=>n===1?'1st':n===2?'2nd':n===3?'3rd':`${n}th`;
+  const initials=name=>name.split(/\s+/).map(w=>w[0]||'').join('').slice(0,2).toUpperCase();
+  const colorFromStr=s=>{let h=0;for(let i=0;i<s.length;i++)h=(h*31+s.charCodeAt(i))>>>0;return `hsl(${h%360} 70% 60%)`;};
 
   // ----- Screens
   const screens={players:$('#screen-players'),select:$('#screen-select'),race:$('#screen-race'),results:$('#screen-results')};
@@ -254,7 +248,7 @@
 
   function startRound(){
     state.picks=[]; state.order=shuffle(state.players.filter(p=>p.active).map(p=>p.id));
-    state.horses=genHorses(6); state.race.finished=false; state.race.results=[]; state.race.rankCounter=1;
+    state.horses=genHorses(6); state.race.finished=false; state.race.results=[]; state.race.rankCounter=1; state.race.started=false;
     renderSelect(); show('select'); idx=0; prepTurn();
   }
   function genHorses(n){
@@ -322,47 +316,66 @@
     });
   }
 
-  $('#beginRace').onclick=()=>{setupRace();show('race');startRace();};
+  $('#beginRace').onclick=()=>{setupRace();show('race');beginCountdownThenStart();};
   $('#skipToResults').onclick=()=>endRace(true);
 
   // ----- Race scene
   const lanesViewport=$('#lanesViewport'), lanesWorld=$('#lanesWorld'), finishEl=$('#finishLine'),
-        splitMarks=$('#splitMarks'), gateEl=$('#gate'), bg=$('#bg'), raceTicker=$('#raceTicker');
+        splitMarks=$('#splitMarks'), gateEl=$('#gate'), bg=$('#bg'), raceTicker=$('#raceTicker'),
+        laneGuides=$('#laneGuides'), countdownEl=$('#countdown'), countNum=$('#countNum');
 
   function setupRace(){
-    lanesWorld.innerHTML=''; lanesWorld.append(bg,finishEl,splitMarks,gateEl); raceTicker.innerHTML='';
+    lanesWorld.innerHTML=''; lanesWorld.append(bg,laneGuides,finishEl,splitMarks,gateEl); raceTicker.innerHTML='';
     const TD=state.race.trackDistance, padTop=24, padBot=24;
-    const worldH=TD+padTop+padBot;
-    state.race.worldHeight=worldH; state.race.padTop=padTop; state.race.padBot=padBot;
+    const worldH=TD+padTop+padBot; state.race.worldHeight=worldH; state.race.padTop=padTop; state.race.padBot=padBot;
 
     lanesWorld.style.height=worldH+'px'; bg.style.height=worldH+'px';
-    gateEl.style.top=padTop+'px';
-    finishEl.style.bottom=padBot+'px';
+    gateEl.style.top=padTop+'px'; finishEl.style.bottom=padBot+'px';
 
+    // Vertical splits
     splitMarks.innerHTML='';
-    [0.25,0.5,0.75].forEach(f=>{
-      const y=padTop + TD*f;
-      const s=document.createElement('div'); s.className='split'; s.style.top=y+'px';
-      const lab=document.createElement('label'); lab.textContent=Math.round(f*100)+'%'; s.appendChild(lab);
-      splitMarks.appendChild(s);
-    });
+    [0.25,0.5,0.75].forEach(f=>{const y=padTop + TD*f; const s=document.createElement('div'); s.className='split'; s.style.top=y+'px'; const lab=document.createElement('label'); lab.textContent=Math.round(f*100)+'%'; s.appendChild(lab); splitMarks.appendChild(s);});
 
-    // Sprites at the gate (top)
+    // Lane guides (6 lanes)
+    laneGuides.innerHTML='';
+    const leftPad=14;
+    for(let i=0;i<6;i++){
+      const x=leftPad + i*parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--lane-w'));
+      const g=document.createElement('div'); g.className='guide'; g.style.left=(x+parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--lane-w'))-1)+'px';
+      laneGuides.appendChild(g);
+    }
+
+    // Sprites at the gate (top) — one per lane, left-to-right
+    const laneW=parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--lane-w'));
     state.race.sprites = state.horses.map((h,i)=>{
       const el=document.createElement('div'); el.className='horse'; el.dataset.hid=h.id;
-      el.style.top=(padTop + i*66)+'px'; el.style.left='14px';
-      el.style.transform=`translateY(0px)`; // y=0 at gate
-      const body=document.createElement('div'); body.className='silhouette'; body.style.background=h.color;
-      const tag=document.createElement('div'); tag.className='horseTag'; tag.innerHTML=`${esc(h.name)} <span class="small">(${h.odds.win.toFixed(2)}x / ${h.odds.place.toFixed(2)}x)</span>`;
+      const left=leftPad + i*laneW;
+      el.style.left=left+'px'; el.style.top=padTop+'px';
+      el.style.transform=`translate(0,0)`;
+
+      // body + race label (pos + name + player icons)
+      const body=document.createElement('div'); body.className='silhouette'; body.style.background=h.color; body.style.width='var(--horse-w)';
+      const tag=document.createElement('div'); tag.className='horseTag'; tag.innerHTML=`<span class="posBadge" data-pos>—</span><span class="hName">${esc(h.name)}</span><span class="icons" data-icons></span>`;
       el.append(body,tag); lanesWorld.appendChild(el);
-      return {h,el,y:0,vBase:TD/(h.finishTime/1000),plan:pacePlan(h),crossed:false,offtrack:false,crossTime:null,rank:null};
+      return {h,el,y:0,vBase:TD/(h.finishTime/1000),plan:pacePlan(h),crossed:false,offtrack:false,crossTime:null,rank:null,tag,icons:tag.querySelector('[data-icons]'),posEl:tag.querySelector('[data-pos]')};
     });
 
     // Ticker
-    state.horses.forEach(h=>{
-      const c=document.createElement('div'); c.className='chip';
-      c.innerHTML=`<span class="silhouette" style="display:inline-block;width:14px;height:10px;border-radius:3px;background:${h.color};margin-right:6px"></span>${esc(h.name)} • Win <strong>${h.odds.win.toFixed(2)}x</strong> • Place <strong>${h.odds.place.toFixed(2)}x</strong>`;
-      raceTicker.appendChild(c);
+    state.horses.forEach(h=>{const c=document.createElement('div'); c.className='chip'; c.innerHTML=`<span class="silhouette" style="display:inline-block;width:14px;height:10px;border-radius:3px;background:${h.color};margin-right:6px"></span>${esc(h.name)} • Win <strong>${h.odds.win.toFixed(2)}x</strong> • Place <strong>${h.odds.place.toFixed(2)}x</strong>`; raceTicker.appendChild(c);});
+
+    // Player icons per horse (initials, color from player name)
+    const byHorse = groupBy(state.picks,'horseId');
+    state.race.sprites.forEach(S=>{
+      S.icons.innerHTML='';
+      const arr=byHorse[S.h.id]||[];
+      arr.slice(0,4).forEach(pk=>{
+        const p=byId(pk.playerId); const ic=document.createElement('span'); ic.className='icon'; ic.textContent=initials(p.name);
+        ic.style.background=colorFromStr(p.name); S.icons.appendChild(ic);
+      });
+      if(arr.length>4){
+        const more=document.createElement('span'); more.className='icon'; more.textContent=`+${arr.length-4}`; more.style.background='#b9d3e0';
+        S.icons.appendChild(more);
+      }
     });
   }
 
@@ -377,27 +390,38 @@
   }
   function seg(stops,t){for(let i=0;i<stops.length-1;i++){if(t>=stops[i]&&t<stops[i+1])return i}return stops.length-2}
 
-  // ----- Animation (camera follows front battle)
+  // ----- Countdown then start
+  function beginCountdownThenStart(){
+    countdownEl.classList.remove('hidden');
+    const seq=[3,2,1,0];
+    let i=0;
+    const tick=()=>{
+      countNum.textContent = seq[i]===0 ? 'GO!' : seq[i];
+      countNum.className = seq[i]===0 ? 'countGo' : 'countNum';
+      if(seq[i]===0){
+        setTimeout(()=>{countdownEl.classList.add('hidden'); startRace();},300);
+      }else{
+        setTimeout(()=>{i++; tick();},1000);
+      }
+    };
+    tick();
+  }
+
+  // ----- Animation (leader camera)
   function startRace(){
-    setTimeout(()=>gateEl.classList.add('open'),350);
-
-    const TD=state.race.trackDistance;
-    const runoff=state.race.runoff;
-    state.race.t0=performance.now(); state.race.finished=false;
-    const vpH=lanesViewport.clientHeight;
-    let last=state.race.t0;
-
-    const maxCam = Math.max(0, state.race.worldHeight - vpH);
-    let camY = 0; // start at top with the gate
-    lanesWorld.style.transform = `translateY(${-camY}px)`;
+    gateEl.classList.add('open');
+    const TD=state.race.trackDistance, runoff=state.race.runoff;
+    state.race.t0=performance.now(); state.race.finished=false; state.race.started=true;
+    const vpH=lanesViewport.clientHeight; let last=state.race.t0;
+    const maxCam=Math.max(0,state.race.worldHeight-vpH); let camY=0; lanesWorld.style.transform=`translateY(${-camY}px)`;
 
     function frame(now){
       const dt=(now-last)/1000; last=now; const t=now-state.race.t0;
       let allOff=true;
 
+      // advance horses
       for(const S of state.race.sprites){
         if(S.offtrack) continue;
-
         const i=seg(S.plan.stops,t);
         let v=S.vBase*S.plan.mul[i];
         v*=1+0.02*Math.sin((t/1000)*(1.2+S.h.stats.burst*1.6));
@@ -415,42 +439,27 @@
           state.race.results.push({horseId:S.h.id,finishTime:S.crossTime,rank:S.rank});
         }
 
-        if(S.y>=TD+runoff){ S.y=TD+runoff; S.offtrack=true; }
-        else allOff=false;
+        if(S.y>=TD+runoff){ S.y=TD+runoff; S.offtrack=true; } else allOff=false;
 
-        S.el.style.transform=`translateY(${S.y}px)`;
+        S.el.style.transform=`translate(0, ${S.y}px)`;
       }
 
-      // ---- Camera on the front battle (top-2 average), never the tail
-      const contenders = state.race.sprites.filter(s=>!s.crossed);
-      let y1, y2;
-      if (contenders.length>=2){
-        const sorted=[...contenders].sort((a,b)=>b.y-a.y);
-        y1=sorted[0].y; y2=sorted[1].y;
-      }else{
-        const sorted=[...state.race.sprites].sort((a,b)=>b.y-a.y);
-        y1=sorted[0].y; y2=sorted[1]?.y ?? (sorted[0].y - 120);
-      }
-      const focusY = (y1 + y2) * 0.5;
-      const focusWorldY = state.race.padTop + focusY;
-
-      // target keeps the duel slightly above center
-      const target = clamp(focusWorldY - vpH*0.55, 0, maxCam);
-      camY += (target - camY) * 0.12; // responsive but smooth
-
-      // keep the leader between 35% and 75% of the screen
-      const leaderWorldY = state.race.padTop + y1;
-      const leaderScreenY = leaderWorldY - camY;
-      if (leaderScreenY < vpH*0.35) camY = clamp(leaderWorldY - vpH*0.35, 0, maxCam);
-      if (leaderScreenY > vpH*0.75) camY = clamp(leaderWorldY - vpH*0.75, 0, maxCam);
-
-      lanesWorld.style.transform = `translateY(${-camY}px)`;
-
-      // live top-3 highlight
-      const liveBase = contenders.length? contenders : state.race.sprites;
-      const live=[...liveBase].sort((a,b)=>b.y-a.y);
+      // live positions + badges
+      const live=[...state.race.sprites].sort((a,b)=>b.y-a.y);
       state.race.sprites.forEach(S=>S.el.classList.remove('top1','top2','top3','leader'));
-      live.forEach((S,i)=>{ if(i===0)S.el.classList.add('top1','leader'); else if(i===1)S.el.classList.add('top2'); else if(i===2)S.el.classList.add('top3'); });
+      live.forEach((S,i)=>{ if(i===0)S.el.classList.add('top1','leader'); else if(i===1)S.el.classList.add('top2'); else if(i===2)S.el.classList.add('top3'); S.posEl.textContent=ordinal(i+1); });
+
+      // camera on the leader (furthest down)
+      const leader=live[0];
+      const leaderWorldY = state.race.padTop + leader.y;
+      // keep leader ~60% down the viewport
+      const target = clamp(leaderWorldY - vpH*0.60, 0, maxCam);
+      camY += (target - camY) * 0.14;
+      // hard bounds to avoid leader popping out
+      const leaderScreenY = leaderWorldY - camY;
+      if(leaderScreenY < vpH*0.35) camY = clamp(leaderWorldY - vpH*0.35, 0, maxCam);
+      if(leaderScreenY > vpH*0.75) camY = clamp(leaderWorldY - vpH*0.75, 0, maxCam);
+      lanesWorld.style.transform=`translateY(${-camY}px)`;
 
       if(allOff || t>=state.race.duration+4000){ endRace(false); return; }
       state.race.raf=requestAnimationFrame(frame);
@@ -468,11 +477,8 @@
     if(skip){
       const order=[...state.race.sprites].sort((a,b)=>b.y-a.y);
       order.forEach((S,i)=>{
-        if(!S.crossed){
-          S.crossed=true; S.crossTime=20000+i*100; S.rank=state.race.rankCounter++;
-          state.race.results.push({horseId:S.h.id,finishTime:S.crossTime,rank:S.rank});
-        }
-        S.y=TD+runoff; S.offtrack=true; S.el.style.transform=`translateY(${S.y}px)`;
+        if(!S.crossed){ S.crossed=true; S.crossTime=20000+i*100; S.rank=state.race.rankCounter++; state.race.results.push({horseId:S.h.id,finishTime:S.crossTime,rank:S.rank}); }
+        S.y=TD+runoff; S.offtrack=true; S.el.style.transform=`translate(0, ${S.y}px)`;
       });
       lanesWorld.style.transform=`translateY(${-(state.race.worldHeight - lanesViewport.clientHeight)}px)`;
     }else{
@@ -482,7 +488,7 @@
         remain.forEach((S,i)=>{
           S.crossed=true; S.crossTime=base+100+i*50; S.rank=state.race.rankCounter++;
           state.race.results.push({horseId:S.h.id,finishTime:S.crossTime,rank:S.rank});
-          S.y=TD+runoff; S.offtrack=true; S.el.style.transform=`translateY(${S.y}px)`;
+          S.y=TD+runoff; S.offtrack=true; S.el.style.transform=`translate(0, ${S.y}px)`;
         });
       }
     }
@@ -560,7 +566,7 @@
 
   function fullReset(){
     state.players=[]; state.round=1; state.order=[]; state.horses=[]; state.picks=[];
-    state.race={duration:20000, trackDistance:3200, runoff:80, t0:0, raf:0, finished:false, results:[], sprites:[], worldHeight:0, padTop:24, padBot:24, rankCounter:1};
+    state.race={duration:20000, trackDistance:3200, runoff:100, t0:0, raf:0, finished:false, results:[], sprites:[], worldHeight:0, padTop:24, padBot:24, rankCounter:1, started:false};
     renderPlayers(); show('players');
   }
 })();
