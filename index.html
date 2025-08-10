@@ -20,7 +20,7 @@
     .pill .dot{width:10px;height:10px;border-radius:50%}
     .pill .bal{font-variant-numeric:tabular-nums;font-weight:800}
 
-    .screen{padding:12px 12px 120px;max-width:980px;margin:0 auto}
+    .screen{padding:12px 12px 180px;max-width:980px;margin:0 auto}
     .section{font-size:12px;letter-spacing:.04em;color:var(--muted);text-transform:uppercase;margin:10px 2px}
     .row{display:flex;gap:8px;align-items:center}
     .stack{display:flex;flex-direction:column;gap:10px}
@@ -54,10 +54,39 @@
     .badge{font-weight:900;border:2px solid #e9dec2;border-radius:12px;padding:6px 10px;min-width:84px;text-align:center;background:#fdf5d9;color:#0b1f2a;font-size:16px}
     .sub{font-size:12px;color:var(--muted)}
 
-    /* Bottom bar */
-    .dock{position:fixed;left:0;right:0;bottom:0;background:linear-gradient(180deg,rgba(11,31,42,.6),#0b1f2a);border-top:1px solid #143349;padding:10px 12px;z-index:60}
-    .dock-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-    .summary{margin-left:auto;font-size:14px;background:#0f2433;border:1px solid #16384d;padding:10px 12px;border-radius:12px;font-weight:800}
+    /* Bottom bet dock (mobile-first grid) */
+    .dock{position:fixed;left:0;right:0;bottom:0;background:linear-gradient(180deg,rgba(11,31,42,.8),#0b1f2a);border-top:1px solid #143349;padding:12px;z-index:70;padding-bottom:calc(12px + env(safe-area-inset-bottom));}
+    .betbar{display:grid;gap:8px;align-items:center}
+    .bet-input{font-weight:900;font-size:20px;letter-spacing:.3px;padding:14px;background:#0f2433;color:var(--cream);border:2px solid #e9dec2}
+    .bet-type{background:#0f2433;color:var(--cream)}
+    .chips-row{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px}
+    .chips-row .btn{flex:0 0 auto;padding:8px 10px}
+    .actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+    .summary{font-size:14px;background:#0f2433;border:1px solid #16384d;padding:10px 12px;border-radius:12px;font-weight:800}
+
+    @media(min-width:560px){
+      .betbar{grid-template-columns:1fr 160px auto auto;grid-template-areas:
+        'amount type chips actions'
+        'summary summary summary summary';}
+      .bet-input{grid-area:amount}
+      .bet-type{grid-area:type}
+      .chips-row{grid-area:chips}
+      .actions{grid-area:actions}
+      .summary{grid-area:summary}
+    }
+    @media(max-width:559px){
+      .betbar{grid-template-columns:1fr;grid-template-areas:
+        'amount'
+        'type'
+        'chips'
+        'actions'
+        'summary';}
+      .bet-input{grid-area:amount}
+      .bet-type{grid-area:type}
+      .chips-row{grid-area:chips}
+      .actions{grid-area:actions}
+      .summary{grid-area:summary}
+    }
 
     /* Straight track with scrolling */
     .track-wrap{border:1px solid #153244;border-radius:16px;background:linear-gradient(#0e2840 0 42%, #0b2536 42% 43%, #153b2d 43%);box-shadow:inset 0 6px 40px rgba(0,0,0,.35);padding:12px}
@@ -160,19 +189,23 @@
 
   <!-- Bottom bet dock -->
   <div class="dock" id="dock" hidden>
-    <div class="dock-row">
-      <select id="bet-type" style="flex:0 0 160px">
+    <div class="betbar">
+      <input id="bet-amount" class="bet-input" type="number" inputmode="numeric" pattern="[0-9]*" min="1" placeholder="Bet amount" aria-label="Bet amount" />
+      <select id="bet-type" class="bet-type" aria-label="Bet type">
         <option value="win">Win</option>
         <option value="place">Place (1st/2nd)</option>
       </select>
-      <input id="bet-amount" type="number" min="1" placeholder="Bet amount" class="bet" style="flex:1"/>
-      <button class="btn" data-chip="25">+25</button>
-      <button class="btn" data-chip="50">+50</button>
-      <button class="btn" data-chip="100">+100</button>
-      <button class="btn" data-chip="500">+500</button>
-      <button class="btn" data-chip="ALL">All-in</button>
-      <button id="lock-pick" class="btn primary" disabled>Lock pick</button>
-      <button id="back-setup" class="btn ghost">Players</button>
+      <div class="chips-row" aria-label="Quick add chips">
+        <button class="btn" data-chip="25">+25</button>
+        <button class="btn" data-chip="50">+50</button>
+        <button class="btn" data-chip="100">+100</button>
+        <button class="btn" data-chip="500">+500</button>
+        <button class="btn" data-chip="ALL">All-in</button>
+      </div>
+      <div class="actions">
+        <button id="lock-pick" class="btn primary" disabled>Lock pick</button>
+        <button id="back-setup" class="btn ghost">Players</button>
+      </div>
       <div id="bet-summary" class="summary">—</div>
     </div>
   </div>
@@ -211,7 +244,7 @@
     order: [],
     turnOrder: [], // indexes in random order
     turnPtr: 0,
-    turnReady: true // default true so selection is never blocked
+    turnReady: true // selection always available
   };
 
   const el = (id)=>document.getElementById(id);
@@ -252,12 +285,12 @@
 
   // --------- Draft ---------
   function startDraft(){
-    state.picks=[]; state.turnOrder = shuffle([...Array(state.players.length).keys()]); state.turnPtr=0; state.turnReady=true; // allow selection immediately
+    state.picks=[]; state.turnOrder = shuffle([...Array(state.players.length).keys()]); state.turnPtr=0; state.turnReady=true;
     state.horses = generateHorses(Math.min(NUM_LANES, Math.max(state.players.length+2,6)));
     show('draft'); renderTurns(); renderDraft();
     el('dock').hidden=false; el('bet-amount').value=''; el('bet-type').value='win';
     updatePlayersBar(); updateBetSummary();
-    openTurnGate(); // still show call + balance, but not required to click
+    openTurnGate();
   }
 
   function currentPlayer(){ return state.players[state.turnOrder[state.turnPtr]]; }
@@ -281,8 +314,7 @@
     el('callout-bal').textContent = fmt(p.balance);
     el('callout-dot').style.background = p.color;
     el('callout').hidden = false;
-    // show, but don't block selection
-    try{ el('turn-modal').showModal(); }catch(e){ /* ignore if not supported */ }
+    try{ el('turn-modal').showModal(); }catch(e){ }
   }
 
   el('tm-begin').addEventListener('click',()=>{
@@ -318,7 +350,7 @@
     state.horses.forEach((h,i)=>{
       const taken = state.picks.some(pk=>pk.horseIndex===i);
       const card = document.createElement('button');
-      card.className='card horse-card'; card.type='button'; card.disabled = taken; // never blocked by turnReady
+      card.className='card horse-card'; card.type='button'; card.disabled = taken;
       const hName = String(h.name||`Horse ${i+1}`);
       card.innerHTML = `
         <div>${h.img}</div>
@@ -352,6 +384,8 @@
     card.classList.add('selected');
     updateBetSummary();
     updateLock();
+    // Bring bet bar fully into view on mobile
+    el('dock').scrollIntoView({block:'end'});
   }
 
   function updateLock(){
@@ -368,7 +402,12 @@
     renderTurns();
   }
 
-  el('bet-amount').addEventListener('input', ()=>{ updateBetSummary(); updateLock(); });
+  // Keep bet input visible when focusing on mobile keyboards
+  const betInput = document.getElementById('bet-amount');
+  betInput.addEventListener('focus',()=>{
+    setTimeout(()=>{ document.getElementById('dock').scrollIntoView({block:'end'}); }, 150);
+  });
+
   document.querySelectorAll('[data-chip]').forEach(btn=>{
     btn.addEventListener('click',()=>{
       const v = btn.dataset.chip; const p = currentPlayer(); if(!p) return;
@@ -377,6 +416,8 @@
       el('bet-amount').value = bet; updateBetSummary(); updateLock();
     })
   });
+
+  el('bet-amount').addEventListener('input', ()=>{ updateBetSummary(); updateLock(); });
 
   el('lock-pick').addEventListener('click', ()=>{
     const p = currentPlayer();
