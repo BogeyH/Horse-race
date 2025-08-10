@@ -1,3 +1,4 @@
+
 <!doctype html>
 <html lang="en">
 <head>
@@ -218,7 +219,13 @@
     order:[],
     horses:[],
     picks:[],
-    race:{duration:20000,trackDistance:3200,t0:0,raf:0,finished:false,results:[],sprites:[]}
+    race:{
+      duration:20000,
+      trackDistance:3200,
+      t0:0, raf:0, finished:false,
+      results:[], sprites:[],
+      worldHeight:0, padTop:24, padBot:24
+    }
   };
 
   // ----- Helpers
@@ -359,10 +366,22 @@
   function setupRace(){
     lanesWorld.innerHTML=''; lanesWorld.append(bg,finishEl,splitMarks,gateEl); raceTicker.innerHTML='';
     const TD=state.race.trackDistance, padTop=24, padBot=24;
-    const worldH=TD+padTop+padBot; lanesWorld.style.height=worldH+'px'; bg.style.height=worldH+'px';
+    const worldH=TD+padTop+padBot;
+
+    // keep for camera
+    state.race.worldHeight = worldH;
+    state.race.padTop = padTop;
+    state.race.padBot = padBot;
+
+    lanesWorld.style.height=worldH+'px'; bg.style.height=worldH+'px';
     finishEl.style.top=padTop+'px'; gateEl.style.bottom=padBot+'px';
     splitMarks.innerHTML='';
-    [0.25,0.5,0.75].forEach(f=>{const y=padTop+(TD-TD*f); const s=document.createElement('div'); s.className='split'; s.style.top=y+'px'; const lab=document.createElement('label'); lab.textContent=Math.round(f*100)+'%'; s.appendChild(lab); splitMarks.appendChild(s);});
+    [0.25,0.5,0.75].forEach(f=>{
+      const y=padTop+(TD-TD*f);
+      const s=document.createElement('div'); s.className='split'; s.style.top=y+'px';
+      const lab=document.createElement('label'); lab.textContent=Math.round(f*100)+'%'; s.appendChild(lab);
+      splitMarks.appendChild(s);
+    });
 
     // Sprites
     state.race.sprites = state.horses.map((h,i)=>{
@@ -394,15 +413,14 @@
   }
   function seg(stops,t){for(let i=0;i<stops.length-1;i++){if(t>=stops[i]&&t<stops[i+1])return i}return stops.length-2}
 
-  // ----- Animation with smoothed camera
+  // ----- Animation with smoothed camera (starts at gate)
   function startRace(){
     setTimeout(()=>gateEl.classList.add('open'),400);
     const TD=state.race.trackDistance; state.race.t0=performance.now(); state.race.finished=false;
-    const vpH=lanesViewport.clientHeight;
-    let last=state.race.t0;
+    const vpH=lanesViewport.clientHeight; let last=state.race.t0;
 
-    // Camera starts at the gate
-    const bottomStart = Math.max(0, TD - vpH + 40);
+    // start camera at the gate (bottom of world)
+    const bottomStart = Math.max(0, state.race.worldHeight - vpH);
     let camY = bottomStart;
     lanesWorld.style.transform = `translateY(${-camY}px)`;
 
@@ -417,7 +435,7 @@
         v*=1+0.02*Math.sin((t/1000)*(1.2+S.h.stats.burst*1.6));
         S.y += v*dt;
 
-        // solve last segment to finish cleanly
+        // solve final segment to hit finish cleanly
         const lastI=S.plan.stops.length-2;
         if(i===lastI){
           const rt=(S.h.finishTime-t)/1000, rd=TD-S.y;
@@ -427,21 +445,20 @@
         if(S.y>=TD){ S.y=TD; S.finished=true; S.finishTime=Math.max(t,0); state.race.results.push({horseId:S.h.id,finishTime:S.finishTime});}
         else allFinished=false;
 
-        // Move sprite: 0 at finish, TD at gate
+        // sprite: 0 at finish, TD at gate
         S.el.style.transform=`translateY(${TD-S.y}px)`;
       }
 
-      // Smoothed camera that never outruns the leaders
+      // camera: follow leaders without outrunning them
       const lead = Math.max(...state.race.sprites.map(s=>s.y));
-      const tail = vpH*0.35;                          // keep some field on screen
+      const tail = vpH*0.35;
       const target = clamp(bottomStart - (lead - tail), 0, bottomStart);
-      camY += (target - camY) * 0.08;                 // easing
-      // keep leader within top band
+      camY += (target - camY) * 0.08;
       const leaderScreenY = lead - camY;
       if (leaderScreenY < vpH*0.25) camY = Math.max(0, lead - vpH*0.25);
       lanesWorld.style.transform = `translateY(${-camY}px)`;
 
-      // Live top-3
+      // live top-3
       const live=[...state.race.sprites].sort((a,b)=>b.y-a.y);
       live.forEach((S,i)=>{S.el.classList.remove('top1','top2','top3','leader'); if(i===0)S.el.classList.add('top1','leader'); if(i===1)S.el.classList.add('top2'); if(i===2)S.el.classList.add('top3');});
 
@@ -546,7 +563,7 @@
 
   function fullReset(){
     state.players=[]; state.round=1; state.order=[]; state.horses=[]; state.picks=[];
-    state.race={duration:20000,trackDistance:3200,t0:0,raf:0,finished:false,results:[],sprites:[]};
+    state.race={duration:20000,trackDistance:3200,t0:0,raf:0,finished:false,results:[],sprites:[],worldHeight:0,padTop:24,padBot:24};
     renderPlayers(); show('players');
   }
 })();
