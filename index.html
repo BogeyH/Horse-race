@@ -15,7 +15,12 @@
     header{padding:12px 16px;background:linear-gradient(180deg,#0b1f2a,#0b2536);border-bottom:1px solid #12344a;position:sticky;top:0;z-index:40;display:flex;flex-direction:column;gap:8px}
     .topbar{display:flex;justify-content:space-between;align-items:center}
     .status{font-variant-numeric:tabular-nums;color:var(--muted)}
-    .screen{padding:12px 12px 110px;max-width:980px;margin:0 auto}
+    .players-bar{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px}
+    .pill{display:flex;gap:8px;align-items:center;padding:8px 12px;border-radius:999px;background:#0f2a3c;border:1px solid #16384d;font-size:13px}
+    .pill .dot{width:10px;height:10px;border-radius:50%}
+    .pill .bal{font-variant-numeric:tabular-nums;font-weight:700}
+
+    .screen{padding:12px 12px 120px;max-width:980px;margin:0 auto}
     .section{font-size:12px;letter-spacing:.04em;color:var(--muted);text-transform:uppercase;margin:10px 2px}
     .row{display:flex;gap:8px;align-items:center}
     .stack{display:flex;flex-direction:column;gap:10px}
@@ -31,19 +36,21 @@
     /* Draft grid */
     .horses{display:grid;grid-template-columns:1fr;gap:10px}
     @media(min-width:560px){.horses{grid-template-columns:1fr 1fr}}
-    .horse-card{display:grid;grid-template-columns:64px 1fr auto;gap:10px;align-items:center;padding:12px}
+    .horse-card{position:relative;display:grid;grid-template-columns:64px 1fr auto;gap:10px;align-items:center;padding:12px}
     .horse-card.selected{outline:2px solid var(--accent)}
+    .taken{position:absolute;top:8px;right:8px;font-size:11px;background:#5c1a1a;color:#fff;border-radius:8px;padding:2px 6px}
     .badge{font-weight:700;border:1px solid #16384d;border-radius:10px;padding:4px 8px;min-width:74px;text-align:center;background:#0b2536}
     .sub{font-size:12px;color:var(--muted)}
 
-    /* Players bar */
-    .players-bar{display:flex;gap:10px;flex-wrap:wrap}
-    .pill{display:flex;gap:6px;align-items:center;padding:6px 10px;border-radius:999px;background:#0f2a3c;border:1px solid #16384d;font-size:12px}
-    .pill .bal{font-variant-numeric:tabular-nums;color:#a8e0c9}
+    /* Turn order */
+    .turns{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
+    .turn{display:flex;gap:6px;align-items:center;padding:6px 10px;border-radius:10px;border:1px solid #16384d;background:#0f2433;font-size:12px}
+    .turn.active{outline:2px solid var(--accent)}
 
     /* Bottom bar */
     .dock{position:fixed;left:0;right:0;bottom:0;background:linear-gradient(180deg,rgba(11,31,42,.6),#0b1f2a);border-top:1px solid #143349;padding:10px 12px;z-index:50}
-    .dock-row{display:flex;gap:8px;flex-wrap:wrap}
+    .dock-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+    .summary{margin-left:auto;font-size:13px;background:#0f2433;border:1px solid #16384d;padding:8px 10px;border-radius:10px}
 
     /* Straight track with scrolling */
     .track-wrap{border:1px solid #153244;border-radius:16px;background:linear-gradient(#0e2840 0 42%, #0b2536 42% 43%, #153b2d 43%);box-shadow:inset 0 6px 40px rgba(0,0,0,.35);padding:12px}
@@ -108,6 +115,7 @@
   <!-- Draft -->
   <main class="screen" id="draft" hidden>
     <div class="section"><span id="turn-label">Draft</span></div>
+    <div id="turns" class="turns"></div>
     <div id="horse-grid" class="horses"></div>
     <p class="sub" id="fav-hint" style="margin-top:6px"></p>
   </main>
@@ -148,6 +156,7 @@
       <button class="btn" data-chip="ALL">All-in</button>
       <button id="lock-pick" class="btn primary" disabled>Lock pick</button>
       <button id="back-setup" class="btn ghost">Players</button>
+      <div id="bet-summary" class="summary">—</div>
     </div>
   </div>
 
@@ -169,16 +178,20 @@
   const PLACE_FACTOR = 0.55;
 
   const state = {
-    players: [], // {id,name,balance,betType,bet,horseIndex}
+    players: [], // {id,name,balance,color,betType,bet,horseIndex}
     picks: [],   // per race
     horses: [],
-    current: 0,
-    order: []
+    order: [],
+    turnOrder: [], // array of player indexes in random order
+    turnPtr: 0     // pointer into turnOrder
   };
 
   const el = (id)=>document.getElementById(id);
   const qs = (s)=>document.querySelector(s);
   const fmt = (n)=>Number(n).toLocaleString(undefined,{maximumFractionDigits:0});
+
+  // Utility
+  function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]] } return a }
 
   // --------- Setup ---------
   function renderSetup(){
@@ -200,19 +213,21 @@
   el('add-player').addEventListener('click', ()=>{
     const name = el('new-player').value.trim() || `Player ${state.players.length+1}`;
     const bal = Math.max(100, Number(el('start-balance').value||1000));
-    state.players.push({id:crypto.randomUUID(), name, balance:bal, betType:'win', bet:0, horseIndex:null});
+    const color = playerColor(state.players.length);
+    state.players.push({id:crypto.randomUUID(), name, balance:bal, color, betType:'win', bet:0, horseIndex:null});
     el('new-player').value=''; renderSetup();
   });
 
   el('start-draft').addEventListener('click', ()=>{ startDraft(); });
   el('back-setup').addEventListener('click', ()=>{ show('setup'); });
 
+  // Player colors (distinct HSLs)
+  function playerColor(i){ const h = Math.round((i*137.508) % 360); return `hsl(${h} 70% 60%)`; }
+
   // --------- Names / colors / images ---------
   const TITLES=["Sir","Lady","Captain","Saint","Baron","Count","Duke","Doctor","General","Mister","Queen","King","Chief","Major","El","La"];
   const ADJ=["Midnight","Lucky","Crimson","Silver","Velvet","Rapid","Quiet","Neon","Maple","Royal","Rocket","Golden","Storm","River","Cinder","Icy","Amber","Shadow","Copper","Brave","Blue","Scarlet","Ivory","Turbo","Jet","Mellow","Northern","Western","Urban","Wild","Bold","Spry","Swift","Gilded","Rusty","Misty","Solar","Lunar","Pepper","Noble","Bright","Nimble","Prime","Verdant","Granite","Iron","Maritime","Sable","Ruby"];
   const NOUN=["Comet","Whisper","Dash","Valor","Charm","Rider","Phantom","Ember","Voyager","Blaze","Echo","Tempo","Spirit","Horizon","Mirage","Thunder","Quasar","Bandit","Biscuit","Falcon","Clover","Nova","Ranger","Marble","Nimbus","Hustle","Rebel","Monarch","Harbor","Zephyr","Harrier","Beacon","Strider","Oracle","Signal","Pioneer","Vector","Summit","Caper","Riddle","Cipher","Pilot","Anchor"];
-
-  function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]] } return a }
 
   function uniqueHorseNames(n){
     const t = shuffle([...TITLES]);
@@ -261,31 +276,49 @@
 
   // --------- Draft ---------
   function startDraft(){
-    state.picks=[]; state.current=0; state.horses = generateHorses(Math.min(NUM_LANES, Math.max(state.players.length+2,6)));
-    show('draft'); renderDraft(); el('dock').hidden=false; el('bet-amount').value=''; el('bet-type').value='win';
-    updatePlayersBar();
+    state.picks=[];
+    state.turnOrder = shuffle([...Array(state.players.length).keys()]);
+    state.turnPtr = 0;
+    state.horses = generateHorses(Math.min(NUM_LANES, Math.max(state.players.length+2,6)));
+    show('draft');
+    renderTurns();
+    renderDraft();
+    el('dock').hidden=false; el('bet-amount').value=''; el('bet-type').value='win';
+    updatePlayersBar(); updateBetSummary();
+  }
+
+  function currentPlayer(){ return state.players[state.turnOrder[state.turnPtr]]; }
+
+  function renderTurns(){
+    const wrap = el('turns'); wrap.innerHTML='';
+    state.turnOrder.forEach((pi,idx)=>{
+      const p = state.players[pi];
+      const chip = document.createElement('div'); chip.className='turn'+(idx===state.turnPtr?' active':'');
+      chip.innerHTML = `<span class="dot" style="background:${p.color}"></span><strong>${p.name}</strong><span class="sub">Bal ${fmt(p.balance)}</span>`;
+      wrap.appendChild(chip);
+    });
   }
 
   function generateHorses(n){
     const names = uniqueHorseNames(n);
     const colors = colorPalette(n);
     return names.map((name,i)=>{
-      const speed = 60 + Math.random()*40;    // top
-      const stamina = 50 + Math.random()*50;  // sustain
-      const burst = 40 + Math.random()*60;    // late kick
-      const temper = 30 + Math.random()*70;   // wobble
+      const speed = 60 + Math.random()*40;
+      const stamina = 50 + Math.random()*50;
+      const burst = 40 + Math.random()*60;
+      const temper = 30 + Math.random()*70;
       const score = 0.5*speed + 0.3*stamina + 0.2*burst;
-      const odds = Math.max(1.4, Math.round((1/((score)/(n*50)*0.9))*10)/10); // decimal
+      const odds = Math.max(1.4, Math.round((1/((score)/(n*50)*0.9))*10)/10);
       return {name,color:colors[i],img:horseSVG(colors[i],i),attr:{speed,stamina,burst,temper},odds,placeOdds:Math.max(1.2,Math.round(odds*PLACE_FACTOR*10)/10)}
     });
   }
 
   function renderDraft(){
     el('status').textContent='Draft';
-    const p = state.players[state.current];
+    const p = currentPlayer();
     qs('#turn-label').textContent = `${p.name}: pick your horse & bet`;
-    const grid = el('horse-grid'); grid.innerHTML='';
 
+    const grid = el('horse-grid'); grid.innerHTML='';
     const favIdx = state.horses.map(h=>1/h.odds).indexOf(Math.max(...state.horses.map(h=>1/h.odds)));
     el('fav-hint').textContent = `Favorite: ${state.horses[favIdx].name} (${state.horses[favIdx].odds.toFixed(2)}x)`;
 
@@ -302,7 +335,12 @@
         <div>
           <div class="badge">${h.odds.toFixed(2)}x</div>
           <div class="sub" style="text-align:center">Place ${h.placeOdds.toFixed(2)}x</div>
-        </div>`;
+        </div>
+        <span class="taken" ${taken? '':'hidden'}>Selected</span>`;
+      if(taken){
+        const pick = state.picks.find(pk=>pk.horseIndex===i);
+        if(pick) card.querySelector('.taken').textContent = `Selected by ${pick.playerName}`;
+      }
       card.addEventListener('click',()=>selectHorse(i, card));
       grid.appendChild(card);
     });
@@ -311,38 +349,48 @@
   }
 
   function selectHorse(i, card){
-    state.players[state.current].horseIndex = i;
+    const p = currentPlayer(); p.horseIndex = i;
     document.querySelectorAll('.horse-card').forEach(c=>c.classList.remove('selected'));
     card.classList.add('selected');
+    updateBetSummary();
     updateLock();
   }
 
   function updateLock(){
-    const p = state.players[state.current];
+    const p = currentPlayer();
     const bet = Number(el('bet-amount').value||0);
-    el('lock-pick').disabled = !(p.horseIndex!=null && bet>0 && bet<=p.balance);
+    el('lock-pick').disabled = !(p?.horseIndex!=null && bet>0 && bet<=p.balance);
   }
 
-  el('bet-amount').addEventListener('input', updateLock);
+  function updateBetSummary(){
+    const p = currentPlayer(); if(!p){ el('bet-summary').textContent='—'; return; }
+    const bet = Number(el('bet-amount').value||0);
+    const left = Math.max(0, p.balance - bet);
+    el('bet-summary').innerHTML = `<strong>${p.name}</strong> • Balance <strong>${fmt(p.balance)}</strong> • Bet <strong style="color:var(--accent)">${fmt(bet)}</strong> • Left <strong>${fmt(left)}</strong>`;
+    renderTurns();
+  }
+
+  el('bet-amount').addEventListener('input', ()=>{ updateBetSummary(); updateLock(); });
   document.querySelectorAll('[data-chip]').forEach(btn=>{
     btn.addEventListener('click',()=>{
-      const v = btn.dataset.chip; const p = state.players[state.current];
+      const v = btn.dataset.chip; const p = currentPlayer(); if(!p) return;
       let bet = Number(el('bet-amount').value||0);
       bet = v==='ALL'? p.balance : Math.min(p.balance, bet + Number(v));
-      el('bet-amount').value = bet; updateLock();
+      el('bet-amount').value = bet; updateBetSummary(); updateLock();
     })
   });
 
   el('lock-pick').addEventListener('click', ()=>{
-    const p = state.players[state.current];
+    const p = currentPlayer();
     p.bet = Number(el('bet-amount').value||0);
     p.betType = el('bet-type').value;
     state.picks.push({playerId:p.id, playerName:p.name, horseIndex:p.horseIndex, bet:p.bet, betType:p.betType});
-    if(state.current < state.players.length-1){ state.current++; renderDraft(); el('bet-amount').value=''; document.querySelectorAll('.horse-card').forEach(c=>c.classList.remove('selected')); }
+    state.turnPtr++;
+    if(state.turnPtr < state.turnOrder.length){ el('bet-amount').value=''; renderTurns(); renderDraft(); updateBetSummary(); }
     else { startRace(); }
   });
 
-  // --------- Race (scrolling straight line, more lead changes, top-3 markers) ---------
+  // --------- Race (scrolling straight line with lead changes) ---------
   function startRace(){
     el('status').textContent='Race'; show('race'); el('dock').hidden=true; el('next-race').hidden=true; el('leaderboard').hidden=false;
     const viewport = el('viewport'); const track = el('track'); track.innerHTML = '<div class="countdown" id="countdown"></div><div class="finish"></div>';
@@ -371,10 +419,10 @@
     const announcer = el('announcer'); announcer.textContent = 'They are off...';
     const board = el('board');
 
-    const trackLength = 3500; // px to finish
+    const trackLength = 3500; // px
     const profiles = lanes.map((_,i)=>{
       const h = state.horses[i];
-      const base = 0.76 + Math.random()*0.08;         // slightly lower to allow rubber-banding
+      const base = 0.76 + Math.random()*0.08;
       const finishBonus = (finalOrder[0]===i? 0.24 : Math.random()*0.10);
       const surges = Array.from({length:8},()=>({at:Math.random()*0.97, mag: (h.attr.burst/550)*(0.5+Math.random()*1.0)})).sort((a,b)=>a.at-b.at);
       const fades = Array.from({length:5},()=>({at:Math.random()*0.92, mag: 0.02+Math.random()*0.04}));
@@ -389,7 +437,6 @@
       const elapsed = Math.min(RACE_DURATION, now-start);
       const t = elapsed/RACE_DURATION; const s = ease(t);
 
-      // first pass: compute base positions
       const baseXs = lanes.map((Lane,i)=>{
         const p = profiles[i];
         let prog = p.target * s;
@@ -400,21 +447,17 @@
         return 50 + prog * trackLength;
       });
 
-      // rubber-banding for more lead changes (catch-up boost for those behind)
       const maxPrevX = Math.max(...prevXs);
       const xs = baseXs.map((x,i)=>{
         const gap = Math.max(0, maxPrevX - prevXs[i]);
-        const catchup = gap * 0.12; // 12% of previous frame gap
+        const catchup = gap * 0.12;
         return x + catchup;
       });
 
-      // apply positions
       xs.forEach((x, i)=>{ lanes[i].runner.style.transform = `translateX(${x}px)`; });
 
-      // determine live order
       const order = xs.map((x,i)=>({i,x})).sort((a,b)=>b.x-a.x).map(o=>o.i);
 
-      // update top-3 markers
       for(let i=0;i<lanes.length;i++){
         const posEl = lanes[i].runner.querySelector('.pos');
         posEl.hidden = true; lanes[i].runner.classList.remove('lead1','lead2','lead3');
@@ -426,27 +469,22 @@
         posEl.className = 'pos ' + (rank===0?'p1':rank===1?'p2':'p3');
       });
 
-      // announcer + count switches
       const leader = order[0];
       if(leader!==lastLeader){ if(lastLeader!==-1) leadSwitches++; lastLeader = leader; announcer.textContent = `${state.horses[leader].name} takes the lead!`; }
 
-      // scroll viewport behind leader
       const maxX = xs[leader];
       const viewCenter = Math.max(0, maxX - (el('viewport').clientWidth*0.6));
       el('viewport').scrollTo({left:viewCenter, behavior:'auto'});
 
-      // live leaderboard panel
       board.innerHTML = order.slice(0,5).map((idx,rank)=>{
         const pick = state.picks.find(p=>p.horseIndex===idx);
         return `<div class=\"rank\">${rank+1}</div><div>${state.horses[idx].name}${pick?` <span class=\"sub\">(${pick.playerName})</span>`:''}</div><div class=\"sub\">${Math.round(xs[idx])} px</div>`;
       }).join('');
 
-      // drama lines
       if(t>0.2 && t<0.23) announcer.textContent = 'They bunch at the quarter!';
       else if(t>0.48 && t<0.52) announcer.textContent = 'Pace quickens — moves on the outside!';
       else if(t>0.8 && t<0.84) announcer.textContent = 'Final drive — who has the kick?';
 
-      // next frame
       prevXs = xs;
       if(elapsed < RACE_DURATION){ requestAnimationFrame(tick); }
       else { announcer.textContent = `Photo finish! Lead changes: ${leadSwitches}`; finishRace(order.map(o=>o)); }
@@ -503,18 +541,17 @@
 
   // Boot with two players default
   state.players = [
-    {id:crypto.randomUUID(), name:'Player 1', balance:1000, betType:'win', bet:0, horseIndex:null},
-    {id:crypto.randomUUID(), name:'Player 2', balance:1000, betType:'win', bet:0, horseIndex:null}
+    {id:crypto.randomUUID(), name:'Player 1', balance:1000, color:playerColor(0), betType:'win', bet:0, horseIndex:null},
+    {id:crypto.randomUUID(), name:'Player 2', balance:1000, color:playerColor(1), betType:'win', bet:0, horseIndex:null}
   ];
   renderSetup();
 
   // Players bar helpers
   window.updatePlayersBar = function(){
     const bar = document.getElementById('players-bar');
-    bar.innerHTML = (state.players||[]).map(p=>`<span class=\"pill\"><strong>${p.name}</strong><span class=\"bal\">${fmt(p.balance)}</span></span>`).join('');
+    bar.innerHTML = (state.players||[]).map(p=>`<span class=\"pill\"><span class=\"dot\" style=\"background:${p.color}\"></span><strong>${p.name}</strong><span class=\"bal\">${fmt(p.balance)}</span></span>`).join('');
   }
 })();
 </script>
 </body>
 </html>
-
