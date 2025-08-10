@@ -7,78 +7,71 @@
   <title>Horse Race — Multiplayer Betting</title>
   <style>
     :root{
-      --navy:#0B1F2A; /* bg */
-      --cream:#FDF5D9; /* text / light surfaces */
-      --red:#D43D3D;   /* accents */
-      --ink:#121212;   /* dark text on light btns */
-      --muted:#C9D5DD; /* subtle lines */
+      --navy:#0B1F2A;
+      --cream:#FDF5D9;
+      --red:#D43D3D;
+      --ink:#121212;
+      --muted:#C9D5DD;
     }
-    html,body{height:100%;}
-    body{
-      margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, sans-serif;
-      background: radial-gradient(1200px 800px at 50% -10%, #103047, var(--navy) 60%);
-      color:var(--cream);
-    }
-    .wrap{max-width:980px;margin:auto;padding:16px;}
-    h1{font-size:1.4rem;margin:0 0 8px 0;}
-    h2{font-size:1.1rem;margin:16px 0 8px 0;}
-    .card{background:rgba(253,245,217,0.06);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:12px;backdrop-filter: blur(4px);}    
+    html,body{height:100%}
+    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;background:radial-gradient(1200px 800px at 50% -10%,#103047,var(--navy) 60%);color:var(--cream)}
+    .wrap{max-width:980px;margin:auto;padding:16px}
+    h1{font-size:1.4rem;margin:0 0 8px 0}
+    h2{font-size:1.1rem;margin:16px 0 8px 0}
+    .card{background:rgba(253,245,217,.06);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:12px;backdrop-filter:blur(4px)}
     .row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
     .col{flex:1 1 200px}
     .btn{appearance:none;border:0;padding:10px 14px;border-radius:12px;background:var(--cream);color:var(--ink);font-weight:600;cursor:pointer}
     .btn[disabled]{opacity:.5;cursor:not-allowed}
     .btn.secondary{background:transparent;color:var(--cream);border:1px solid var(--muted)}
     .btn.red{background:var(--red);color:#fff}
-    input[type=text], input[type=number], select{
-      width:100%;padding:10px;border-radius:10px;border:1px solid var(--muted);background:#0f2535;color:var(--cream);
-    }
+    input[type=text],input[type=number],select{width:100%;padding:10px;border-radius:10px;border:1px solid var(--muted);background:#0f2535;color:var(--cream)}
     label{font-size:.85rem;opacity:.9}
     .kicker{font-size:.85rem;opacity:.9}
     .pill{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--muted);border-radius:999px;padding:6px 10px}
     .grid{display:grid;gap:10px}
-    .grid.two{grid-template-columns:repeat(2,minmax(0,1fr));}
-    .grid.three{grid-template-columns:repeat(3,minmax(0,1fr));}
-    .grid.auto{grid-template-columns:repeat(auto-fill,minmax(180px,1fr));}/* Screens */
-.screen{display:none}
+    .grid.two{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .grid.auto{grid-template-columns:repeat(auto-fill,minmax(180px,1fr))}.screen{display:none}
 .screen.active{display:block}
 
-/* Players list */
 .player{display:flex;align-items:center;justify-content:space-between;padding:8px 10px;border:1px dashed var(--muted);border-radius:10px}
 .balance{font-weight:700}
 
-/* Horses */
-.horse-card{border:1px solid var(--muted);border-radius:12px;padding:10px;display:flex;gap:10px;align-items:center}
-.horse-swatch{width:26px;height:26px;border-radius:50%;border:2px solid rgba(0,0,0,.25)}
-.attrs{font-size:.8rem;opacity:.95}
-.odds{font-size:.85rem;margin-left:auto;text-align:right}
+/* Readable horse cards */
+.horse-card{border:1px solid var(--muted);border-radius:14px;padding:12px;display:flex;gap:12px;align-items:center;background:rgba(253,245,217,.06);cursor:pointer}
+.horse-card:active{transform:scale(.99)}
+.horse-swatch{width:30px;height:30px;border-radius:50%;border:2px solid rgba(0,0,0,.25)}
+.attrs{font-size:.9rem;opacity:.95}
+.odds{font-size:1rem;margin-left:auto;text-align:right}
+.now-selecting{display:flex;align-items:center;justify-content:space-between;margin:6px 0 10px 0}
+.now-selecting .who{font-weight:700;font-size:1.05rem}
 
-/* Race Track */
-.track{position:relative;background:#0c1f2c;border:1px solid var(--muted);border-radius:14px;padding:14px;height:280px;overflow:hidden}
-.lane{position:relative;height:calc((280px - 14px)/6);border-bottom:1px dashed rgba(255,255,255,.12)}
+/* Scrolling track */
+.trackViewport{position:relative;background:#0c1f2c;border:1px solid var(--muted);border-radius:14px;height:320px;overflow:hidden}
+.world{position:absolute;left:0;top:0;height:100%;will-change:transform}
+.lane{position:relative;height:calc(100%/6);border-bottom:1px dashed rgba(255,255,255,.12)}
 .lane:last-child{border-bottom:0}
-.finish{position:absolute;top:0;right:80px;height:100%;width:2px;background:linear-gradient(to bottom, rgba(255,255,255,.2) 50%, transparent 50%);background-size:2px 12px}
-.runner{position:absolute;left:0;top:50%;transform:translate(-50%,-50%);display:flex;align-items:center;gap:8px;transition:filter .2s ease}
-.runner .icon{font-size:20px}
-.runner .tag{background:rgba(253,245,217,.9);color:#111;padding:3px 8px;border-radius:999px;font-size:.75rem;font-weight:700}
+.finish{position:absolute;top:0;height:100%;width:4px;background:linear-gradient(to bottom, rgba(255,255,255,.5) 40%, transparent 40%);background-size:4px 12px}
+.runner{position:absolute;top:50%;transform:translate(-50%,-50%);display:flex;align-items:center;gap:8px;transition:filter .2s ease;will-change:transform}
+.runner .icon{font-size:22px}
+.runner .tag{background:rgba(253,245,217,.95);color:#111;padding:4px 9px;border-radius:999px;font-size:.8rem;font-weight:800}
 .runner.top3{filter:drop-shadow(0 0 8px rgba(212,61,61,.8))}
 
 .progressbar{height:8px;background:#072032;border-radius:999px;overflow:hidden;border:1px solid rgba(255,255,255,.08)}
-.progressbar > div{height:100%;background:linear-gradient(90deg, var(--cream), #fff);width:0%}
+.progressbar>div{height:100%;background:linear-gradient(90deg,var(--cream),#fff);width:0%}
 
-/* Bet stepper */
+/* Bottom sheet */
 .stepper{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:flex-end}
 .stepper.active{display:flex}
 .sheet{background:rgba(253,245,217,1);color:#111;border-radius:16px 16px 0 0;padding:14px;width:100%;max-width:980px;margin:0 auto}
 .sheet h3{margin:0 0 8px 0}
+.bet-type{display:flex;gap:8px}
+.seg{flex:1;border:1px solid #bbb;border-radius:10px;padding:10px 12px;text-align:center;background:#fff;cursor:pointer;font-weight:700}
+.seg.active{background:#111;color:#fff;border-color:#111}
 
-/* Results */
 .results-list .item{display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid var(--muted);border-radius:10px}
 
-/* Mobile tweaks */
-@media(min-width:760px){
-  .track{height:340px}
-  .lane{height:calc((340px - 14px)/6)}
-}
+@media(min-width:760px){.trackViewport{height:360px}}
 
   </style>
 </head>
@@ -92,50 +85,47 @@
           <input id="startBal" type="number" min="1" value="1000" />
         </div>
         <div class="row" style="justify-content:flex-end">
-          <button class="btn" id="quick2">Quick‑add 2</button>
+          <button class="btn" id="quick2">Quick add 2</button>
           <button class="btn" id="quick3">3</button>
           <button class="btn" id="quick4">4</button>
           <button class="btn" id="quick5">5</button>
           <button class="btn" id="quick6">6</button>
         </div>
-      </div><div class="card" style="margin-top:12px">
-    <div class="grid two">
-      <div class="col">
-        <label for="playerName">Add player</label>
-        <input id="playerName" type="text" placeholder="Name" />
       </div>
-      <div class="row" style="align-items:end;justify-content:flex-end">
-        <button class="btn" id="addPlayer">Add</button>
-        <button class="btn secondary" id="clearPlayers">Clear</button>
+      <div class="card" style="margin-top:12px">
+        <div class="grid two">
+          <div class="col">
+            <label for="playerName">Add player</label>
+            <input id="playerName" type="text" placeholder="Name" />
+          </div>
+          <div class="row" style="align-items:end;justify-content:flex-end">
+            <button class="btn" id="addPlayer">Add</button>
+            <button class="btn secondary" id="clearPlayers">Clear</button>
+          </div>
+        </div>
+        <div id="playersList" class="grid auto" style="margin-top:10px"></div>
       </div>
-    </div>
-    <div id="playersList" class="grid auto" style="margin-top:10px"></div>
+      <div class="row" style="margin-top:12px;justify-content:space-between">
+        <div class="kicker">2–6 players</div>
+        <button class="btn red" id="startGame" disabled>Start Game</button>
+      </div>
+    </div><div id="screen-bet" class="screen">
+  <div class="now-selecting">
+    <div class="who" id="nowWho">&nbsp;</div>
+    <div class="pill"><span id="roundPlayers"></span> players • bets deducted on confirm</div>
   </div>
-
-  <div class="row" style="margin-top:12px;justify-content:space-between">
-    <div class="kicker">2–6 players. Balances shown below each name.</div>
-    <button class="btn red" id="startGame" disabled>Start Game</button>
-  </div>
-</div>
-
-<div id="screen-bet" class="screen">
-  <div class="row" style="justify-content:space-between;align-items:flex-end">
-    <div>
-      <h2>Pick & Bet</h2>
-      <div class="kicker">Order is randomized each round.</div>
-    </div>
-    <div class="pill"><span id="roundPlayers"></span> players • <span id="roundBalanceHint"></span></div>
-  </div>
-  <div id="horsesGrid" class="grid auto" style="margin-top:10px"></div>
+  <div id="horsesGrid" class="grid auto" style="margin-top:6px"></div>
   <div class="progressbar" style="margin-top:10px"><div id="selectProgress"></div></div>
 </div>
 
 <div id="screen-race" class="screen">
   <div class="row" style="justify-content:space-between;align-items:flex-end">
     <h2>Race</h2>
-    <div class="pill">Duration ~20s</div>
+    <div class="pill">20s real time</div>
   </div>
-  <div class="track" id="track"></div>
+  <div class="trackViewport" id="trackViewport">
+    <div class="world" id="world"></div>
+  </div>
   <div class="row" style="margin-top:10px;justify-content:space-between">
     <button class="btn secondary" id="abortRace">Abort</button>
     <div class="row" style="gap:8px"><span class="pill">Top 3 highlighted</span></div>
@@ -145,7 +135,7 @@
 <div id="screen-results" class="screen">
   <div class="row" style="justify-content:space-between;align-items:flex-end">
     <h2>Results</h2>
-    <div class="pill" id="payoutSummary">Payouts posted</div>
+    <div class="pill" id="payoutSummary">Payouts</div>
   </div>
   <div class="grid two" style="margin-top:10px">
     <div class="card">
@@ -166,22 +156,14 @@
   </div>
 </div>
 
-  </div>  <!-- Bottom sheet: per‑player selection step -->  <div id="stepper" class="stepper" role="dialog" aria-modal="true">
+  </div>  <!-- Bottom sheet -->  <div id="stepper" class="stepper" role="dialog" aria-modal="true">
     <div class="sheet">
       <h3 id="stepTitle">Your bet</h3>
       <div class="kicker" id="stepBalance"></div>
-      <div class="grid two" style="margin-top:8px">
-        <div>
-          <label>Horse</label>
-          <select id="stepHorse"></select>
-        </div>
-        <div>
-          <label>Bet type</label>
-          <select id="stepType">
-            <option value="win">Win</option>
-            <option value="place">Place</option>
-          </select>
-        </div>
+      <div id="pickedHorse" class="kicker" style="margin-top:6px"></div>
+      <div class="bet-type" style="margin-top:10px">
+        <div id="segWin" class="seg active" data-type="win">Win</div>
+        <div id="segPlace" class="seg" data-type="place">Place</div>
       </div>
       <div class="grid two" style="margin-top:8px;align-items:end">
         <div>
@@ -195,331 +177,66 @@
       </div>
     </div>
   </div><script>
-// ======= State =======
-const state = {
-  players: [], // {name, balance, active:true}
-  horses: [],  // per round
-  selectionOrder: [],
-  bets: [],    // {playerIdx, horseId, type:'win'|'place', amount}
-  race: null   // runtime refs
-};
+const state={players:[],horses:[],selectionOrder:[],bets:[],race:null};
+const $=id=>document.getElementById(id);
+const randi=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
+const choice=a=>a[Math.floor(Math.random()*a.length)];
+const shuffle=a=>a.map(v=>[Math.random(),v]).sort((x,y)=>x[0]-y[0]).map(v=>v[1]);
 
-// Utility
-const $ = (id)=>document.getElementById(id);
-const randi = (min,max)=>Math.floor(Math.random()*(max-min+1))+min;
-const choice = (arr)=>arr[Math.floor(Math.random()*arr.length)];
-const shuffle = (arr)=>arr.map(v=>[Math.random(),v]).sort((a,b)=>a[0]-b[0]).map(v=>v[1]);
+const HORSE_COLORS=['#F94144','#F3722C','#F8961E','#90BE6D','#43AA8B','#577590'];
+const N1=['Crimson','Silver','Midnight','Rocket','Lucky','Storm','Velvet','Turbo','Copper','Neon','Royal','Echo','Maverick','Comet','Blaze'];
+const N2=['Comet','Whisper','Bolt','Stride','Rider','Spirit','Dash','Charm','Jade','Valor','Nimbus','Falcon','Drifter','Clover','Halo'];
 
-// Theme horse colors
-const HORSE_COLORS = ['#F94144','#F3722C','#F8961E','#90BE6D','#43AA8B','#577590'];
+// Setup
+const playersList=$('playersList');
+function renderPlayers(){playersList.innerHTML='';state.players.forEach(p=>{const el=document.createElement('div');el.className='player';el.innerHTML=`<div><strong>${p.name}</strong><div class="kicker">${p.active?'Active':'Left game'}</div></div><div class="balance">${p.balance.toFixed(0)}</div>`;playersList.appendChild(el)});$('startGame').disabled=state.players.filter(p=>p.active).length<2}
+function addPlayer(name){if(!name||state.players.length>=6)return;const bal=Number($('startBal').value)||1000;state.players.push({name:name.trim(),balance:bal,active:true});renderPlayers()}
+const sampleNames=['Alex','Sam','Jordan','Riley','Taylor','Casey','Morgan','Quinn','Drew','Parker'];
+function quickAdd(n){while(state.players.length<n){addPlayer(sampleNames[state.players.length%sampleNames.length])}}
+$('addPlayer').onclick=()=>{addPlayer($('playerName').value);$('playerName').value='';$('playerName').focus()}
+$('clearPlayers').onclick=()=>{state.players=[];renderPlayers()}
+;['quick2','quick3','quick4','quick5','quick6'].forEach((id,i)=>{$(id).onclick=()=>quickAdd(i+2)})
+$('startGame').onclick=()=>{goto('bet');startBettingRound()}
 
-// Name parts
-const N1 = ['Crimson','Silver','Midnight','Rocket','Lucky','Storm','Velvet','Turbo','Copper','Neon','Royal','Echo','Maverick','Comet','Blaze'];
-const N2 = ['Comet','Whisper','Bolt','Stride','Rider','Spirit','Dash','Charm','Jade','Valor','Nimbus','Falcon','Drifter','Clover','Halo'];
+function goto(key){['setup','bet','race','results'].forEach(k=>{const el=$('screen-'+k);if(el)el.classList.toggle('active',k===key)})}
 
-// ======= Setup Screen =======
-const playersList = $('playersList');
-function renderPlayers() {
-  playersList.innerHTML = '';
-  state.players.forEach((p,idx)=>{
-    const el = document.createElement('div');
-    el.className = 'player';
-    el.innerHTML = `<div><strong>${p.name}</strong><div class="kicker">${p.active? 'Active' : 'Left game'}</div></div>
-                    <div class="balance">${p.balance.toFixed(0)}</div>`;
-    playersList.appendChild(el);
-  });
-  $('startGame').disabled = state.players.filter(p=>p.active).length < 2;
-}
+function uniqueNames(){const used=new Set(),res=[];for(let i=0;i<6;i++){let tries=0,name='';do{name=`${choice(N1)} ${choice(N2)}`;tries++}while(used.has(name)&&tries<50);used.add(name);res.push(name)}return res}
+function genHorses(){const names=uniqueNames();state.horses=names.map((name,i)=>{const speed=randi(60,85),stamina=randi(55,90),burst=randi(60,95);const rating=speed*.45+stamina*.35+burst*.20;const winOdds=Math.max(1.4,(260/(rating)));const placeOdds=Math.max(1.2,winOdds*.55);return{id:i,name,color:HORSE_COLORS[i%HORSE_COLORS.length],attrs:{speed,stamina,burst},odds:{win:Number(winOdds.toFixed(2)),place:Number(placeOdds.toFixed(2))},progress:0,finished:false,finishRank:null}})}
 
-function addPlayer(name){
-  if(!name) return;
-  if(state.players.length>=6) return;
-  const bal = Number($('startBal').value)||1000;
-  state.players.push({name:name.trim(), balance:bal, active:true});
-  renderPlayers();
-}
+function renderHorseGrid(){const grid=$('horsesGrid');grid.innerHTML='';state.horses.forEach(h=>{const card=document.createElement('button');card.type='button';card.className='horse-card';card.dataset.id=h.id;card.innerHTML=`<div class="horse-swatch" style="background:${h.color}"></div><div><div style="font-weight:800;font-size:1rem">${h.name}</div><div class="attrs">Spd ${h.attrs.speed} · Sta ${h.attrs.stamina} · Brst ${h.attrs.burst}</div></div><div class="odds"><div>Win <strong>${h.odds.win}x</strong></div><div>Place <strong>${h.odds.place}x</strong></div></div>`;card.onclick=()=>onHorseTapped(h.id);grid.appendChild(card)})}
 
-// Quick add helpers
-const sampleNames = ['Alex','Sam','Jordan','Riley','Taylor','Casey','Morgan','Quinn','Drew','Parker'];
-function quickAdd(n){
-  while(state.players.length<n){ addPlayer(sampleNames[(state.players.length)%sampleNames.length]); }
-}
+// Selection flow: tap horse → bottom sheet to enter type and amount
+const stepper=$('stepper');const stepTitle=$('stepTitle');const stepBalance=$('stepBalance');const pickedHorse=$('pickedHorse');const stepAmount=$('stepAmount');const segWin=$('segWin');const segPlace=$('segPlace');
+let currentOrderIdx=-1;let pendingHorseId=null;let currentType='win';
 
-$('addPlayer').onclick = ()=>{ addPlayer($('playerName').value); $('playerName').value=''; $('playerName').focus(); };
-$('clearPlayers').onclick = ()=>{ state.players=[]; renderPlayers(); };
-['quick2','quick3','quick4','quick5','quick6'].forEach((id,i)=>{
-  $(id).onclick = ()=> quickAdd(i+2);
-});
+function startBettingRound(){genHorses();renderHorseGrid();state.bets=[];const activeIdxs=state.players.map((p,i)=>[p.active,i]).filter(x=>x[0]).map(x=>x[1]);state.selectionOrder=shuffle(activeIdxs);$('roundPlayers').textContent=activeIdxs.length;currentOrderIdx=-1;nextPlayer()}
+function updateNowSelecting(){const idx=state.selectionOrder[currentOrderIdx];const p=state.players[idx];$('nowWho').textContent=`Now selecting: ${p.name} • Balance ${p.balance.toFixed(0)}`}
+function nextPlayer(){currentOrderIdx++;const total=state.selectionOrder.length;$('selectProgress').style.width=((currentOrderIdx)/total*100).toFixed(1)+'%';if(currentOrderIdx>=total){startRace();return}updateNowSelecting()}
+function onHorseTapped(horseId){pendingHorseId=horseId;openStepperForCurrent()}
+function openStepperForCurrent(){const p=state.players[state.selectionOrder[currentOrderIdx]];const h=state.horses.find(x=>x.id===pendingHorseId)||state.horses[0];stepTitle.textContent=`${p.name} — Place your bet`;stepBalance.textContent=`Balance: ${p.balance.toFixed(0)} credits`;pickedHorse.textContent=`Horse: ${h.name} • Win ${h.odds.win}x • Place ${h.odds.place}x`;stepAmount.max=Math.max(1,Math.floor(p.balance));stepAmount.value=Math.min(100,Math.floor(p.balance));currentType='win';segWin.classList.add('active');segPlace.classList.remove('active');stepper.classList.add('active')}
+function closeStepper(){stepper.classList.remove('active')}
+segWin.onclick=()=>{currentType='win';segWin.classList.add('active');segPlace.classList.remove('active')}
+segPlace.onclick=()=>{currentType='place';segPlace.classList.add('active');segWin.classList.remove('active')}
+$('skipPlayer').onclick=()=>{closeStepper();nextPlayer()}
+$('confirmBet').onclick=()=>{const orderIdx=currentOrderIdx;const playerIdx=state.selectionOrder[orderIdx];const p=state.players[playerIdx];const amount=Math.max(1,Math.floor(Number(stepAmount.value)||0));if(amount>p.balance){alert('Insufficient balance');return}const hId=Number(pendingHorseId);p.balance-=amount;state.bets.push({playerIdx,horseId:hId,type:currentType,amount});closeStepper();nextPlayer()}
 
-$('startGame').onclick = ()=>{
-  goto('bet');
-  startBettingRound();
-};
+// Race — 20s, horizontal scrolling camera
+const duration=20000;let trackLength=4000; // px of world width
+function createWorld(){const world=$('world');world.innerHTML='';const lanes=6;const viewport=$('trackViewport');const vw=viewport.clientWidth;world.style.width=trackLength+'px';// lanes and runners
+state.horses.forEach((h,idx)=>{const lane=document.createElement('div');lane.className='lane';lane.style.width='100%';lane.style.height=(100/lanes)+'%';lane.style.position='relative';lane.dataset.id=h.id;const runner=document.createElement('div');runner.className='runner';runner.id='runner-'+h.id;runner.innerHTML=`<span class="icon">🐎</span><span class="tag">${h.name.split(' ')[0]}</span>`;runner.style.left='20px';lane.appendChild(runner);world.appendChild(lane)});const finish=document.createElement('div');finish.className='finish';finish.style.left=(trackLength-120)+'px';world.appendChild(finish)}
 
-// ======= Screen Nav =======
-function goto(key){
-  ['setup','bet','race','results'].forEach(k=>{
-    const el = $('screen-'+k);
-    if(el) el.classList.toggle('active', k===key);
-  });
-}
+function startRace(){goto('race');createWorld();const start=performance.now();const viewport=$('trackViewport');const world=$('world');const vw=viewport.clientWidth;const cameraMax=Math.max(0,trackLength-vw+80);const finishedOrder=[];state.horses.forEach(h=>{h.progress=0;h.finished=false;h.finishRank=null;h.surges=Array.from({length:randi(3,5)},()=>({t0:Math.random()*0.8,len:0.06+Math.random()*0.12,mag:1.12+Math.random()*0.25}))});
+  function step(now){const t=Math.min(1,(now-start)/duration);const leaders=[];state.horses.forEach(h=>{if(h.finished)return;const base=(h.attrs.speed*.55+h.attrs.stamina*.30+h.attrs.burst*.15)/100;const fade=t>0.7?(1-(h.attrs.stamina/120))*(t-0.7)*1.4:0;let surge=1;for(const s of h.surges){if(t>=s.t0&&t<=s.t0+s.len){surge=s.mag;break}}const pace=Math.max(0.2,base*surge - fade*0.6);h.progress=Math.min(1,h.progress+pace*0.008);const x=Math.min(trackLength-120,20+h.progress*(trackLength-140));const runner=$('runner-'+h.id);if(runner)runner.style.transform=`translate3d(${x}px,-50%,0)`;if(!h.finished&&x>=trackLength-120){h.finished=true;h.finishRank=finishedOrder.length+1;finishedOrder.push(h)}leaders.push({id:h.id,x})});leaders.sort((a,b)=>b.x-a.x);state.horses.forEach(h=>{const el=$('runner-'+h.id);if(!el)return;el.classList.toggle('top3',leaders.findIndex(L=>L.id===h.id)<3)});const cameraX=t*cameraMax;world.style.transform=`translate3d(${-cameraX}px,0,0)`;if(t<1){requestAnimationFrame(step)}else{const remain=state.horses.filter(h=>!h.finished).sort((a,b)=>b.progress-a.progress);for(const h of remain){h.finished=true;h.finishRank=finishedOrder.length+1;finishedOrder.push(h)}postRace(finishedOrder)}}requestAnimationFrame(step)}
 
-// ======= Horses Generation =======
-function uniqueNames(){
-  const used = new Set();
-  const res = [];
-  for(let i=0;i<6;i++){
-    let tries=0, name='';
-    do{
-      name = `${choice(N1)} ${choice(N2)}`;
-      tries++;
-    } while(used.has(name) && tries<50);
-    used.add(name);
-    res.push(name);
-  }
-  return res;
-}
+function postRace(order){const first=order.find(h=>h.finishRank===1);const podium=new Set(order.filter(h=>h.finishRank<=3).map(h=>h.id));let paidWin=0,paidPlace=0;for(const bet of state.bets){const p=state.players[bet.playerIdx];const h=state.horses.find(x=>x.id===bet.horseId);let win=0;if(bet.type==='win'&&h.id===first.id){win=bet.amount*h.odds.win;paidWin+=win}if(bet.type==='place'&&podium.has(h.id)){win=bet.amount*h.odds.place;paidPlace+=win}p.balance+=win}
+  const finalOrder=$('finalOrder');finalOrder.innerHTML='';order.forEach(h=>{const d=document.createElement('div');d.className='item';const who=state.bets.filter(b=>b.horseId===h.id).map(b=>state.players[b.playerIdx].name).join(', ')||'—';d.innerHTML=`<div class="horse-swatch" style="background:${h.color}"></div><div><strong>#${h.finishRank} ${h.name}</strong><div class="kicker">Picked by: ${who}</div></div><div class="odds" style="margin-left:auto">Win ${h.odds.win}× · Place ${h.odds.place}×</div>`;finalOrder.appendChild(d)});
+  const balances=$('balances');balances.innerHTML='';state.players.forEach(p=>{const el=document.createElement('div');el.className='player';el.innerHTML=`<div><strong>${p.name}</strong></div><div class="balance">${p.balance.toFixed(0)}</div>`;balances.appendChild(el)});$('payoutSummary').textContent=`Paid Win: ${paidWin.toFixed(0)} • Place: ${paidPlace.toFixed(0)}`;goto('results')}
 
-function genHorses(){
-  const names = uniqueNames();
-  const horses = names.map((name,i)=>{
-    const speed   = randi(60,85);   // base pace influence
-    const stamina = randi(55,90);   // late race
-    const burst   = randi(60,95);   // sprints
-    // derive odds inversely from combined rating
-    const rating = speed*0.45 + stamina*0.35 + burst*0.20;
-    const winOdds = Math.max(1.4, (260/(rating)) ); // ~1.4 to ~3.5
-    const placeOdds = Math.max(1.2, winOdds*0.55);   // gentler payout
-    return {
-      id:i,
-      name,
-      color:HORSE_COLORS[i%HORSE_COLORS.length],
-      attrs:{speed,stamina,burst},
-      odds:{win:Number(winOdds.toFixed(2)), place:Number(placeOdds.toFixed(2))},
-      progress:0, finished:false, finishRank:null
-    };
-  });
-  state.horses = horses;
-}
+$('nextRound').onclick=()=>{startBettingRound()};
+$('resetGame').onclick=()=>{state.horses=[];state.bets=[];state.selectionOrder=[];goto('setup')};
+$('abortRace').onclick=()=>{goto('results')};
+$('leavePlayers').onclick=()=>{state.players=state.players.filter(p=>p.balance>0);if(state.players.filter(p=>p.active).length<2){goto('setup');renderPlayers()}else{const balances=$('balances');balances.innerHTML='';state.players.forEach(p=>{const el=document.createElement('div');el.className='player';el.innerHTML=`<div><strong>${p.name}</strong></div><div class="balance">${p.balance.toFixed(0)}</div>`;balances.appendChild(el)})}};
 
-function renderHorseGrid(){
-  const grid = $('horsesGrid');
-  grid.innerHTML = '';
-  state.horses.forEach(h=>{
-    const card = document.createElement('div');
-    card.className = 'horse-card';
-    card.innerHTML = `
-      <div class="horse-swatch" style="background:${h.color}"></div>
-      <div>
-        <div style="font-weight:700">${h.name}</div>
-        <div class="attrs">Spd ${h.attrs.speed} · Sta ${h.attrs.stamina} · Brst ${h.attrs.burst}</div>
-      </div>
-      <div class="odds">
-        <div>Win <strong>${h.odds.win}x</strong></div>
-        <div>Place <strong>${h.odds.place}x</strong></div>
-      </div>`;
-    grid.appendChild(card);
-  });
-}
-
-// ======= Betting Stepper =======
-const stepper = $('stepper');
-const stepTitle = $('stepTitle');
-const stepBalance = $('stepBalance');
-const stepHorse = $('stepHorse');
-const stepType = $('stepType');
-const stepAmount = $('stepAmount');
-const selectProgress = $('selectProgress');
-
-function openStepper(playerIdx){
-  const p = state.players[playerIdx];
-  stepTitle.textContent = `${p.name} — Place your bet`;
-  stepBalance.textContent = `Balance: ${p.balance.toFixed(0)} credits`;
-  stepHorse.innerHTML = state.horses.map(h=>`<option value="${h.id}">${h.name}</option>`).join('');
-  stepAmount.max = Math.max(1, Math.floor(p.balance));
-  stepAmount.value = Math.min(100, Math.floor(p.balance));
-  stepType.value = 'win';
-  stepper.classList.add('active');
-}
-
-$('skipPlayer').onclick = ()=>{ closeStepper(); nextPlayer(); };
-$('confirmBet').onclick = ()=>{
-  const orderIdx = currentOrderIdx;
-  const playerIdx = state.selectionOrder[orderIdx];
-  const p = state.players[playerIdx];
-  const amount = Math.max(1, Math.floor(Number(stepAmount.value)||0));
-  if(amount>p.balance){ alert('Insufficient balance'); return; }
-  const horseId = Number(stepHorse.value);
-  const type = stepType.value;
-  // lock bet and deduct immediately so balance is obvious pre‑race
-  p.balance -= amount;
-  state.bets.push({playerIdx, horseId, type, amount});
-  closeStepper();
-  nextPlayer();
-};
-
-function closeStepper(){ stepper.classList.remove('active'); }
-
-let currentOrderIdx = -1;
-function startBettingRound(){
-  genHorses();
-  renderHorseGrid();
-  state.bets = [];
-  const activeIdxs = state.players.map((p,i)=>[p.active,i]).filter(x=>x[0]).map(x=>x[1]);
-  state.selectionOrder = shuffle(activeIdxs);
-  $('roundPlayers').textContent = activeIdxs.length;
-  $('roundBalanceHint').textContent = 'bets deducted on confirm';
-  goto('bet');
-  currentOrderIdx = -1;
-  nextPlayer();
-}
-
-function nextPlayer(){
-  currentOrderIdx++;
-  const total = state.selectionOrder.length;
-  selectProgress.style.width = ((currentOrderIdx)/total*100).toFixed(1)+'%';
-  if(currentOrderIdx>=total){
-    startRace();
-    return;
-  }
-  openStepper(state.selectionOrder[currentOrderIdx]);
-}
-
-// ======= Race =======
-function easeInOut(t){ return t<.5 ? 2*t*t : -1+(4-2*t)*t; }
-
-function createTrack(){
-  const t = $('track'); t.innerHTML='';
-  const finish = document.createElement('div'); finish.className='finish'; t.appendChild(finish);
-  state.horses.forEach((h,idx)=>{
-    const lane = document.createElement('div'); lane.className='lane'; lane.dataset.id=h.id;
-    const runner = document.createElement('div'); runner.className='runner'; runner.id='runner-'+h.id;
-    runner.style.top = '50%';
-    runner.innerHTML = `<span class="icon">🐎</span><span class="tag">${h.name.split(' ')[0]}</span>`;
-    lane.appendChild(runner); t.appendChild(lane);
-  });
-}
-
-function startRace(){
-  goto('race');
-  createTrack();
-  const duration = 20000; // 20s
-  const start = performance.now();
-  const finishX = $('track').clientWidth - 110; // leave room before finish stripe
-  const finishedOrder = [];
-
-  // per‑horse random surge windows
-  state.horses.forEach(h=>{
-    h.progress = 0; h.finished=false; h.finishRank=null;
-    h.surges = Array.from({length: randi(3,5)}, ()=>({
-      t0: Math.random()*0.8, // start between 0% and 80%
-      len: 0.06 + Math.random()*0.12, // 6–18% of race time
-      mag: 1.12 + Math.random()*0.25 // surge magnitude
-    }));
-  });
-
-  function step(now){
-    const t = Math.min(1, (now-start)/duration);
-    let leaders = [];
-    state.horses.forEach((h,i)=>{
-      if(h.finished) return;
-      // base pace from attributes
-      const base = (h.attrs.speed*0.55 + h.attrs.stamina*0.30 + h.attrs.burst*0.15)/100; // ~0.6–0.85
-      // stamina fade after 70%, reduced by stamina
-      const fade = t>0.7 ? (1 - (h.attrs.stamina/120))*(t-0.7)*1.4 : 0; // small slowdown
-      // surges
-      let surge=1;
-      for(const s of h.surges){ if(t>=s.t0 && t<=s.t0+s.len){ surge = s.mag; break; } }
-      const pace = Math.max(0.2, base*surge - fade*0.6);
-      // integrate toward finish with easing to smooth visuals
-      h.progress = Math.min(1, h.progress + pace*0.0085 );
-      const x = Math.min(finishX, 20 + h.progress*finishX);
-      const runner = $('runner-'+h.id);
-      if(runner) runner.style.left = x+'px';
-      // handle finish locking in order
-      if(!h.finished && x>=finishX){
-        h.finished = true; h.finishRank = finishedOrder.length+1; finishedOrder.push(h);
-      }
-      leaders.push({id:h.id, x});
-    });
-
-    // highlight top3 by current x (for drama)
-    leaders.sort((a,b)=>b.x-a.x);
-    state.horses.forEach(h=>{
-      const el = $('runner-'+h.id);
-      if(!el) return;
-      el.classList.toggle('top3', leaders.findIndex(L=>L.id===h.id)<3);
-    });
-
-    if(t<1){ requestAnimationFrame(step); }
-    else {
-      // ensure all have a rank
-      const remain = state.horses.filter(h=>!h.finished).sort((a,b)=>b.progress-a.progress);
-      for(const h of remain){ h.finished = true; h.finishRank = finishedOrder.length+1; finishedOrder.push(h); }
-      postRace(finishedOrder);
-    }
-  }
-  requestAnimationFrame(step);
-}
-
-// ======= Results & Payouts =======
-function postRace(order){
-  // Calculate payouts
-  const first = order.find(h=>h.finishRank===1);
-  const podium = new Set(order.filter(h=>h.finishRank<=3).map(h=>h.id));
-
-  let paidWin=0, paidPlace=0;
-  for(const bet of state.bets){
-    const p = state.players[bet.playerIdx];
-    const h = state.horses.find(x=>x.id===bet.horseId);
-    let win=0;
-    if(bet.type==='win' && h.id===first.id){ win = bet.amount * h.odds.win; paidWin += win; }
-    if(bet.type==='place' && podium.has(h.id)) { win = bet.amount * h.odds.place; paidPlace += win; }
-    p.balance += win; // bets already deducted on confirm
-  }
-
-  // Render results
-  const finalOrder = $('finalOrder'); finalOrder.innerHTML='';
-  order.forEach(h=>{
-    const d = document.createElement('div'); d.className='item';
-    const who = state.bets.filter(b=>b.horseId===h.id).map(b=>state.players[b.playerIdx].name).join(', ') || '—';
-    d.innerHTML = `<div class="horse-swatch" style="background:${h.color}"></div>
-                   <div><strong>#${h.finishRank} ${h.name}</strong><div class="kicker">Picked by: ${who}</div></div>
-                   <div class="odds" style="margin-left:auto">Win ${h.odds.win}× · Place ${h.odds.place}×</div>`;
-    finalOrder.appendChild(d);
-  });
-
-  const balances = $('balances'); balances.innerHTML='';
-  state.players.forEach(p=>{
-    const el = document.createElement('div'); el.className='player';
-    el.innerHTML = `<div><strong>${p.name}</strong></div><div class="balance">${p.balance.toFixed(0)}</div>`;
-    balances.appendChild(el);
-  });
-
-  $('payoutSummary').textContent = `Paid Win: ${paidWin.toFixed(0)} • Place: ${paidPlace.toFixed(0)}`;
-  goto('results');
-}
-
-$('nextRound').onclick = ()=>{ startBettingRound(); };
-$('resetGame').onclick = ()=>{ state.horses=[]; state.bets=[]; state.selectionOrder=[]; goto('setup'); };
-$('abortRace').onclick = ()=>{ goto('results'); };
-$('leavePlayers').onclick = ()=>{
-  // Remove players with 0 balance or toggle via prompt
-  state.players = state.players.filter(p=>p.balance>0);
-  // If fewer than 2 remain, go to setup
-  if(state.players.filter(p=>p.active).length<2){ goto('setup'); renderPlayers(); }
-  else {
-    // Update balances view
-    const balances = $('balances'); balances.innerHTML='';
-    state.players.forEach(p=>{
-      const el = document.createElement('div'); el.className='player';
-      el.innerHTML = `<div><strong>${p.name}</strong></div><div class="balance">${p.balance.toFixed(0)}</div>`;
-      balances.appendChild(el);
-    });
-  }
-};
-
-// Initial
 renderPlayers();
 </script></body>
 </html>
