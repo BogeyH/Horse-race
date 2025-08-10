@@ -4,62 +4,63 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Photo Finish — Horse Race Bets</title>
+  <title>Photo Finish — Multiplayer Horse Race</title>
   <style>
     :root{
-      --ink:#0b1f2a; --paper:#f8f5ef; --accent:#d43d3d; --muted:#6c6e70; --win:#1a7f37; --loss:#9b1c1c;
+      --ink:#0b1f2a; --paper:#f7f4ee; --accent:#d43d3d; --muted:#6c6e70; --win:#1a7f37; --loss:#9b1c1c;
       --sky1:#dff1ff; --sky2:#bdd8f3; --turf:#cfe9cf; --track:#e6d1b2; --rail:#ffffff;
     }
     *{box-sizing:border-box}
     html,body{margin:0;height:100%;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:var(--ink);background:var(--paper)}
     button{font:inherit}
-    .app{max-width:780px;margin:0 auto;min-height:100%;display:flex;flex-direction:column}
-    header{position:sticky;top:0;z-index:10;background:linear-gradient(#fff0, #fff0 50%, var(--paper)), var(--paper);backdrop-filter:saturate(1.1) blur(6px);}
+    .app{max-width:820px;margin:0 auto;min-height:100%;display:flex;flex-direction:column}
+    header{position:sticky;top:0;z-index:20;background:linear-gradient(#fff0, #fff0 40%, var(--paper)), var(--paper);backdrop-filter:saturate(1.1) blur(6px);}
     .bar{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid #e6e1d9}
+    .timer{font-variant-numeric:tabular-nums;font-weight:700}
     .balance{font-weight:700}
-    .btn{display:inline-flex;align-items:center;justify-content:center;padding:12px 14px;border-radius:12px;border:1px solid #dcd7cf;background:white;cursor:pointer;transition:transform .02s ease-in-out,opacity .15s,box-shadow .15s}
-    .btn:active{transform:translateY(1px)}
-    .btn[disabled]{opacity:.55;cursor:not-allowed}
-    .btn.primary{background:var(--ink);color:#fff;border-color:var(--ink);box-shadow:0 6px 18px rgba(11,31,42,.18)}
-    .btn.cash{background:#fff;border-color:var(--accent);color:var(--accent)}
     .screen{padding:12px 12px 96px}
-    .section-title{font-size:13px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);margin:10px 2px}/* Horses list */
+    .section-title{font-size:13px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);margin:10px 2px}
+    .sub{font-size:12px;color:var(--muted)}.btn{display:inline-flex;align-items:center;justify-content:center;padding:12px 14px;border-radius:12px;border:1px solid #dcd7cf;background:white;cursor:pointer;transition:transform .02s ease,opacity .15s,box-shadow .15s}
+.btn:active{transform:translateY(1px)}
+.btn[disabled]{opacity:.55;cursor:not-allowed}
+.btn.primary{background:var(--ink);color:#fff;border-color:var(--ink);box-shadow:0 6px 18px rgba(11,31,42,.18)}
+.btn.ghost{background:#fff}
+.btn.cash{background:#fff;border-color:var(--accent);color:var(--accent)}
+
+/* Setup */
+.card{border:1px solid #e6e1d9;border-radius:16px;background:white;box-shadow:0 2px 10px rgba(0,0,0,.04)}
+.stack{display:flex;flex-direction:column;gap:10px}
+.row{display:flex;align-items:center;gap:8px}
+input[type="text"],input[type="number"]{width:100%;padding:12px;border-radius:10px;border:1px solid #dcd7cf;background:white;font:inherit}
+
+/* Draft */
 .horses{display:grid;grid-template-columns:1fr;gap:10px}
 @media(min-width:560px){.horses{grid-template-columns:1fr 1fr}}
-.card{display:grid;grid-template-columns:64px 1fr auto;gap:10px;align-items:center;padding:12px;border:1px solid #e6e1d9;border-radius:16px;background:white;box-shadow:0 2px 10px rgba(0,0,0,.04)}
-.card.selected{outline:2px solid var(--ink)}
+.horse-card{display:grid;grid-template-columns:64px 1fr auto;gap:10px;align-items:center;padding:12px}
+.horse-card.selected{outline:2px solid var(--ink)}
 .badge{font-weight:700;border:1px solid #e6e1d9;border-radius:10px;padding:6px 8px;min-width:74px;text-align:center}
 .odds{font-variant-numeric:tabular-nums}
-.hint{font-size:12px;color:var(--muted)}
 
-/* Bet box */
-.panel{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px}
-.bet-type{display:flex;gap:8px}
-.switch{flex:1}
+.chips{position:fixed;left:0;right:0;bottom:0;background:linear-gradient(180deg, #f8f5efc9, var(--paper));border-top:1px solid #e6e1d9;padding:10px 12px;z-index:30}
+.chips-row{display:flex;gap:8px;flex-wrap:wrap}
+.chips .bet-amt{flex:1;min-width:100px}
+.cta{display:flex;gap:10px;margin-top:10px}
 .switch input{display:none}
 .switch label{display:block;text-align:center;padding:10px;border:1px solid #dcd7cf;border-radius:12px;background:#fff;cursor:pointer}
 .switch input:checked + label{background:var(--ink);color:#fff;border-color:var(--ink)}
 
-/* Chips */
-.chips{position:fixed;left:0;right:0;bottom:0;background:linear-gradient(180deg, #f8f5efc9, var(--paper));border-top:1px solid #e6e1d9;padding:10px 12px;z-index:20}
-.chips-row{display:flex;gap:8px;flex-wrap:wrap}
-.chips .bet-amt{flex:1;min-width:100px}
-input[type="number"]{width:100%;padding:12px;border-radius:10px;border:1px solid #dcd7cf;background:white;font:inherit}
-.cta{display:flex;gap:10px;margin-top:10px}
-
 /* Track */
 .track-wrap{margin-top:8px;border:1px solid #e6e1d9;border-radius:16px;background:linear-gradient(#dff1ff 0 40%, #bdd8f3 40% 41%, #cce6cc 41%);box-shadow:inset 0 6px 40px rgba(0,0,0,.05)}
-.arena{width:100%;height:min(64vh,520px);display:block}
-.flag{font-size:12px;fill:#222}
-.timer{font-variant-numeric:tabular-nums;font-weight:700}
+.arena{width:100%;height:min(66vh,540px);display:block}
 
-/* Dialog */
-dialog{border:none;border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,.15);padding:16px;max-width:540px}
+dialog{border:none;border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,.15);padding:16px;max-width:620px}
 dialog::backdrop{background:rgba(0,0,0,.35)}
 .result-win{color:var(--win)}
 .result-loss{color:var(--loss)}
-.sub{font-size:12px;color:var(--muted)}
-.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+
+table{width:100%;border-collapse:collapse}
+th,td{padding:8px;border-bottom:1px solid #eee;text-align:left;font-size:14px}
+th{font-size:12px;text-transform:uppercase;color:var(--muted)}
 
   </style>
 </head>
@@ -71,81 +72,95 @@ dialog::backdrop{background:rgba(0,0,0,.35)}
           <strong>Photo Finish</strong>
           <span class="timer" id="timer"></span>
         </div>
-        <div class="balance">Balance: <span id="balance">—</span> credits</div>
+        <div class="balance" id="top-balance">—</div>
       </div>
-    </header><main class="screen" id="bet-screen" aria-live="polite">
-  <div class="section-title">Pick a horse, choose Win or Place, set your bet</div>
-  <div class="horses" id="horse-list"></div>
-
-  <div class="panel">
-    <div>
-      <div class="section-title" style="margin-top:4px">Bet type</div>
-      <div class="bet-type">
-        <div class="switch">
-          <input type="radio" name="bettype" id="bt-win" value="win" checked>
-          <label for="bt-win">Win</label>
-        </div>
-        <div class="switch">
-          <input type="radio" name="bettype" id="bt-place" value="place">
-          <label for="bt-place">Place (1st/2nd)</label>
-        </div>
-      </div>
+    </header><!-- Setup: add players -->
+<main class="screen" id="setup-screen">
+  <div class="section-title">Add players</div>
+  <div class="card" style="padding:12px">
+    <div class="stack" id="player-list"></div>
+    <div class="row" style="margin-top:10px">
+      <input id="new-player" type="text" placeholder="Player name" />
+      <button class="btn" id="add-player">Add</button>
     </div>
-    <div>
-      <div class="section-title" style="margin-top:4px">Payout preview</div>
-      <div id="payout-preview" class="hint">—</div>
+    <div class="row" style="margin-top:10px;justify-content:space-between">
+      <div class="sub">Starting balance per player</div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <input id="start-balance" type="number" value="1000" min="100" step="50" style="width:120px"/>
+      </div>
     </div>
   </div>
-
-  <p class="hint" id="prob-hint" style="margin-top:6px"></p>
+  <div class="cta" style="margin-top:12px">
+    <button id="start-draft" class="btn primary" disabled>Start draft</button>
+  </div>
 </main>
 
+<!-- Draft: players pick horses and set bets -->
+<main class="screen" id="draft-screen" hidden>
+  <div class="section-title"><span id="draft-title">Draft</span></div>
+  <div id="horse-grid" class="horses"></div>
+  <p class="sub" id="fav-hint" style="margin-top:6px"></p>
+</main>
+
+<!-- Race -->
 <main class="screen" id="race-screen" hidden>
   <div class="section-title">Race — 1 full lap (≈20s)</div>
   <div class="track-wrap">
     <svg class="arena" viewBox="0 0 700 460" xmlns="http://www.w3.org/2000/svg">
-      <!-- sky -->
       <defs>
         <linearGradient id="gSky" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stop-color="var(--sky1)"/>
           <stop offset="100%" stop-color="var(--sky2)"/>
         </linearGradient>
+        <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%">
+          <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#000" flood-opacity=".25"/>
+        </filter>
       </defs>
       <rect x="0" y="0" width="700" height="180" fill="url(#gSky)"/>
-      <!-- turf background -->
       <rect x="0" y="180" width="700" height="280" fill="var(--turf)"/>
+
       <!-- oval track -->
       <g id="oval">
+        <ellipse cx="350" cy="300" rx="290" ry="130" fill="none" stroke="var(--rail)" stroke-width="4"/>
         <ellipse cx="350" cy="300" rx="280" ry="120" fill="var(--track)" stroke="#caa87f" stroke-width="2"/>
         <ellipse cx="350" cy="300" rx="250" ry="92" fill="none" stroke="#d6be98" stroke-width="2" stroke-dasharray="6 8"/>
-        <ellipse cx="350" cy="300" rx="290" ry="130" fill="none" stroke="var(--rail)" stroke-width="4"/>
         <ellipse cx="350" cy="300" rx="210" ry="40" fill="#b8d9b8" opacity=".6"/>
       </g>
 
-      <!-- lanes path template (we will sample points via JS) -->
+      <!-- lane paths for up to 8 horses -->
       <path id="lanePath0" d="M 70 300 a 280 120 0 1 0 560 0 a 280 120 0 1 0 -560 0" fill="none" stroke="none"/>
       <path id="lanePath1" d="M 80 300 a 270 110 0 1 0 540 0 a 270 110 0 1 0 -540 0" fill="none" stroke="none"/>
       <path id="lanePath2" d="M 90 300 a 260 100 0 1 0 520 0 a 260 100 0 1 0 -520 0" fill="none" stroke="none"/>
       <path id="lanePath3" d="M 100 300 a 250 90 0 1 0 500 0 a 250 90 0 1 0 -500 0" fill="none" stroke="none"/>
       <path id="lanePath4" d="M 110 300 a 240 80 0 1 0 480 0 a 240 80 0 1 0 -480 0" fill="none" stroke="none"/>
       <path id="lanePath5" d="M 120 300 a 230 70 0 1 0 460 0 a 230 70 0 1 0 -460 0" fill="none" stroke="none"/>
+      <path id="lanePath6" d="M 130 300 a 220 60 0 1 0 440 0 a 220 60 0 1 0 -440 0" fill="none" stroke="none"/>
+      <path id="lanePath7" d="M 140 300 a 210 50 0 1 0 420 0 a 210 50 0 1 0 -420 0" fill="none" stroke="none"/>
 
       <!-- start/finish flag -->
       <g id="flag" transform="translate(625, 280)">
         <rect x="-6" y="-40" width="4" height="80" fill="#444"/>
         <rect x="0" y="-40" width="28" height="28" fill="#fff" stroke="#222"/>
         <path d="M0 -40 h28 v14 h-28 z M0 -12 h28 v14 h-28 z" fill="#222"/>
-        <text class="flag" x="14" y="40" text-anchor="middle">Finish</text>
+        <text class="sub" x="14" y="40" text-anchor="middle">Finish</text>
       </g>
 
-      <!-- runners are injected here -->
-      <g id="runners"></g>
+      <g id="runners" filter="url(#shadow)"></g>
     </svg>
   </div>
 </main>
 
-<div class="chips" id="chips">
+<!-- Bottom bar for bets during draft -->
+<div class="chips" id="chips" hidden>
   <div class="chips-row">
+    <div class="switch" style="flex:0 0 150px">
+      <input type="radio" name="bettype" id="bt-win" value="win" checked>
+      <label for="bt-win">Win</label>
+    </div>
+    <div class="switch" style="flex:0 0 180px">
+      <input type="radio" name="bettype" id="bt-place" value="place">
+      <label for="bt-place">Place (1st/2nd)</label>
+    </div>
     <input class="bet-amt" type="number" min="1" step="1" id="bet-amount" placeholder="Bet amount (credits)" inputmode="numeric" />
     <button class="btn" data-chip="25">+25</button>
     <button class="btn" data-chip="50">+50</button>
@@ -154,8 +169,8 @@ dialog::backdrop{background:rgba(0,0,0,.35)}
     <button class="btn" data-chip="ALL">All-in</button>
   </div>
   <div class="cta">
-    <button id="place-bet" class="btn primary" disabled>Place Bet</button>
-    <button id="cash-out" class="btn cash">Cash Out</button>
+    <button id="lock-pick" class="btn primary" disabled>Lock pick</button>
+    <button id="back-setup" class="btn ghost">Change players</button>
   </div>
 </div>
 
@@ -165,277 +180,353 @@ dialog::backdrop{background:rgba(0,0,0,.35)}
   <div class="sub" id="result-sub"></div>
   <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px">
     <button class="btn" id="again">Next race</button>
-    <button class="btn cash" id="modal-cash">Cash out</button>
+    <button class="btn cash" id="reset">Reset</button>
   </div>
 </dialog>
 
   </div><script>
 (function(){
-  const RACE_DURATION = 20000; // 20s ~ 1 lap
-  const NUM_HORSES = 6;
-  const START_BALANCE = 1000;
-  const PLACE_FACTOR = 0.55; // place pays ~55% of win odds (1st or 2nd)
+  const NUM_LANES = 8;
+  const RACE_DURATION = 20000; // one lap
+  const PLACE_FACTOR = 0.55; // place pays 55% of win odds
 
   const state = {
-    balance: Number(localStorage.getItem('pf_balance')||START_BALANCE),
-    horses: [],
-    selectedIndex: null,
-    bet: 0,
-    odds: [], // decimal odds per horse
-    winnerIndex: null,
-    places: [],
-    betType: 'win',
-    inRace:false
+    players: [], // {id,name,balance,betType,bet,horseIndex}
+    currentPlayer: 0,
+    horses: [], // generated each race
+    picks: [], // per player: {playerId, horseIndex, bet, betType}
+    order: [], // finish order indexes
+    started:false
   };
+
   const el = id=>document.getElementById(id);
   const q = sel=>document.querySelector(sel);
   const fmt = n=>Number(n).toLocaleString(undefined,{maximumFractionDigits:0});
 
-  // --- Horse generation ---
-  const TITLE=["Sir","Lady","Captain","Saint","Mister","Doctor","Queen","King","Count","Baron","El","La"];
-  const ADJ=["Midnight","Lucky","Crimson","Silver","Velvet","Rapid","Quiet","Neon","Maple","Royal","Rocket","Golden","Storm","River","Cinder","Icy","Fuzzy","Amber","Shadow","Copper","Wild","Brave","Blue","Scarlet","Ivory","Turbo","Jet","Mellow","Northern","Western"];
-  const NOUN=["Comet","Whisper","Dash","Valor","Charm","Rider","Phantom","Ember","Voyager","Blaze","Echo","Tempo","Spirit","Horizon","Mirage","Thunder","Pepper","Quasar","Bandit","Biscuit","Falcon","Clover","Nova","Ranger","Marble","Nimbus","Hustle","Rebel","Violet","Monarch"];
-  const SUFFIX=["II","III","Jr.","Sr.","of Valour","of The Glen","the Swift","from Maple Hill","of Dawn","from Riverbend","the Bold","of Night"];
-
-  function rand(arr){ return arr[Math.floor(Math.random()*arr.length)] }
-  function uniqueNames(n){
-    const set = new Set();
-    while(set.size<n){
-      const mode = Math.random();
-      let name;
-      if(mode<0.25){ name = `${rand(TITLE)} ${rand(ADJ)} ${rand(NOUN)}`; }
-      else if(mode<0.55){ name = `${rand(ADJ)} ${rand(NOUN)} ${Math.random()<0.35?rand(SUFFIX):''}`.trim(); }
-      else { name = `${rand(ADJ)} ${rand(NOUN)}-${rand(NOUN)}`; }
-      set.add(name);
-    }
-    return Array.from(set);
+  // ---------- Setup screen ----------
+  function renderSetup(){
+    show('setup');
+    const list = el('player-list');
+    list.innerHTML='';
+    state.players.forEach((p,idx)=>{
+      const row = document.createElement('div');
+      row.className='row';
+      row.innerHTML = `
+        <input type="text" value="${p.name}" data-idx="${idx}" aria-label="Player name"/>
+        <button class="btn" data-del="${idx}">Remove</button>`;
+      row.querySelector('input').addEventListener('input', e=>{ p.name = e.target.value.trim(); syncTopBalance(); });
+      row.querySelector('[data-del]').addEventListener('click',()=>{ state.players.splice(idx,1); renderSetup(); });
+      list.appendChild(row);
+    });
+    el('start-draft').disabled = state.players.length<2;
   }
 
-  function svgHorse(color){
-    // Stylized horse with animated stride
-    return `<?xml version="1.0"?><svg width="56" height="40" viewBox="0 0 140 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+  function syncTopBalance(){
+    if(!state.players.length){ el('top-balance').textContent = '—'; return; }
+    const sum = state.players.reduce((a,p)=>a+p.balance,0);
+    el('top-balance').textContent = `Players: ${state.players.length} • Total: ${fmt(sum)} credits`;
+  }
+
+  el('add-player').addEventListener('click', ()=>{
+    const name = el('new-player').value.trim() || `Player ${state.players.length+1}`;
+    const startBal = Math.max(100, Number(el('start-balance').value||1000));
+    state.players.push({id:crypto.randomUUID(), name, balance:startBal, betType:'win', bet:0, horseIndex:null});
+    el('new-player').value='';
+    renderSetup(); syncTopBalance();
+  });
+
+  el('start-draft').addEventListener('click', ()=>{
+    // normalize empty names
+    state.players.forEach((p,i)=>{ if(!p.name) p.name = `Player ${i+1}`; });
+    startDraft();
+  });
+
+  // ---------- Name/color/image generation ----------
+  const TITLES = ["Sir","Lady","Captain","Saint","Baron","Count","Duke","Doctor","General","Mister","Queen","King","Chief","Major","El","La"];
+  const ADJ = ["Midnight","Lucky","Crimson","Silver","Velvet","Rapid","Quiet","Neon","Maple","Royal","Rocket","Golden","Storm","River","Cinder","Icy","Fuzzy","Amber","Shadow","Copper","Brave","Blue","Scarlet","Ivory","Turbo","Jet","Mellow","Northern","Western","Urban","Wild","Bold","Spry","Swift","Gilded","Rusty","Misty","Solar","Lunar","Pepper","Noble","Bright","Nimble","Prime","Verdant","Granite","Iron","Maritime","Sable","Ruby"];
+  const NOUN = ["Comet","Whisper","Dash","Valor","Charm","Rider","Phantom","Ember","Voyager","Blaze","Echo","Tempo","Spirit","Horizon","Mirage","Thunder","Quasar","Bandit","Biscuit","Falcon","Clover","Nova","Ranger","Marble","Nimbus","Hustle","Rebel","Monarch","Harbor","Zephyr","Harrier","Harlequin","Voyage","Canvas","Beacon","Strider","Oracle","Signal","Sherpa","Pioneer","Voyant","Vector","Beacon","Summit","Caper","Riddle","Cipher","Fixture","Pilot","Anchor","VoyagerX"];
+
+  function shuffle(arr){ for(let i=arr.length-1;i>0;i--){ const j=Math.floor(Math.random()* (i+1)); [arr[i],arr[j]]=[arr[j],arr[i]] } return arr }
+
+  function uniqueHorseNames(n){
+    // Ensure no overlapping tokens across horses by consuming tokens once
+    const t = shuffle([...TITLES]);
+    const a = shuffle([...ADJ]);
+    const b = shuffle([...NOUN.filter((v,i,self)=> self.indexOf(v)===i )]);
+    const names = [];
+    let ti=0, ai=0, bi=0;
+    for(let i=0;i<n;i++){
+      const useTitle = Math.random()<0.35 && ti < t.length;
+      const title = useTitle ? t[ti++]+' ' : '';
+      const adj = a[ai++] || `Unique${i}`; // never reused
+      const noun = b[bi++] || `Name${i}`; // never reused
+      names.push((title + adj + ' ' + noun).trim());
+    }
+    return names;
+  }
+
+  function colorPalette(n){
+    const cols=[]; const s=70,l=55;
+    for(let i=0;i<n;i++){
+      const h = Math.round((360/n)*i + Math.random()*8) % 360;
+      cols.push(`hsl(${h} ${s}% ${l}%)`);
+    }
+    return cols;
+  }
+
+  function horseSVG(color, pattern){
+    // pattern 0..3 changes the saddle cloth decoration
+    const patternSVG = [
+      '<rect x="-4" y="-18" width="26" height="16" rx="3" fill="#fff" stroke="#222"/><path d="M-4 -10 h26" stroke="#222"/>',
+      '<rect x="-4" y="-18" width="26" height="16" rx="3" fill="#fff" stroke="#222"/><path d="M-4 -18 l26 16" stroke="#222"/>',
+      '<rect x="-4" y="-18" width="26" height="16" rx="3" fill="#fff" stroke="#222"/><circle cx="9" cy="-10" r="5" fill="#222"/>',
+      '<rect x="-4" y="-18" width="26" height="16" rx="3" fill="#fff" stroke="#222"/><path d="M-4 -12 h26" stroke="#222"/><path d="M-4 -16 h26" stroke="#222"/>'
+    ][pattern%4];
+
+    return `<?xml version="1.0"?><svg width="64" height="46" viewBox="0 0 160 110" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
       <g fill="${color}" stroke="#222" stroke-width="2">
-        <ellipse cx="60" cy="60" rx="36" ry="22"/>
-        <circle cx="100" cy="58" r="16"/>
-        <path d="M108 46 l18 -18 l8 8 l-12 14 z"/>
-        <circle cx="112" cy="54" r="2" fill="#000"/>
-        <rect x="20" y="70" width="14" height="18" rx="3"/>
-        <rect x="58" y="72" width="14" height="18" rx="3"/>
-        <rect x="94" y="72" width="14" height="18" rx="3"/>
+        <ellipse cx="68" cy="68" rx="42" ry="24"/>
+        <circle cx="116" cy="66" r="18"/>
+        <path d="M124 52 l20 -18 l8 8 l-14 16 z"/>
+        <circle cx="128" cy="62" r="2" fill="#000"/>
+        <rect x="26" y="80" width="16" height="20" rx="3"/>
+        <rect x="66" y="82" width="16" height="20" rx="3"/>
+        <rect x="104" y="82" width="16" height="20" rx="3"/>
       </g>
+      <g transform="translate(90,78)" stroke="#222">${patternSVG}</g>
     </svg>`
   }
-  const COLORS=["#b22222","#1e90ff","#2e8b57","#8b4513","#8a2be2","#ff8c00","#708090"];
 
-  function generateOdds(n){
-    const raw = Array.from({length:n},()=> 1.2 + Math.random()*8 );
-    raw.sort((a,b)=>a-b);
-    return raw.map(v=>Math.max(1.4,Math.round(v*10)/10));
+  // ---------- Draft screen ----------
+  function startDraft(){
+    state.picks=[]; state.currentPlayer=0; state.horses = generateHorses(Math.min(NUM_LANES, Math.max(state.players.length+2,6)));
+    show('draft'); renderDraft();
   }
 
-  function weightedIndex(weights){
-    const total = weights.reduce((a,b)=>a+b,0);
-    let r = Math.random()*total;
-    for(let i=0;i<weights.length;i++){ r-=weights[i]; if(r<=0) return i }
-    return weights.length-1;
+  function generateHorses(n){
+    const names = uniqueHorseNames(n);
+    const colors = colorPalette(n);
+    // Attributes drive odds
+    const horses = names.map((name,i)=>{
+      const speed = 60 + Math.random()*40;    // top-end
+      const stamina = 50 + Math.random()*50;  // endurance
+      const burst = 40 + Math.random()*60;    // sprint capability
+      const temper = 30 + Math.random()*70;   // randomness tolerance
+      const score = 0.5*speed + 0.3*stamina + 0.2*burst; // performance score
+      return {name,color:colors[i],img:horseSVG(colors[i],i),attr:{speed,stamina,burst,temper},score};
+    });
+    // Convert scores → odds (lower odds for higher score)
+    const total = horses.reduce((a,h)=>a+h.score,0);
+    horses.forEach(h=>{
+      const prob = h.score/total; // ~prob of winning
+      const houseEdge = 0.9;
+      h.odds = Math.max(1.4, Math.round((1/(prob*houseEdge))*10)/10); // decimal odds
+      h.placeOdds = Math.max(1.2, Math.round((h.odds*PLACE_FACTOR)*10)/10);
+    });
+    return horses;
   }
 
-  // --- UI rendering ---
-  function renderLobby(){
-    state.inRace=false; el('race-screen').hidden=true; el('bet-screen').hidden=false;
-    const names = uniqueNames(NUM_HORSES);
-    const odds = generateOdds(NUM_HORSES);
-    const horses = names.map((name,i)=>({ name, color: COLORS[i%COLORS.length], odds: odds[i] }));
-    state.horses = horses; state.odds = odds; state.selectedIndex=null; state.bet=0; state.betType='win';
+  function renderDraft(){
+    const p = state.players[state.currentPlayer];
+    el('draft-title').textContent = `${p.name}: pick a horse and set your bet`;
+    el('chips').hidden=false; // betting bar
+    q('#bt-win').checked=true; q('#bt-place').checked=false; el('bet-amount').value=''; el('lock-pick').disabled=true;
 
-    const list = el('horse-list'); list.innerHTML='';
-    horses.forEach((h, i)=>{
+    const grid = el('horse-grid'); grid.innerHTML='';
+    const favIdx = state.horses.map(h=>1/h.odds).indexOf(Math.max(...state.horses.map(h=>1/h.odds)));
+    el('fav-hint').textContent = `Favorite: ${state.horses[favIdx].name} (${state.horses[favIdx].odds.toFixed(2)}x)`;
+
+    state.horses.forEach((h,i)=>{
+      const used = state.picks.some(pk=>pk.horseIndex===i);
       const card = document.createElement('button');
-      card.className = 'card'; card.type='button'; card.setAttribute('aria-pressed','false');
+      card.className = 'card horse-card'; card.type='button'; card.disabled = used;
       card.innerHTML = `
-        <div class="horse-icon">${svgHorse(h.color)}</div>
+        <div>${h.img}</div>
         <div>
           <div style="font-weight:700">${h.name}</div>
-          <div class="hint">Lane ${i+1}</div>
+          <div class="sub">Speed ${h.attr.speed|0} • Stamina ${h.attr.stamina|0} • Burst ${h.attr.burst|0}</div>
         </div>
         <div>
           <div class="badge odds">${h.odds.toFixed(2)}x</div>
-          <div class="hint" style="text-align:center">Place ~ ${(Math.max(1.2,h.odds*${PLACE_FACTOR}).toFixed(2))}x</div>
+          <div class="sub" style="text-align:center">Place ${h.placeOdds.toFixed(2)}x</div>
         </div>`;
-      card.addEventListener('click',()=>selectHorse(i, card));
-      list.appendChild(card);
+      card.addEventListener('click',()=>selectHorseForPlayer(i, card));
+      grid.appendChild(card);
     });
 
-    q('#bt-win').checked=true; q('#bt-place').checked=false;
-    updateBalance();
-    updateBetUI();
-    refreshPreview();
-    showFavorite();
+    updateLockButton();
   }
 
-  function showFavorite(){
-    const probs = state.odds.map(o=>1/o);
-    const sum = probs.reduce((a,b)=>a+b,0);
-    const implied = probs.map(p=>p/sum);
-    const favIndex = implied.indexOf(Math.max(...implied));
-    el('prob-hint').textContent = `Favorite: ${state.horses[favIndex].name} (~${Math.round(implied[favIndex]*100)}% implied)`;
-  }
-
-  function selectHorse(i, card){
-    state.selectedIndex = i;
-    document.querySelectorAll('.card').forEach(c=>c.classList.remove('selected'));
+  function selectHorseForPlayer(index, card){
+    state.players[state.currentPlayer].horseIndex = index;
+    document.querySelectorAll('.horse-card').forEach(c=>c.classList.remove('selected'));
     card.classList.add('selected');
-    updateBetUI();
-    refreshPreview();
+    updateLockButton();
   }
 
-  function updateBetUI(){
-    el('place-bet').disabled = !(state.selectedIndex!==null && state.bet>0 && state.bet<=state.balance);
-  }
-  function updateBalance(){ el('balance').textContent = fmt(state.balance) }
-
-  function refreshPreview(){
-    const amt = state.bet||0;
-    const i = state.selectedIndex;
-    if(i===null || !amt){ el('payout-preview').textContent='—'; return; }
-    const o = state.odds[i];
-    if(state.betType==='win') el('payout-preview').textContent = `Win pays ${fmt(Math.floor(amt*o))} (net +${fmt(Math.floor(amt*(o-1)))})`;
-    else {
-      const po = Math.max(1.2, o*PLACE_FACTOR);
-      el('payout-preview').textContent = `Place pays ${fmt(Math.floor(amt*po))} if 1st or 2nd`;
-    }
+  function updateLockButton(){
+    const p = state.players[state.currentPlayer];
+    const bet = Number(el('bet-amount').value||0);
+    const ok = p.horseIndex!=null && bet>0 && bet<=p.balance;
+    el('lock-pick').disabled = !ok;
   }
 
-  // --- Betting controls ---
-  el('bet-amount').addEventListener('input', e=>{ state.bet = Math.max(0, Math.floor(Number(e.target.value||0))); updateBetUI(); refreshPreview(); });
+  // bet controls
+  el('bet-amount').addEventListener('input', updateLockButton);
   document.querySelectorAll('[data-chip]').forEach(btn=>{
     btn.addEventListener('click',()=>{
       const v = btn.dataset.chip;
-      if(v==='ALL') state.bet = state.balance; else state.bet = Math.min(state.balance, (state.bet||0) + Number(v));
-      el('bet-amount').value = state.bet; updateBetUI(); refreshPreview();
+      const p = state.players[state.currentPlayer];
+      let bet = Number(el('bet-amount').value||0);
+      if(v==='ALL') bet = p.balance; else bet = Math.min(p.balance, bet + Number(v));
+      el('bet-amount').value = bet; updateLockButton();
     })
   });
-  q('#bt-win').addEventListener('change',()=>{ state.betType='win'; refreshPreview(); });
-  q('#bt-place').addEventListener('change',()=>{ state.betType='place'; refreshPreview(); });
 
-  // --- Place bet → race ---
-  el('place-bet').addEventListener('click', ()=>{
-    if(state.selectedIndex==null || state.bet<=0 || state.bet>state.balance) return;
-    startRace();
+  q('#bt-win').addEventListener('change',()=>{ state.players[state.currentPlayer].betType='win'; });
+  q('#bt-place').addEventListener('change',()=>{ state.players[state.currentPlayer].betType='place'; });
+
+  el('lock-pick').addEventListener('click', ()=>{
+    const p = state.players[state.currentPlayer];
+    p.bet = Number(el('bet-amount').value||0);
+    p.betType = q('#bt-place').checked ? 'place' : 'win';
+    state.picks.push({playerId:p.id, horseIndex:p.horseIndex, bet:p.bet, betType:p.betType});
+
+    if(state.currentPlayer < state.players.length-1){
+      state.currentPlayer++; renderDraft();
+    } else {
+      startRace();
+    }
   });
 
-  el('cash-out').addEventListener('click', cashOut);
-  el('modal-cash').addEventListener('click', cashOut);
+  el('back-setup').addEventListener('click', ()=>{ show('setup'); });
 
-  function cashOut(){
-    alert(`You cashed out with ${fmt(state.balance)} credits. Session will reset.`);
-    state.balance = START_BALANCE; localStorage.setItem('pf_balance', state.balance); updateBalance(); renderLobby();
-  }
-
-  // --- Race simulation on oval path ---
+  // ---------- Race animation ----------
   function startRace(){
-    state.inRace=true; el('bet-screen').hidden=true; el('race-screen').hidden=false;
+    show('race');
+    // ensure we have up to NUM_LANES horses by adding NPCs
+    while(state.horses.length<Math.min(NUM_LANES, state.players.length+2)){
+      state.horses.push(...generateHorses(1));
+    }
+    const lanesCount = Math.min(NUM_LANES, state.horses.length);
 
-    // Pick winner weighted by probability 1/odds
-    const weights = state.odds.map(o=>1/o);
-    state.winnerIndex = weightedIndex(weights);
+    // Determine final order weighted by 1/odds (favorites more likely but not guaranteed)
+    const pool = state.horses.map((h,i)=>({i,w:1/h.odds}));
+    const order=[]; let sumW = pool.reduce((a,x)=>a+x.w,0);
+    for(let k=0;k<lanesCount;k++){
+      let r = Math.random()*sumW; let pickIndex=0;
+      for(let j=0;j<pool.length;j++){ r-=pool[j].w; if(r<=0){ pickIndex=j; break; } }
+      order.push(pool[pickIndex].i); sumW -= pool[pickIndex].w; pool.splice(pickIndex,1);
+    }
+    state.order = order;
 
     // Build SVG runners
     const runners = el('runners'); runners.innerHTML='';
-    const lanePaths = Array.from({length:NUM_HORSES}, (_,i)=> document.getElementById('lanePath'+(i%6)) );
+    const lanePaths = Array.from({length:lanesCount}, (_,i)=> document.getElementById('lanePath'+i) );
 
-    const laneData = state.horses.map((h,i)=>{
+    const laneData = order.map((horseIdx, lane)=>{
+      const h = state.horses[horseIdx];
       const g = document.createElementNS('http://www.w3.org/2000/svg','g');
-      g.innerHTML = svgHorse(h.color);
-      runners.appendChild(g);
-      const path = lanePaths[i%lanePaths.length];
+      g.innerHTML = h.img; runners.appendChild(g);
+      const path = lanePaths[lane];
       const len = path.getTotalLength();
-      // Speed profile: winner is fastest; others have random surges
-      const base = 0.94 + Math.random()*0.06; // base completion of a lap
-      const winnerBoost = (i===state.winnerIndex)? 0.12 : (Math.random()*0.04);
-      const surges = Array.from({length:4},()=>({at:Math.random()*0.9+0.05, mag:Math.random()*0.06}));
-      return {g, path, len, target: Math.min(1, base+winnerBoost), surges};
+
+      // Speed profile informed by attributes
+      const S = h.attr;
+      const target = 0.92 + (S.speed/200) + (lane===0?0.08:Math.random()*0.05); // winner gets a nudge
+      const bursts = Math.max(2, Math.round(S.burst/30));
+      const surges = Array.from({length:bursts},()=>({at:Math.random()*0.85+0.05, mag:(S.burst/400)*(0.8+Math.random()*0.6)}));
+      const wobble = (S.temper/300);
+      return {g, horseIdx, path, len, target:Math.min(1,target), surges, wobble};
     });
 
     const start = performance.now();
     const timer = el('timer');
 
-    function progressWithSurge(t, lane){
-      // ease + additive surges near specific times
-      const ease = t<.5 ? 2*t*t : -1+(4-2*t)*t;
-      let p = ease * lane.target;
-      lane.surges.forEach(s=>{ if(t>s.at) p += (t-s.at)*s.mag*0.5; });
-      return Math.min(p,1);
-    }
+    function ease(t){ return t<.5 ? 2*t*t : -1+(4-2*t)*t; }
 
     function tick(now){
       const elapsed = Math.min(RACE_DURATION, now-start);
       const t = elapsed / RACE_DURATION; // 0..1
       timer.textContent = ((RACE_DURATION - elapsed)/1000).toFixed(1)+'s';
 
-      laneData.forEach(L=>{
-        const p = progressWithSurge(t,L);
+      laneData.forEach((L,rank)=>{
+        let p = ease(t) * L.target;
+        L.surges.forEach(s=>{ if(t>s.at) p += (t-s.at)*s.mag; });
+        p += Math.sin(t* (rank+1) * 10) * L.wobble * 0.05; // temperament wobble
+        p = Math.min(1, Math.max(0,p));
         const pt = L.path.getPointAtLength(p * L.len);
-        L.g.setAttribute('transform', `translate(${pt.x-28},${pt.y-34})`);
+        L.g.setAttribute('transform', `translate(${pt.x-32},${pt.y-36})`);
       });
 
-      if(elapsed < RACE_DURATION){
-        requestAnimationFrame(tick);
-      } else {
-        timer.textContent = '';
-        finishRace(laneData);
-      }
+      if(elapsed < RACE_DURATION){ requestAnimationFrame(tick); }
+      else { timer.textContent=''; finishRace(order); }
     }
     requestAnimationFrame(tick);
   }
 
-  function finishRace(laneData){
-    // Determine finishing order by each lane's final target + tiny randomness
-    const order = laneData.map((L,i)=>({i, score:L.target + Math.random()*0.002})).sort((a,b)=>b.score-a.score).map(o=>o.i);
-    state.places = order; // 0 = first
+  function finishRace(order){
+    // Payouts
+    const first = order[0], second = order[1];
+    const rows = [];
+    state.players.forEach(p=>{
+      const hi = p.horseIndex; const h = state.horses[hi];
+      const won = (p.betType==='win' && hi===first) || (p.betType==='place' && (hi===first || hi===second));
+      let delta = 0;
+      if(won){ delta = Math.floor(p.bet * (p.betType==='win' ? h.odds : h.placeOdds)); }
+      else { delta = -p.bet; }
+      p.balance += delta; rows.push({name:p.name,horse:h.name,bet:p.bet,betType:p.betType,odds:(p.betType==='win'?h.odds:h.placeOdds),delta});
+      // clear for next race
+      p.horseIndex=null; p.bet=0; p.betType='win';
+    });
 
-    const betOnWinner = state.selectedIndex===order[0];
-    const betOnPlace = (state.selectedIndex===order[0] || state.selectedIndex===order[1]);
+    // Build modal content
+    const podium = [0,1,2].map(i=>{
+      const idx = order[i]; const h = state.horses[idx];
+      return `${i+1}. ${h.name} (${h.odds.toFixed(2)}x)`;
+    }).join('<br>');
 
-    const odds = state.odds[state.selectedIndex];
-    let delta = 0;
-    if(state.betType==='win'){
-      delta = betOnWinner ? Math.floor(state.bet*odds) : -state.bet;
-    } else {
-      const po = Math.max(1.2, odds*PLACE_FACTOR);
-      delta = betOnPlace ? Math.floor(state.bet*po) : -state.bet;
-    }
-    state.balance += delta; localStorage.setItem('pf_balance', state.balance); updateBalance();
-
-    const podium = order.slice(0,3).map((idx,rank)=> `${rank+1}. ${state.horses[idx].name} (${state.odds[idx].toFixed(2)}x)` ).join('<br>');
-    const modal = el('result-modal');
-    const win = delta>=0;
-    el('result-title').textContent = win ? 'Win!' : 'No luck this time';
-    el('result-title').className = win ? 'result-win' : 'result-loss';
-    el('result-body').innerHTML = `
-      <div style="display:flex;align-items:flex-start;gap:14px">
-        <div style="width:56px">${svgHorse(state.horses[order[0]].color)}</div>
+    const body = `
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
         <div>
-          <div style="font-weight:700">Podium</div>
-          <div class="sub" style="line-height:1.5;margin-top:6px">${podium}</div>
+          <div style="font-weight:700;margin-bottom:6px">Podium</div>
+          <div class="sub">${podium}</div>
+        </div>
+        <div>
+          <table>
+            <thead><tr><th>Player</th><th>Horse</th><th>Bet</th><th>Type</th><th>Odds</th><th>Δ</th></tr></thead>
+            <tbody>
+              ${rows.map(r=>`<tr><td>${r.name}</td><td>${r.horse}</td><td>${fmt(r.bet)}</td><td>${r.betType}</td><td>${r.odds.toFixed(2)}x</td><td style="color:${r.delta>=0?'var(--win)':'var(--loss)'}">${r.delta>=0?'+':''}${fmt(r.delta)}</td></tr>`).join('')}
+            </tbody>
+          </table>
         </div>
       </div>`;
-    el('result-sub').textContent = win
-      ? `You won ${fmt(Math.abs(delta))} credits. New balance: ${fmt(state.balance)}.`
-      : `You lost ${fmt(Math.abs(delta))} credits. New balance: ${fmt(state.balance)}.`;
 
-    modal.showModal();
+    el('result-title').textContent = 'Results';
+    el('result-title').className='';
+    el('result-body').innerHTML = body;
+    const bank = state.players.map(p=>`${p.name}: ${fmt(p.balance)}`).join(' • ');
+    el('result-sub').textContent = `Balances — ${bank}`;
+    el('result-modal').showModal();
+    syncTopBalance();
   }
 
-  el('again').addEventListener('click',()=>{ el('result-modal').close(); renderLobby(); });
+  el('again').addEventListener('click',()=>{ el('result-modal').close(); startDraft(); });
+  el('reset').addEventListener('click',()=>{ location.reload(); });
 
-  // Init
-  function ensureBalance(){
-    if(!Number.isFinite(state.balance) || state.balance<=0){ state.balance = START_BALANCE; localStorage.setItem('pf_balance', state.balance); }
-    updateBalance();
+  // ---------- Helpers ----------
+  function show(which){
+    el('setup-screen').hidden = which!=='setup';
+    el('draft-screen').hidden = which!=='draft';
+    el('race-screen').hidden = which!=='race';
   }
-  ensureBalance();
-  renderLobby();
+
+  // Bootstrap with two players by default
+  state.players = [
+    {id:crypto.randomUUID(), name:'Player 1', balance:1000, betType:'win', bet:0, horseIndex:null},
+    {id:crypto.randomUUID(), name:'Player 2', balance:1000, betType:'win', bet:0, horseIndex:null}
+  ];
+  renderSetup(); syncTopBalance();
 })();
 </script></body>
 </html>
