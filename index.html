@@ -22,7 +22,7 @@
   .small{font-size:.9rem;color:var(--muted)} .hidden{display:none!important} .list{list-style:none;padding:0;margin:0}
   .list li{padding:8px 0;border-bottom:1px solid #183244}.list li:last-child{border-bottom:none}
 
-  /* Race */
+  /* Race area */
   .race-shell{position:relative;height:72vh;min-height:460px;border-radius:16px;overflow:hidden;background:linear-gradient(#0B1F2A 0 30%,#0A1D2A 30% 100%);border:1px solid #1f3d50}
   .track{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:flex-end;padding:0 8px 64px}
   .lanesViewport{position:relative;margin:0 auto;width:min(720px,100%);height:100%;overflow:hidden}
@@ -130,7 +130,7 @@
             <div id="finishLine" class="finishLine"></div>
             <div id="splitMarks"></div>
             <div id="gate" class="gate"></div>
-            <!-- horses appended here -->
+            <!-- horse sprites appended here -->
           </div>
         </div>
       </div>
@@ -231,7 +231,7 @@
   $('#beginRace').onclick=()=>{setupRace();show('race');startRace();};
   $('#skipToResults').onclick=()=>endRace(true);
 
-  // ----- Race rendering (absolute sprites + single camera)
+  // ----- Race rendering
   const lanesViewport=$('#lanesViewport'), lanesWorld=$('#lanesWorld'), finishEl=$('#finishLine'), splitMarks=$('#splitMarks'), gateEl=$('#gate'), bg=$('#bg'), raceTicker=$('#raceTicker');
 
   function setupRace(){
@@ -243,8 +243,8 @@
     // sprites
     state.race.sprites = state.horses.map((h,i)=>{
       const el=document.createElement('div'); el.className='horse'; el.dataset.hid=h.id;
-      el.style.top=(padBot+i*laneGap)+'px'; el.style.left='14px'; // lane row
-      el.style.transform=`translateY(${TD}px)`; // start at gate (bottom of track)
+      el.style.top=(padBot+i*laneGap)+'px'; el.style.left='14px';
+      el.style.transform=`translateY(${TD}px)`; // start at gate
       const body=document.createElement('div'); body.className='silhouette'; body.style.background=h.color;
       const tag=document.createElement('div'); tag.className='horseTag'; tag.innerHTML=`${esc(h.name)} <span class="small">(${h.odds.win.toFixed(2)}x / ${h.odds.place.toFixed(2)}x)</span>`;
       el.append(body,tag); lanesWorld.appendChild(el);
@@ -262,6 +262,10 @@
     const TD=state.race.trackDistance; state.race.t0=performance.now(); state.race.finished=false; let last=state.race.t0;
     const vpH=lanesViewport.clientHeight;
 
+    // Start camera at the gate and pan upward with the pack
+    const bottomStart = Math.max(0, TD - vpH + 40);
+    lanesWorld.style.transform = `translateY(${-bottomStart}px)`;
+
     function frame(now){
       const dt=(now-last)/1000; last=now; const t=now-state.race.t0;
       let allFinished=true;
@@ -275,9 +279,11 @@
         else allFinished=false;
         S.el.style.transform=`translateY(${TD-S.y}px)`; // 0 at finish, TD at gate
       }
-      // camera
+      // camera from bottom to top following leader
       const lead=Math.max(...state.race.sprites.map(s=>s.y));
-      const worldTop=Math.max(0,Math.min(lead-vpH*0.6,TD)); lanesWorld.style.transform=`translateY(${-worldTop}px)`;
+      const worldTop = Math.max(0, bottomStart - lead);
+      lanesWorld.style.transform = `translateY(${-worldTop}px)`;
+
       // live top-3
       const live=[...state.race.sprites].sort((a,b)=>b.y-a.y); live.forEach((S,i)=>{S.el.classList.remove('top1','top2','top3','leader'); if(i===0)S.el.classList.add('top1','leader'); if(i===1)S.el.classList.add('top2'); if(i===2)S.el.classList.add('top3');});
       if(allFinished || t>=state.race.duration+3000){endRace(false);return;}
@@ -293,7 +299,8 @@
       const ord=[...state.race.sprites].sort((a,b)=>b.y-a.y);
       ord.forEach((S,i)=>{S.finishTime=20000+i*120+rnd(0,60);S.y=TD;S.el.style.transform=`translateY(${TD-S.y}px)`;});
       state.race.results=ord.map(S=>({horseId:S.h.id,finishTime:S.finishTime}));
-      lanesWorld.style.transform=`translateY(${-(TD-vpH)}px)`;
+      // snap camera to finish
+      lanesWorld.style.transform=`translateY(0px)`;
     }else if(state.race.results.length!==state.horses.length){
       const remain=state.horses.filter(h=>!state.race.results.find(r=>r.horseId===h.id));
       const base=Math.max(...state.race.results.map(r=>r.finishTime)); remain.forEach((h,i)=>state.race.results.push({horseId:h.id,finishTime:base+100+i*50}));
@@ -330,3 +337,4 @@
 </script>
 </body>
 </html>
+
