@@ -38,6 +38,7 @@
   .statRow{display:flex;gap:8px;align-items:center;margin-top:6px}
   .statBall{width:18px;height:18px;border-radius:50%;display:inline-block}
   .s-speed{background:#70d6ff}.s-stam{background:#ffd46b}.s-burst{background:#ff9bb5}
+  .statName{width:70px;font-size:.85rem;color:#b6c6d2;opacity:.95}
   .meter{flex:1;height:8px;background:#173649;border-radius:6px;border:1px solid #274c5f;overflow:hidden}
   .meter>span{display:block;height:100%;background:#70d6ff}.meter.stam>span{background:#ffd46b}.meter.burst>span{background:#ff9bb5}
   .odds{margin-top:8px;display:flex;gap:8px;flex-wrap:wrap}
@@ -81,6 +82,17 @@
   .raceFooter .inner{max-width:1000px;margin:0 auto;display:flex;gap:8px}
   #confetti{position:fixed;inset:0;pointer-events:none;opacity:0;transition:opacity .5s ease}
   #confetti.show{opacity:1}
+
+  /* Podium */
+  #podium{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;align-items:end}
+  .podium-step{display:flex;flex-direction:column;align-items:center;gap:8px}
+  .podium-card{display:flex;flex-direction:column;align-items:center;text-align:center;gap:2px}
+  .podium-card .horseRow{display:flex;align-items:center;gap:6px;font-weight:800}
+  .podium-card .time{font-size:.9rem;color:#b6c6d2}
+  .podium-block{width:100%;border-radius:10px;border:1px solid #2a4c60;background:linear-gradient(#12384f,#0e2a3b)}
+  .step-gold .podium-block{height:140px}
+  .step-silver .podium-block{height:100px}
+  .step-bronze .podium-block{height:72px}
 </style>
 </head>
 <body>
@@ -196,7 +208,7 @@
   <!-- Results -->
   <section id="screen-results" class="grid hidden">
     <div id="roundBanner" class="winBanner hidden"></div>
-    <div class="card grid"><h2>Results</h2><div id="podium" class="row"></div></div>
+    <div class="card grid"><h2>Results</h2><div id="podium"></div></div>
     <div class="card"><h3>Final Order</h3><ul id="orderList" class="list"></ul></div>
     <div class="card"><h3>Player Outcomes</h3><ul id="playerOutcomes" class="list"></ul></div>
     <div class="row">
@@ -210,20 +222,16 @@
 <canvas id="confetti"></canvas>
 
 <script>
-/* UUID polyfill + Start button guard (ES5) */
+/* UUID polyfill + Start button guard */
 (function(){
-  var g = self || window; if(!g.crypto) g.crypto = g.msCrypto || {};
+  var g=self||window; if(!g.crypto) g.crypto=g.msCrypto||{};
   if(!g.crypto.randomUUID){
-    g.crypto.randomUUID = function(){
-      return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,function(c){
-        var r = Math.random()*16|0, v = c==='x'?r:(r&0x3|0x8); return v.toString(16);
-      });
-    };
+    g.crypto.randomUUID=function(){return'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,function(c){var r=Math.random()*16|0,v=c==='x'?r:(r&0x3|0x8);return v.toString(16);});};
   }
 })();
 function _refreshStartButton(){
   var btn=document.getElementById('startGame'); if(!btn) return;
-  var count=(window.state && Array.isArray(state.players)) ? state.players.length : document.querySelectorAll('#playerList li').length;
+  var count=(window.state&&Array.isArray(state.players))?state.players.length:document.querySelectorAll('#playerList li').length;
   btn.disabled = count < 2;
 }
 window.addEventListener('DOMContentLoaded', _refreshStartButton);
@@ -239,8 +247,8 @@ var rnd=function(a,b){return Math.random()*(b-a)+a}, rndi=function(a,b){return M
 var fmt=function(n){return Number(n).toLocaleString();};
 var esc=function(s){return s.replace(/[&<>"']/g,function(m){return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'})[m];});};
 var ordinal=function(n){return n===1?'1st':n===2?'2nd':n===3?'3rd':(n+'th');};
-function shuffle(a){for(var i=a.length-1;i>0;i--){var j=rndi(0,i), t=a[i]; a[i]=a[j]; a[j]=t;} return a;}
-function groupBy(arr, key){var out={}; for(var i=0;i<arr.length;i++){var o=arr[i], k=o[key]; if(!out[k]) out[k]=[]; out[k].push(o);} return out;}
+function shuffle(a){for(var i=a.length-1;i>0;i++){var j=rndi(0,i),t=a[i];a[i]=a[j];a[j]=t;}return a;}
+function groupBy(a,k){return a.reduce(function(m,o){(m[o[k]]||(m[o[k]]=[])).push(o);return m;},{});}
 function randn(mu,s){var u=0,v=0;while(u===0)u=Math.random();while(v===0)v=Math.random();var z=Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);return mu+z*s;}
 var initials=function(n){return n.split(/\s+/).map(function(w){return w[0]||''}).join('').slice(0,2).toUpperCase();};
 
@@ -288,7 +296,7 @@ renderPlayers();
 
 /* Selection */
 var turnBanner=$('#turnBanner'), currentPlayerName=$('#currentPlayerName'), currentPlayerBalance=$('#currentPlayerBalance');
-var horseGrid=$('#horseGrid'), pickList=$('#pickList'), betType=$('#betType'), betAmount=$('#betAmount'), lockPick=$('#lockPick'), beginRace=$('#beginRace');
+var horseGrid=$('#horseGrid'), pickList=$('#pickList'), betType=$('#betType'), betAmount=$('#betAmount'), lockPick=$('#lockPick'), beginRace=$('#beginRace']);
 $('#backToPlayers').onclick=function(){show('players')}; var turnIdx=0, selHorseId=null;
 
 function startRound(){state.picks=[];state.order=shuffle(state.players.filter(function(p){return p.active;}).map(function(p){return p.id;}));state.horses=genHorses(6);Object.assign(state.race,{finished:false,results:[],rankCounter:1,started:false});renderSelect();show('select');turnIdx=0;prepTurn();}
@@ -301,18 +309,21 @@ function genHorses(n){
 }
 function sampleNames(n){var pool=REAL_NAMES.slice(), out=[]; while(out.length<n&&pool.length){out.push(pool.splice(rndi(0,pool.length-1),1)[0]);} return out.slice(0,n);}
 function renderSelect(){
-  horseGrid.innerHTML=''; state.horses.forEach(function(h){var c=document.createElement('div'); c.className='card'; c.style.cursor='pointer'; c.dataset.hid=h.id;
+  horseGrid.innerHTML='';
+  state.horses.forEach(function(h){
+    var c=document.createElement('div'); c.className='card'; c.style.cursor='pointer'; c.dataset.hid=h.id;
     c.innerHTML='<div class="row" style="align-items:flex-start;gap:10px">'
       +'<div class="icon" style="width:36px;height:28px;background:'+h.color+';animation:none"></div>'
       +'<div style="flex:1">'
       +'<div style="font-weight:700">'+esc(h.name)+'</div>'
-      +'<div class="statRow"><span class="statBall s-speed"></span><div class="meter"><span style="width:'+Math.round(h.stats.speed*100)+'%"></span></div></div>'
-      +'<div class="statRow"><span class="statBall s-stam"></span><div class="meter stam"><span style="width:'+Math.round(h.stats.stamina*100)+'%"></span></div></div>'
-      +'<div class="statRow"><span class="statBall s-burst"></span><div class="meter burst"><span style="width:'+Math.round(h.stats.burst*100)+'%"></span></div></div>'
+      +'<div class="statRow"><span class="statBall s-speed"></span><span class="statName">Speed</span><div class="meter"><span style="width:'+Math.round(h.stats.speed*100)+'%"></span></div></div>'
+      +'<div class="statRow"><span class="statBall s-stam"></span><span class="statName">Stamina</span><div class="meter stam"><span style="width:'+Math.round(h.stats.stamina*100)+'%"></span></div></div>'
+      +'<div class="statRow"><span class="statBall s-burst"></span><span class="statName">Burst</span><div class="meter burst"><span style="width:'+Math.round(h.stats.burst*100)+'%"></span></div></div>'
       +'<div class="odds"><span class="chip">Win <strong>'+h.odds.win.toFixed(2)+'x</strong></span><span class="chip">Place <strong>'+h.odds.place.toFixed(2)+'x</strong></span></div>'
       +'</div></div>';
     c.onclick=function(){selectHorse(h.id)}; horseGrid.appendChild(c);
-  }); renderPicks();
+  });
+  renderPicks();
 }
 function prepTurn(){ if(turnIdx>=state.order.length){beginRace.disabled=false;turnBanner.classList.add('hidden');return;}
   beginRace.disabled=true; turnBanner.classList.remove('hidden'); selHorseId=null; lockPick.disabled=true;
@@ -344,14 +355,14 @@ var toast=$('#toast'), countdownEl=$('#countdown'), countNum=$('#countNum'), con
 function calcLaneGeometry(){
   var inner=document.getElementById('bg').getBoundingClientRect().width;
   var iconW=parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--horse-w'))||44;
-  var minReserve=140;                  // keep space on right for name bars
-  var minSpacing=iconW*1.05;           // do not overlap icons
-  var maxSpacing=iconW*1.40;           // tighter lanes (less spread)
+  var minReserve=140;
+  var minSpacing=iconW*1.05;
+  var maxSpacing=iconW*1.40;
   var base=(inner - minReserve)/6;
   var spacing = Math.max(minSpacing, Math.min(maxSpacing, base));
   var usable = spacing*6;
-  var reserveRight = Math.max(0, inner - usable); // actual free space on right
-  var leftPad = 12 + spacing/2;        // lanes start from left, preserving right margin
+  var reserveRight = Math.max(0, inner - usable);
+  var leftPad = 12 + spacing/2;
   return {leftPad:leftPad,laneSpacing:spacing,inner:inner,reserve:reserveRight,iconW:iconW};
 }
 
@@ -375,9 +386,8 @@ function setupRace(){
     var icon=document.createElement('div'); icon.className='icon'; icon.style.background=h.color;
     var tag=document.createElement('div'); tag.className='tag';
     tag.innerHTML='<span class="pos" data-pos>—</span><span class="hName">'+esc(h.name)+'</span><span class="icons" data-icons></span>';
-    tag.style.transform='translateX(12px)';  // always show tag to the right
+    tag.style.transform='translateX(12px)';  // keep tag to the right
     tag.style.maxWidth = Math.max(120, geom.reserve - 16) + 'px';
-
     var icons=tag.querySelector('[data-icons]'); el.appendChild(icon); el.appendChild(tag); world.appendChild(el);
 
     var S={h:h,el:el,icon:icon,tag:tag,icons:icons,y:-startBehind,crossed:false,offtrack:false,crossTime:null,rank:null,
@@ -434,7 +444,7 @@ function playGallop(){ensureAudio();try{gallopAudio.currentTime=0;gallopAudio.pl
 function stopGallop(){try{gallopAudio.pause();}catch(e){}}
 function playCheer(){ensureAudio();try{cheerAudio.currentTime=0;cheerAudio.play();}catch(e){}}
 
-/* Race animation (NO ZOOM) */
+/* Race animation (no zoom) */
 var camY=0,lastTs=0,winnerAnnounced=false,slowMo=false;
 function startRace(){
   gateEl.classList.add('open'); state.race.t0=performance.now(); state.race.finished=false; state.race.started=true; winnerAnnounced=false; slowMo=false; playGallop();
@@ -468,7 +478,7 @@ function startRace(){
     if(leaderScreenY < vpH*0.35) camY = clamp(leaderWorldY - vpH*0.35, 0, maxCam);
     if(leaderScreenY > vpH*0.75) camY = clamp(leaderWorldY - vpH*0.75, 0, maxCam);
 
-    world.style.transform='translateY(' + (-camY) + 'px)'; // no scale
+    world.style.transform='translateY(' + (-camY) + 'px)';
 
     if(allOff || t >= state.race.duration + 4000){ endRace(false); return; }
     state.race.raf=requestAnimationFrame(frame);
@@ -514,19 +524,60 @@ $('#fullReset').onclick=fullReset;
 
 /* Results render */
 function renderResults(){
-  var ord=state.race.results.slice().sort(function(a,b){return a.rank-b.rank;}), winnerHorse=state.horses.find(function(h){return h.id===ord[0].horseId;});
+  var ord=state.race.results.slice().sort(function(a,b){return a.rank-b.rank;});
+  var winnerHorse=state.horses.find(function(h){return h.id===ord[0].horseId;});
   var winners=state.roundDeltas.filter(function(r){return r.wonOn.indexOf(winnerHorse.name)!==-1;}), topNet=state.roundDeltas.slice().sort(function(a,b){return b.net-a.net;})[0];
   roundBanner.classList.remove('hidden');
   roundBanner.innerHTML='<span class="winBadge">Winner: '+esc(winnerHorse.name)+'</span>'+(winners.length?winners.map(function(w){return '<span class="winBadge" style="background:#1f6b3c;border-color:#2da760">+'+fmt(w.net>0?w.net:w.won)+' '+esc(w.name)+'</span>';}).join(''):'<span class="lossBadge">No winning tickets</span>')
     +' <span class="'+(topNet.net>=0?'winBadge':'lossBadge')+'">Top net: '+esc(topNet.name)+' '+(topNet.net>=0?'+':'')+fmt(topNet.net)+'</span>';
-  var medals=['🥇','🥈','🥉']; podium.innerHTML='';
-  ord.slice(0,3).forEach(function(o,i){var h=state.horses.find(function(x){return x.id===o.horseId;}); var d=document.createElement('div'); d.className='kpi';
-    d.innerHTML='<div class="row" style="gap:8px"><span style="font-size:1.25rem">'+medals[i]+'</span><div class="icon" style="width:18px;height:14px;background:'+h.color+';animation:none"></div><strong>'+esc(h.name)+'</strong></div><div class="small">Time: '+(o.finishTime/1000).toFixed(2)+'s</div>'; podium.appendChild(d);});
-  orderList.innerHTML=''; ord.forEach(function(o){var h=state.horses.find(function(x){return x.id===o.horseId;}); var bettors=state.picks.filter(function(pk){return pk.horseId===o.horseId;}).map(function(pk){return state.players.find(function(p){return p.id===pk.playerId;}).name;});
-    var li=document.createElement('li'); li.innerHTML='<div class="row" style="justify-content:space-between"><div class="row" style="gap:8px"><div class="badge">#'+o.rank+'</div><div class="icon" style="width:18px;height:14px;background:'+h.color+';animation:none"></div><strong>'+esc(h.name)+'</strong></div><div class="small">'+(bettors.length?('Picked by: '+bettors.map(esc).join(', ')):'No picks')+'</div></div>'; orderList.appendChild(li);});
-  playerOutcomes.innerHTML=''; var by=groupBy(state.picks,'playerId'); state.players.forEach(function(p){var arr=by[p.id]||[], delta=state.roundDeltas.find(function(d){return d.playerId===p.id;})||{net:0};
-    var rows=arr.length?arr.map(function(pk){var h=state.horses.find(function(x){return x.id===pk.horseId;}); return '<div class="row" style="justify-content:space-between"><div>'+pk.type.toUpperCase()+' • <span class="pill">'+esc(h.name)+'</span> • <span class="small">'+fmt(pk.amount)+' bet</span></div><div class="'+(pk.win>0?'money':'')+'">'+pk.result+' '+(pk.win>0?('+ '+fmt(pk.win)):' ')+'</div></div>';}).join(''):'<div class="small">No bets this round.</div>';
-    var li=document.createElement('li'); li.innerHTML='<div class="row" style="justify-content:space-between"><div class="row" style="gap:8px"><span style="width:14px;height:14px;border-radius:50%;display:inline-block;background:'+p.color+';border:1px solid rgba(0,0,0,.35)"></span><strong>'+esc(p.name)+'</strong></div><div>Balance: <span class="money">'+fmt(p.balance)+'</span> <span class="'+(delta.net>=0?'winBadge':'lossBadge')+'" style="margin-left:6px">'+(delta.net>=0?'+':'')+fmt(delta.net)+'</span></div></div><div class="card" style="margin-top:8px">'+rows+'</div>'; playerOutcomes.appendChild(li);});
+
+  // Olympic podium
+  var gold=ord[0], silver=ord[1], bronze=ord[2];
+  var hg=state.horses.find(function(h){return h.id===gold.horseId;});
+  var hs=state.horses.find(function(h){return h.id===silver.horseId;});
+  var hb=state.horses.find(function(h){return h.id===bronze.horseId;});
+  var step = function(cls, medal, h, rec){
+    return '<div class="podium-step '+cls+'">'
+      +'<div class="podium-card">'
+        +'<div class="horseRow"><span style="font-size:1.25rem">'+medal+'</span>'
+          +'<div class="icon" style="width:18px;height:14px;background:'+h.color+';animation:none"></div>'
+          +'<strong>'+esc(h.name)+'</strong></div>'
+        +'<div class="time">'+(rec.finishTime/1000).toFixed(2)+'s</div>'
+      +'</div>'
+      +'<div class="podium-block"></div>'
+    +'</div>';
+  };
+  podium.innerHTML =
+      step('step-bronze','🥉',hb,bronze)
+    + step('step-gold','🥇',hg,gold)
+    + step('step-silver','🥈',hs,silver);
+
+  // Final order list
+  orderList.innerHTML='';
+  ord.forEach(function(o){
+    var h=state.horses.find(function(x){return x.id===o.horseId;});
+    var bettors=state.picks.filter(function(pk){return pk.horseId===o.horseId;}).map(function(pk){return state.players.find(function(p){return p.id===pk.playerId;}).name;});
+    var li=document.createElement('li');
+    li.innerHTML='<div class="row" style="justify-content:space-between">'
+      +'<div class="row" style="gap:8px"><div class="badge">#'+o.rank+'</div><div class="icon" style="width:18px;height:14px;background:'+h.color+';animation:none"></div><strong>'+esc(h.name)+'</strong></div>'
+      +'<div class="small">'+(bettors.length?('Picked by: '+bettors.map(esc).join(', ')):'No picks')+'</div>'
+      +'</div>';
+    orderList.appendChild(li);
+  });
+
+  // Player outcomes
+  playerOutcomes.innerHTML='';
+  var by=groupBy(state.picks,'playerId');
+  state.players.forEach(function(p){
+    var arr=by[p.id]||[], delta=state.roundDeltas.find(function(d){return d.playerId===p.id;})||{net:0};
+    var rows=arr.length?arr.map(function(pk){
+      var h=state.horses.find(function(x){return x.id===pk.horseId;});
+      return '<div class="row" style="justify-content:space-between"><div>'+pk.type.toUpperCase()+' • <span class="pill">'+esc(h.name)+'</span> • <span class="small">'+fmt(pk.amount)+' bet</span></div><div class="'+(pk.win>0?'money':'')+'">'+pk.result+' '+(pk.win>0?('+ '+fmt(pk.win)):' ')+'</div></div>';
+    }).join(''):'<div class="small">No bets this round.</div>';
+    var li=document.createElement('li');
+    li.innerHTML='<div class="row" style="justify-content:space-between"><div class="row" style="gap:8px"><span style="width:14px;height:14px;border-radius:50%;display:inline-block;background:'+p.color+';border:1px solid rgba(0,0,0,.35)"></span><strong>'+esc(p.name)+'</strong></div><div>Balance: <span class="money">'+fmt(p.balance)+'</span> <span class="'+(delta.net>=0?'winBadge':'lossBadge')+'" style="margin-left:6px">'+(delta.net>=0?'+':'')+fmt(delta.net)+'</span></div></div><div class="card" style="margin-top:8px">'+rows+'</div>';
+    playerOutcomes.appendChild(li);
+  });
 }
 
 /* Confetti */
@@ -541,3 +592,4 @@ function fullReset(){state.players=[];state.round=1;state.order=[];state.horses=
 </script>
 </body>
 </html>
+```0
