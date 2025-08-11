@@ -114,19 +114,19 @@
       </div>
       <div class="row">
         <input id="playerName" class="input" placeholder="Player name" style="flex:1" />
-        <button id="addPlayer" class="cta">Add</button>
+        <button id="addPlayer" class="cta" type="button">Add</button>
       </div>
       <div class="row">
-        <button class="ghost quick" data-n="2">Quick add 2</button>
-        <button class="ghost quick" data-n="3">3</button>
-        <button class="ghost quick" data-n="4">4</button>
-        <button class="ghost quick" data-n="5">5</button>
-        <button class="ghost quick" data-n="6">6</button>
+        <button class="ghost quick" data-n="2" type="button">Quick add 2</button>
+        <button class="ghost quick" data-n="3" type="button">3</button>
+        <button class="ghost quick" data-n="4" type="button">4</button>
+        <button class="ghost quick" data-n="5" type="button">5</button>
+        <button class="ghost quick" data-n="6" type="button">6</button>
       </div>
       <ul id="playerList" class="list"></ul>
       <div class="row">
-        <button id="startGame" class="cta" disabled>Start Game</button>
-        <button id="resetAll" class="ghost">Reset</button>
+        <button id="startGame" class="cta" type="button" disabled>Start Game</button>
+        <button id="resetAll" class="ghost" type="button">Reset</button>
       </div>
     </div>
   </section>
@@ -159,7 +159,7 @@
           <option value="place">Place (Top 3)</option>
         </select>
         <input id="betAmount" class="input" type="number" min="1" step="10" value="50" style="max-width:160px" />
-        <button id="lockPick" class="cta" style="flex:1" disabled>Lock Pick</button>
+        <button id="lockPick" class="cta" style="flex:1" type="button" disabled>Lock Pick</button>
       </div>
       <div id="pickPreview" class="small"></div>
     </div>
@@ -168,8 +168,8 @@
       <h3>Summary</h3>
       <ul id="pickList" class="list"></ul>
       <div class="row">
-        <button id="beginRace" class="cta" disabled>Start Race</button>
-        <button id="backToPlayers" class="ghost">Back</button>
+        <button id="beginRace" class="cta" type="button" disabled>Start Race</button>
+        <button id="backToPlayers" class="ghost" type="button">Back</button>
       </div>
     </div>
   </section>
@@ -200,7 +200,7 @@
 
     <div class="raceFooter">
       <div class="inner">
-        <button id="skipToResults" class="ghost" style="flex:1">Skip animation</button>
+        <button id="skipToResults" class="ghost" style="flex:1" type="button">Skip animation</button>
       </div>
     </div>
   </section>
@@ -212,9 +212,9 @@
     <div class="card"><h3>Final Order</h3><ul id="orderList" class="list"></ul></div>
     <div class="card"><h3>Player Outcomes</h3><ul id="playerOutcomes" class="list"></ul></div>
     <div class="row">
-      <button id="nextRound" class="cta">Next Race</button>
-      <button id="leavePlayers" class="ghost">Remove Leavers</button>
-      <button id="fullReset" class="ghost">Reset Game</button>
+      <button id="nextRound" class="cta" type="button">Next Race</button>
+      <button id="leavePlayers" class="ghost" type="button">Remove Leavers</button>
+      <button id="fullReset" class="ghost" type="button">Reset Game</button>
     </div>
   </section>
 </div>
@@ -222,23 +222,13 @@
 <canvas id="confetti"></canvas>
 
 <script>
-/* UUID polyfill + Start button guard */
+/* UUID polyfill */
 (function(){
   var g=self||window; if(!g.crypto) g.crypto=g.msCrypto||{};
   if(!g.crypto.randomUUID){
     g.crypto.randomUUID=function(){return'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,function(c){var r=Math.random()*16|0,v=c==='x'?r:(r&0x3|0x8);return v.toString(16);});};
   }
 })();
-function _refreshStartButton(){
-  var btn=document.getElementById('startGame'); if(!btn) return;
-  var count=(window.state&&Array.isArray(state.players))?state.players.length:document.querySelectorAll('#playerList li').length;
-  btn.disabled = count < 2;
-}
-window.addEventListener('DOMContentLoaded', _refreshStartButton);
-document.addEventListener('click', function(e){
-  if(!e.target) return;
-  if(e.target.id==='addPlayer'||e.target.classList.contains('quick')||e.target.textContent==='Remove'){ setTimeout(_refreshStartButton,0); }
-});
 
 /* Utils */
 var $=function(s){return document.querySelector(s)}, $$=function(s){return Array.prototype.slice.call(document.querySelectorAll(s));};
@@ -254,7 +244,7 @@ var initials=function(n){return n.split(/\s+/).map(function(w){return w[0]||''})
 
 /* Constants */
 var PLAYER_COLORS=["#E879F9","#60A5FA","#34D399","#FBBF24","#F87171","#A78BFA"];
-var REAL_NAMES=[ "Secretariat","Man o’ War","Seabiscuit","Citation","War Admiral","Affirmed","Alydar","Spectacular Bid","Sunday Silence","Easy Goer","Northern Dancer","Ruffian","Zenyatta","Black Caviar","Frankel","American Pharoah","Justify","Flightline","Arrogate","Curlin","Ghostzapper","Gun Runner","California Chrome","Winx","Phar Lap","Omaha","Whirlaway","Count Fleet","Gallant Fox","Native Dancer","Bold Ruler","Nashua","Kelso","Buckpasser","Forego","John Henry","Damascus","Dr. Fager","Alysheba","Cigar","Invasor","Peintre Celebre","Dancing Brave","Dubai Millennium","Sea The Stars","Galileo","Montjeu","Deep Impact","Harbinger","Enable","Tiger Roll","Red Rum","Desert Orchid","Kauto Star","Sprinter Sacre","Denman","Big Brown","Smarty Jones","Funny Cide","Barbaro","Rags to Riches","Lady’s Secret","Winning Colors","Genuine Risk","Serena’s Song","Personal Ensign","Beholder","Monomoy Girl","Rachel Alexandra","Havre de Grace","Blind Luck","Songbird","Tepin","Goldikova","Treve","Miesque","Dahlia","Ouija Board","Fantastic Light","Highland Reel","Crystal Ocean","Poet’s Word","Desert Crown","Hurricane Run","Almanzor","Sottsass","Vadeni","Paddington","Ace Impact","City of Troy","Auguste Rodin","Baaeed","Palace Pier","Pinatubo","Too Darn Hot","Blue Point","Lord Kanaloa","Lys Gracieux","Chrono Genesis","Almond Eye","Drefong","Nature Strip","Anamoe","Giga Kick","I Wish I Win","Verry Elleegant","Incentivise","Romantic Warrior","Golden Sixty","Beauty Generation","Able Friend","Silent Witness","Sacred Kingdom","Fairy King Prawn","Lucky Sweynesse","Wellington","Lucky Nine","Pakistan Star","Aerovelocity","Danon Smash","Satono Crown","Kizuna","Real Steel","Victoire Pisa","Just A Way","Orfevre","Buena Vista","Vodka","Daiwa Scarlet","Admire Moon","Heart’s Cry","King Kamehameha","El Condor Pasa","Agnes World","Agnes Digital","Eishin Preston","Stay Gold","Duramente","Contrail","Daring Tact","Loves Only You","Titleholder","Equinox","Liberty Island","Do Deuce","Stars on Earth","Songline","Schnell Meister","Gran Alegria","Indy Champ","Maurice","Harp Star","Gentildonna","Gold Ship","Epiphaneia","Le Vent Se Leve","Chuwa Wizard","T O Keynes","Ushba Tesoro","Panthalassa","Cafe Pharoah","Yoshida","Mind Your Biscuits","Lava Man","Game On Dude","Mucho Macho Man","Paynter","Bayern","Frosted","Honor Code","Tonalist","Palace Malice","Will Take Charge","Shackleford","Dullahan","Hansen","Union Rags","Orb","Palace Episode","Street Sense","Hard Spun","Any Given Saturday","Lawyer Ron","Quality Road","Animal Kingdom","Gio Ponti","Big Drama","Blame","Summer Bird","Mine That Bird","Da’ Tara","Proud Spell","Eight Belles","Dialed In","Always Dreaming","Tapwrit","Essential Quality","Epicenter","Forte","Goldikova II" ];
+var REAL_NAMES=[ "Secretariat","Man o’ War","Seabiscuit","Citation","War Admiral","Affirmed","Alydar","Spectacular Bid","Sunday Silence","Easy Goer","Northern Dancer","Ruffian","Zenyatta","Black Caviar","Frankel","American Pharoah","Justify","Flightline","Arrogate","Curlin","Ghostzapper","Gun Runner","California Chrome","Winx","Phar Lap","Omaha","Whirlaway","Count Fleet","Gallant Fox","Native Dancer","Bold Ruler","Nashua","Kelso","Buckpasser","Forego","John Henry","Damascus","Dr. Fager","Alysheba","Cigar","Invasor","Peintre Celebre","Dancing Brave","Dubai Millennium","Sea The Stars","Galileo","Montjeu","Deep Impact","Harbinger","Enable","Tiger Roll","Red Rum","Desert Orchid","Kauto Star","Sprinter Sacre","Denman","Big Brown","Smarty Jones","Funny Cide","Barbaro","Rags to Riches","Lady’s Secret","Winning Colors","Genuine Risk","Serena’s Song","Personal Ensign","Beholder","Monomoy Girl","Rachel Alexandra","Havre de Grace","Blind Luck","Songbird","Tepin","Goldikova","Treve","Miesque","Dahlia","Ouija Board","Fantastic Light","Highland Reel","Crystal Ocean","Poet’s Word","Desert Crown","Hurricane Run","Almanzor","Sottsass","Vadeni","Paddington","Ace Impact","City of Troy","Auguste Rodin","Baaeed","Palace Pier","Pinatubo","Too Darn Hot","Blue Point","Lord Kanaloa","Lys Gracieux","Chrono Genesis","Almond Eye","Drefong","Nature Strip","Anamoe","Giga Kick","I Wish I Win","Verry Elleegant","Incentivise","Romantic Warrior","Golden Sixty","Beauty Generation","Able Friend","Silent Witness","Sacred Kingdom","Fairy King Prawn","Lucky Sweynesse","Wellington","Lucky Nine","Pakistan Star","Aerovelocity","Danon Smash","Satono Crown","Kizuna","Real Steel","Victoire Pisa","Just A Way","Orfevre","Buena Vista","Vodka","Daiwa Scarlet","Admire Moon","Heart’s Cry","King Kamehameha","El Condor Pasa","Agnes World","Agnes Digital","Eishin Preston","Stay Gold","Duramente","Contrail","Daring Tact","Loves Only You","Titleholder","Equinox","Liberty Island","Do Deuce","Stars on Earth","Songline","Schnell Meister","Gran Alegria","Indy Champ","Maurice","Harp Star","Gentildonna","Gold Ship","Epiphaneia","Le Vent Se Le Ve","Chuwa Wizard","T O Keynes","Ushba Tesoro","Panthalassa","Cafe Pharoah","Yoshida","Mind Your Biscuits","Lava Man","Game On Dude","Mucho Macho Man","Paynter","Bayern","Frosted","Honor Code","Tonalist","Palace Malice","Will Take Charge","Shackleford","Dullahan","Hansen","Union Rags","Orb","Palace Episode","Street Sense","Hard Spun","Any Given Saturday","Lawyer Ron","Quality Road","Animal Kingdom","Gio Ponti","Big Drama","Blame","Summer Bird","Mine That Bird","Da’ Tara","Proud Spell","Eight Belles","Dialed In","Always Dreaming","Tapwrit","Essential Quality","Epicenter","Forte","Goldikova II" ];
 
 /* State */
 var state={players:[],startBalance:1000,round:1,order:[],horses:[],picks:[],roundDeltas:[],race:{duration:20000,trackDistance:3200,runoff:110,t0:0,raf:0,started:false,finished:false,worldHeight:0,padTop:24,padBot:24,rankCounter:1,sprites:[],results:[]}};
@@ -263,14 +253,28 @@ function show(k){Object.keys(screens).forEach(function(key){screens[key].classLi
 
 /* Players UI */
 var startBalanceEl=$('#startBalance'), startBalanceShow=$('#startBalanceShow'), playerName=$('#playerName'), playerList=$('#playerList');
-$('#resetAll').onclick=fullReset;
-$('#addPlayer').onclick=function(){var n=playerName.value.trim(); if(!n) return; addPlayer(n); playerName.value=''; renderPlayers(); _refreshStartButton();};
-$$('.quick').forEach(function(b){ b.onclick=function(){var N=+b.dataset.n; var seeds=["Alex","Sam","Casey","Jordan","Taylor","Riley","Jamie","Drew","Quinn","Harper"];
-  while(state.players.length<N){addPlayer(seeds[state.players.length%seeds.length]+(state.players.length>=seeds.length?' '+(state.players.length+1):''));}
-  renderPlayers(); _refreshStartButton();
-};});
-startBalanceEl.oninput=function(){var v=Math.max(100,+startBalanceEl.value||1000); state.startBalance=v; startBalanceShow.textContent=fmt(v);};
-function addPlayer(name){if(state.players.length>=6)return;var color=PLAYER_COLORS[state.players.length%PLAYER_COLORS.length];state.players.push({id:crypto.randomUUID(),name:name,balance:state.startBalance,active:true,color:color});}
+function updateStartButton(){ $('#startGame').disabled = state.players.filter(function(p){return p.active;}).length < 2; }
+$('#resetAll').addEventListener('click', fullReset);
+$('#addPlayer').addEventListener('click', function(){
+  var n=playerName.value.trim(); if(!n) return;
+  addPlayer(n); playerName.value=''; renderPlayers(); updateStartButton();
+});
+$$('.quick').forEach(function(b){
+  b.addEventListener('click', function(){
+    var N=+b.dataset.n;
+    var seeds=["Alex","Sam","Casey","Jordan","Taylor","Riley","Jamie","Drew","Quinn","Harper"];
+    while(state.players.length<N){
+      addPlayer(seeds[state.players.length%seeds.length]+(state.players.length>=seeds.length?' '+(state.players.length+1):''));
+    }
+    renderPlayers(); updateStartButton();
+  });
+});
+startBalanceEl.addEventListener('input', function(){var v=Math.max(100,+startBalanceEl.value||1000); state.startBalance=v; startBalanceShow.textContent=fmt(v);});
+function addPlayer(name){
+  if(state.players.length>=6)return;
+  var color=PLAYER_COLORS[state.players.length%PLAYER_COLORS.length];
+  state.players.push({id:crypto.randomUUID(),name:name,balance:state.startBalance,active:true,color:color});
+}
 function removePlayer(id){state.players=state.players.filter(function(p){return p.id!==id;});}
 function renderPlayers(){
   playerList.innerHTML='';
@@ -282,22 +286,23 @@ function renderPlayers(){
       +'<strong>'+esc(p.name)+'</strong>'
       +'<span class="badge">Balance: <span class="money">'+fmt(p.balance)+'</span></span>'
       +'</div>'
-      +'<button class="ghost" data-id="'+p.id+'">Remove</button>'
+      +'<button class="ghost removeBtn" data-id="'+p.id+'" type="button">Remove</button>'
       +'</div>';
     playerList.appendChild(li);
   });
-  $$('#playerList .ghost').forEach(function(b){ b.onclick=function(){removePlayer(b.dataset.id); renderPlayers(); _refreshStartButton();}; });
-  $('#startGame').disabled = state.players.length < 2;
+  $$('#playerList .removeBtn').forEach(function(b){
+    b.addEventListener('click', function(){
+      removePlayer(b.dataset.id); renderPlayers(); updateStartButton();
+    });
+  });
 }
-/* Also watch DOM list for changes to enable Start Game */
-new MutationObserver(_refreshStartButton).observe(playerList,{childList:true});
-$('#startGame').onclick=function(){state.round=1; startRound();};
-renderPlayers();
+$('#startGame').addEventListener('click', function(){ if($('#startGame').disabled) return; state.round=1; startRound(); });
+renderPlayers(); updateStartButton();
 
 /* Selection */
 var turnBanner=$('#turnBanner'), currentPlayerName=$('#currentPlayerName'), currentPlayerBalance=$('#currentPlayerBalance');
-var horseGrid=$('#horseGrid'), pickList=$('#pickList'), betType=$('#betType'), betAmount=$('#betAmount'), lockPick=$('#lockPick'), beginRace=$('#beginRace']);
-$('#backToPlayers').onclick=function(){show('players')}; var turnIdx=0, selHorseId=null;
+var horseGrid=$('#horseGrid'), pickList=$('#pickList'), betType=$('#betType'), betAmount=$('#betAmount'), lockPick=$('#lockPick'), beginRace=$('#beginRace');
+$('#backToPlayers').addEventListener('click', function(){show('players')}); var turnIdx=0, selHorseId=null;
 
 function startRound(){state.picks=[];state.order=shuffle(state.players.filter(function(p){return p.active;}).map(function(p){return p.id;}));state.horses=genHorses(6);Object.assign(state.race,{finished:false,results:[],rankCounter:1,started:false});renderSelect();show('select');turnIdx=0;prepTurn();}
 function genHorses(n){
@@ -321,7 +326,7 @@ function renderSelect(){
       +'<div class="statRow"><span class="statBall s-burst"></span><span class="statName">Burst</span><div class="meter burst"><span style="width:'+Math.round(h.stats.burst*100)+'%"></span></div></div>'
       +'<div class="odds"><span class="chip">Win <strong>'+h.odds.win.toFixed(2)+'x</strong></span><span class="chip">Place <strong>'+h.odds.place.toFixed(2)+'x</strong></span></div>'
       +'</div></div>';
-    c.onclick=function(){selectHorse(h.id)}; horseGrid.appendChild(c);
+    c.addEventListener('click', function(){selectHorse(h.id)}); horseGrid.appendChild(c);
   });
   renderPicks();
 }
@@ -338,15 +343,15 @@ function updatePreview(){
   var h=state.horses.find(function(x){return x.id===selHorseId;}), t=betType.value, m=t==='win'?h.odds.win:h.odds.place;
   $('#pickPreview').textContent=p.name+' → '+h.name+' • '+t.toUpperCase()+' • '+fmt(amt)+' @ '+m.toFixed(2)+'x'; lockPick.disabled=false;
 }
-betType.onchange=updatePreview; betAmount.oninput=updatePreview;
-lockPick.onclick=function(){var pid=state.order[turnIdx], p=state.players.find(function(x){return x.id===pid;}), amt=clamp(+betAmount.value||0,1,p.balance); if(!selHorseId||amt<1)return;
+betType.addEventListener('change',updatePreview); betAmount.addEventListener('input',updatePreview);
+lockPick.addEventListener('click',function(){var pid=state.order[turnIdx], p=state.players.find(function(x){return x.id===pid;}), amt=clamp(+betAmount.value||0,1,p.balance); if(!selHorseId||amt<1)return;
   state.picks.push({playerId:p.id,horseId:selHorseId,type:betType.value,amount:amt}); p.balance-=amt; turnIdx++; renderPicks(); prepTurn();
-};
+});
 function renderPicks(){ pickList.innerHTML=''; state.order.forEach(function(pid){var p=state.players.find(function(x){return x.id===pid;}), pick=state.picks.find(function(x){return x.playerId===pid;});
   var li=document.createElement('li'); li.innerHTML=pick?('<strong>'+esc(p.name)+'</strong> → <span class="pill">'+esc(state.horses.find(function(x){return x.id===pick.horseId;}).name)+'</span> • <span class="badge">'+pick.type.toUpperCase()+'</span> • <span class="money">'+fmt(pick.amount)+'</span>'):('<strong>'+esc(p.name)+'</strong> is choosing…'); pickList.appendChild(li);
 });}
-$('#beginRace').onclick=function(){setupRace(); show('race'); beginCountdown();};
-$('#skipToResults').onclick=function(){endRace(true)};
+$('#beginRace').addEventListener('click',function(){setupRace(); show('race'); beginCountdown();});
+$('#skipToResults').addEventListener('click',function(){endRace(true)});
 
 /* Race setup */
 var viewport=$('#viewport'), world=$('#world'), laneGuides=$('#laneGuides'), splits=$('#splits'), bg=$('#bg'), finishLine=$('#finishLine'), gateEl=$('#gate');
@@ -518,9 +523,13 @@ function settle(){
     if(win>0){var w=Math.floor(win); p.balance+=w; rec.won+=w;} pk.win=Math.floor(win); pk.result=win>0?'WIN':'LOSE';
   }); state.roundDeltas.forEach(function(r){r.net=r.won-r.staked;});
 }
-$('#nextRound').onclick=function(){state.round++; startRound();};
-$('#leavePlayers').onclick=function(){state.players=state.players.filter(function(p){return p.active&&p.balance>0;}); if(state.players.length<2){alert('Not enough players.'); fullReset(); return;} state.round++; startRound();};
-$('#fullReset').onclick=fullReset;
+$('#nextRound').addEventListener('click',function(){state.round++; startRound();});
+$('#leavePlayers').addEventListener('click',function(){
+  state.players=state.players.filter(function(p){return p.active&&p.balance>0;});
+  if(state.players.length<2){alert('Not enough players.'); fullReset(); return;}
+  state.round++; startRound();
+});
+$('#fullReset').addEventListener('click', fullReset);
 
 /* Results render */
 function renderResults(){
@@ -547,7 +556,7 @@ function renderResults(){
       +'<div class="podium-block"></div>'
     +'</div>';
   };
-  podium.innerHTML =
+  $('#podium').innerHTML =
       step('step-bronze','🥉',hb,bronze)
     + step('step-gold','🥇',hg,gold)
     + step('step-silver','🥈',hs,silver);
@@ -588,7 +597,7 @@ function runConfetti(ms){ms=ms||5000;parts=Array.from({length:220},function(){re
 }
 
 /* Reset */
-function fullReset(){state.players=[];state.round=1;state.order=[];state.horses=[];state.picks=[];state.race={duration:20000,trackDistance:3200,runoff:110,t0:0,raf:0,started:false,finished:false,worldHeight:0,padTop:24,padBot:24,rankCounter:1,sprites:[],results:[]}; renderPlayers(); show('players'); _refreshStartButton();}
+function fullReset(){state.players=[];state.round=1;state.order=[];state.horses=[];state.picks=[];state.race={duration:20000,trackDistance:3200,runoff:110,t0:0,raf:0,started:false,finished:false,worldHeight:0,padTop:24,padBot:24,rankCounter:1,sprites:[],results:[]}; renderPlayers(); show('players'); updateStartButton();}
 </script>
 </body>
 </html>
