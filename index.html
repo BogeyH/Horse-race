@@ -7,23 +7,57 @@
 <meta http-equiv="Expires" content="0" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <title>Photo Finish — Horse Race Multiplayer Betting</title>
+<!-- Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@700&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --navy:#0B1F2A; --cream:#FDF5D9; --red:#D43D3D; --ink:#EDE6CB; --card:#102636; --track:#0E2230;
+    /* New palette */
+    --navy:#003049; --cream:#FDF0D5; --red:#C1121F; --charcoal:#4A4A4A; --burgundy:#780000; --slate:#6D8196; --white:#FFFFFF; --sky:#669BBC;
+    /* App tokens derived from palette */
+    --ink:var(--cream);
+    --bg:var(--navy);
+    --card:#03273c;          /* slightly darker than navy for contrast */
+    --track:#052334;         /* deep navy for track field */
+    --accent:var(--red);
     --lane1:#FF9999; --lane2:#99CCFF; --lane3:#99FF99; --lane4:#FFCC99; --lane5:#CCCCFF; --lane6:#FFFF99;
     --horse-w:44px; --horse-h:36px; --label-gap:8px;
   }
   *{box-sizing:border-box}
   html,body{height:100%}
-  body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:var(--navy);color:var(--ink);overflow-x:hidden}
+  body{
+    margin:0;
+    font-family:"Space Grotesk",system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+    background:var(--bg);
+    color:var(--ink);
+    overflow-x:hidden
+  }
   h1,h2,h3{margin:0 0 .5rem}
+  .title{
+    font-family:"Libre Baskerville", serif;
+    text-align:center;
+    font-size:clamp(32px,4.2vw,56px);
+    letter-spacing:.5px;
+  }
+  .raceTitle{
+    font-family:"Libre Baskerville", serif;
+    text-align:center;
+    font-size:clamp(28px,3.8vw,48px);
+    margin-bottom:4px;
+  }
+  .raceMeta{
+    text-align:center;
+    color:#c6d7e2;
+    font-size:.95rem;
+  }
   .wrap{max-width:1000px;margin:0 auto;padding:14px 14px 90px}
   .grid{display:grid;gap:12px}
   .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-  .card{background:var(--card);border:1px solid #1e3a4a;border-radius:14px;padding:14px}
-  .cta{background:var(--red);color:#fff;border:0;border-radius:12px;padding:12px 16px;font-weight:700;cursor:pointer}
+  .card{background:var(--card);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:14px}
+  .cta{background:var(--accent);color:#fff;border:0;border-radius:12px;padding:12px 16px;font-weight:700;cursor:pointer}
   .cta[disabled]{opacity:.5;cursor:not-allowed}
-  .ghost{background:transparent;border:1px solid #294757;color:#d3e1ea;border-radius:12px;padding:10px 14px;cursor:pointer}
+  .ghost{background:transparent;border:1px solid rgba(255,255,255,.18);color:#d3e1ea;border-radius:12px;padding:10px 14px;cursor:pointer}
   .pill{background:#123042;color:var(--ink);border:1px solid #22465b;border-radius:999px;padding:6px 10px;font-size:.9rem}
   .label{font-size:.85rem;color:#b6c6d2}
   .input{width:100%;background:#0d2230;color:var(--ink);border:1px solid #254b61;border-radius:10px;padding:10px}
@@ -35,18 +69,19 @@
   .list{list-style:none;margin:0;padding:0}
   .list li{padding:8px 0;border-bottom:1px solid #183244}
   .list li:last-child{border-bottom:none}
-
   /* Stats */
   .statRow{display:flex;gap:8px;align-items:center;margin-top:6px}
   .statBall{width:18px;height:18px;border-radius:50%;display:inline-block}
   .s-speed{background:#70d6ff}.s-stam{background:#ffd46b}.s-burst{background:#ff9bb5}
-  .statLabel{min-width:70px;font-size:.85rem;color:#c7d6e0}
+  .statName{width:80px;font-size:.85rem;color:#b6c6d2;opacity:.95}
   .meter{flex:1;height:8px;background:#173649;border-radius:6px;border:1px solid #274c5f;overflow:hidden}
   .meter>span{display:block;height:100%;background:#70d6ff}.meter.stam>span{background:#ffd46b}.meter.burst>span{background:#ff9bb5}
-
   .odds{margin-top:8px;display:flex;gap:8px;flex-wrap:wrap}
   .odds .chip{background:#123043;border:1px solid #274c5f;border-radius:999px;padding:6px 10px}
-
+  /* Bet radios */
+  .radios{display:flex;gap:10px;align-items:center}
+  .radio-pill{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border:1px solid #274c5f;border-radius:999px;cursor:pointer;background:#123043}
+  .radio-pill input{accent-color:var(--accent);}
   /* Race area */
   .race-shell{position:relative;height:74vh;min-height:520px;border-radius:16px;overflow:hidden;background:#0A1D2A;border:1px solid #1f3d50}
   .trackWrap{position:absolute;inset:0;display:flex;flex-direction:column}
@@ -61,62 +96,59 @@
   .finishLine{position:absolute;left:12px;right:12px;height:10px;background:repeating-linear-gradient(90deg,#eee 0 18px,#111 18px 36px);border:1px solid #223f51;border-left:none;border-right:none}
   .gate{position:absolute;left:12px;right:12px;height:14px;background:repeating-linear-gradient(90deg,#eee 0 18px,#111 18px 36px);border-bottom:1px solid #223f51;transform-origin:top;transform:scaleY(1);transition:transform .35s ease}
   .gate.open{transform:scaleY(0)}
-
   .horse{position:absolute;display:flex;align-items:center;gap:var(--label-gap);transform:translate(0,0)}
-  .icon{position:relative;width:var(--horse-w);height:var(--horse-h);border-radius:6px;box-shadow:0 0 0 2px rgba(0,0,0,.25) inset;animation:gallop .3s ease-in-out infinite alternate}
+  .icon{width:var(--horse-w);height:var(--horse-h);border-radius:6px;box-shadow:0 0 0 2px rgba(0,0,0,.25) inset;animation:gallop .3s ease-in-out infinite alternate;position:relative}
   @keyframes gallop{from{transform:translateY(0)}to{transform:translateY(-3px)}}
-
-  /* Player initials on icon */
-  .iconBadges{position:absolute;right:-6px;bottom:-6px;display:flex;gap:2px}
-  .picon{width:18px;height:18px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:.65rem;color:#0e1b23;font-weight:900;border:1px solid rgba(0,0,0,.35)}
-  .picon.onicon{width:16px;height:16px;font-size:.6rem}
-
+  /* Player initials ON the icon */
+  .pins{position:absolute;left:1px;right:1px;bottom:1px;display:flex;gap:2px;justify-content:center;flex-wrap:wrap;pointer-events:none}
+  .picon{width:16px;height:16px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;
+         font-size:.6rem;color:#0e1b23;font-weight:900;border:1px solid rgba(0,0,0,.35)}
+  /* Name tag + scrolling name */
   .tag{
     background:#0f2a3a;border:1px solid #2b4d60;color:var(--ink);
     padding:6px 8px;border-radius:10px;font-weight:600;white-space:nowrap;display:flex;align-items:center;gap:8px;
-    max-width:240px;overflow:hidden;text-overflow:ellipsis;
+    max-width:240px;overflow:hidden;
   }
   .pos{min-width:34px;text-align:center;border-radius:8px;background:#173448;border:1px solid #31576a;padding:2px 6px;font-weight:800}
-
-  /* Scrolling name */
-  .hName{display:inline-block;max-width:160px;overflow:hidden;vertical-align:bottom}
-  .hName .nameInner{display:inline-block;will-change:transform}
-
-  /* Leader highlights */
-  .top1 .icon{box-shadow:0 0 0 2px rgba(0,0,0,.25) inset, 0 0 0 3px #FFD700}
-  .top2 .icon{box-shadow:0 0 0 2px rgba(0,0,0,.25) inset, 0 0 0 3px #C0C0C0}
-  .top3 .icon{box-shadow:0 0 0 2px rgba(0,0,0,.25) inset, 0 0 0 3px #8C6A43}
-  .top1 .tag{border-color:#FFD700}.top2 .tag{border-color:#C0C0C0}.top3 .tag{border-color:#8C6A43}
-
+  .hName{display:inline-block;overflow:hidden}
+  .hName .hInner{display:inline-block;white-space:nowrap;will-change:transform}
+  .hName.scroll .hInner{animation:nameScroll var(--dur,8s) linear infinite alternate}
+  @keyframes nameScroll{from{transform:translateX(0)}to{transform:translateX(calc(-1 * var(--scrollX,0px)))}}
+  /* Leader colors */
+  .leaderGlow{filter:drop-shadow(0 0 10px rgba(255,215,0,.75))}
+  .top1 .icon{box-shadow:0 0 0 2px #FFD700 inset, 0 0 14px rgba(255,215,0,.7)}
+  .top1 .tag{border-color:#FFD700}
+  .top2 .icon{box-shadow:0 0 0 2px #C0D6E4 inset, 0 0 10px rgba(192,214,228,.55)}
+  .top2 .tag{border-color:#C0D6E4}
+  .top3 .icon{box-shadow:0 0 0 2px #7C5A2B inset, 0 0 6px rgba(124,90,43,.45)}
+  .top3 .tag{border-color:#7C5A2B}
   .countdown{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:5;pointer-events:none;background:radial-gradient(circle at 50% 45%, rgba(10,25,35,.45), rgba(10,25,35,.8) 60%, rgba(10,25,35,.95))}
   .countText{font-size:12vmin;font-weight:800;color:#fff;text-shadow:0 2px 0 rgba(0,0,0,.35)}
   .countGo{font-size:9vmin;color:#FFE8A3}
-
   .toast{position:absolute;left:50%;top:14%;transform:translateX(-50%);background:#123a2a;border:1px solid #1e5a44;color:#dbffe9;padding:12px 16px;border-radius:12px;z-index:6;box-shadow:0 10px 30px rgba(0,0,0,.35)}
   .toast.hidden{display:none}
-
   .winBanner{background:#0f2a3a;border:1px solid #2d556a;border-radius:14px;padding:12px;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
   .winBadge{background:#1c7c4a;border:1px solid #2bb36d;color:#eafff4;border-radius:999px;padding:6px 10px;font-weight:800}
   .lossBadge{background:#5b1b1b;border:1px solid #a33131;color:#ffe4e4;border-radius:999px;padding:6px 10px;font-weight:800}
-
   .fadeTrack .laneGuides,.fadeTrack .splits{opacity:0;transition:opacity .6s ease}
-
   .raceFooter{position:fixed;left:0;right:0;bottom:0;background:linear-gradient(180deg,rgba(11,31,42,0),rgba(11,31,42,.96));padding:10px 14px 16px}
   .raceFooter .inner{max-width:1000px;margin:0 auto;display:flex;gap:8px}
   #confetti{position:fixed;inset:0;pointer-events:none;opacity:0;transition:opacity .5s ease}
   #confetti.show{opacity:1}
+  /* Bigger current player in selection */
+  #currentPlayerName{font-size:1.35rem;font-weight:800;letter-spacing:.2px}
 </style>
 </head>
 <body>
 <div class="wrap">
   <header class="row" style="justify-content:center">
-    <h1 style="font-size:2rem;text-align:center">Photo Finish</h1>
+    <h1 class="title">Photo Finish</h1>
   </header>
 
   <!-- Add Players -->
   <section id="screen-players" class="grid">
     <div class="card grid">
-      <h2>Add Players</h2>
+      <h2 style="font-family:'Libre Baskerville',serif;font-size:1.6rem">Add Players</h2>
       <div class="row" style="align-items:center">
         <div class="kpi" style="flex:1">
           <div><div class="label">Starting balance</div><div class="money" id="startBalanceShow">1000</div></div>
@@ -145,29 +177,26 @@
   <!-- Selection -->
   <section id="screen-select" class="grid hidden">
     <div class="card grid">
-      <h2>Horse Selection</h2>
+      <h2 style="font-family:'Libre Baskerville',serif;font-size:1.6rem">Horse Selection</h2>
       <div id="turnBanner" class="kpi">
-        <div><div class="label">Now selecting</div><div id="currentPlayerName" style="font-weight:700"></div></div>
+        <div><div class="label">Now selecting</div><div id="currentPlayerName" style="font-weight:800"></div></div>
         <div class="money">Balance: <span id="currentPlayerBalance">0</span></div>
       </div>
+      <!-- legend removed -->
     </div>
 
     <div class="card grid">
-      <h3>Horses</h3>
+      <h3 style="font-family:'Libre Baskerville',serif">Horses</h3>
       <div id="horseGrid" class="grid" style="grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:10px"></div>
     </div>
 
     <div class="card grid">
-      <h3>Bet</h3>
+      <h3 style="font-family:'Libre Baskerville',serif">Bet</h3>
       <div class="row">
-        <label class="row" style="gap:6px">
-          <input type="radio" name="betkind" value="win" id="betWin" checked />
-          <span>Win</span>
-        </label>
-        <label class="row" style="gap:6px">
-          <input type="radio" name="betkind" value="place" id="betPlace" />
-          <span>Place (Top 3)</span>
-        </label>
+        <div class="radios" role="radiogroup" aria-label="Bet Type">
+          <label class="radio-pill"><input type="radio" name="betType" value="win" checked> Win</label>
+          <label class="radio-pill"><input type="radio" name="betType" value="place"> Place (Top 3)</label>
+        </div>
         <input id="betAmount" class="input" type="number" min="1" step="10" value="50" style="max-width:160px;margin-left:auto" />
         <button id="lockPick" class="cta" style="flex:1" disabled>Lock Pick</button>
       </div>
@@ -175,7 +204,7 @@
     </div>
 
     <div class="card">
-      <h3>Summary</h3>
+      <h3 style="font-family:'Libre Baskerville',serif">Summary</h3>
       <ul id="pickList" class="list"></ul>
       <div class="row">
         <button id="beginRace" class="cta" disabled>Start Race</button>
@@ -186,8 +215,9 @@
 
   <!-- Race -->
   <section id="screen-race" class="grid hidden">
-    <div class="card" style="text-align:center">
-      <h2 style="font-size:1.6rem">Race</h2>
+    <div class="card">
+      <div class="raceTitle">Race</div>
+      <div id="raceMeta" class="raceMeta">—</div>
     </div>
 
     <div id="raceShell" class="race-shell">
@@ -209,7 +239,7 @@
 
     <div class="raceFooter">
       <div class="inner">
-        <button id="toggleAudio" class="ghost" style="min-width:120px">🔊 Music On</button>
+        <button id="toggleAudio" class="ghost" style="min-width:140px">🔊 Music On</button>
         <button id="skipToResults" class="ghost" style="flex:1">Skip animation</button>
       </div>
     </div>
@@ -218,9 +248,9 @@
   <!-- Results -->
   <section id="screen-results" class="grid hidden">
     <div id="roundBanner" class="winBanner hidden"></div>
-    <div class="card grid"><h2>Results</h2><div id="podium" class="row"></div></div>
-    <div class="card"><h3>Final Order</h3><ul id="orderList" class="list"></ul></div>
-    <div class="card"><h3>Player Outcomes</h3><ul id="playerOutcomes" class="list"></ul></div>
+    <div class="card grid"><h2 style="font-family:'Libre Baskerville',serif">Results</h2><div id="podium" class="row"></div></div>
+    <div class="card"><h3 style="font-family:'Libre Baskerville',serif">Final Order</h3><ul id="orderList" class="list"></ul></div>
+    <div class="card"><h3 style="font-family:'Libre Baskerville',serif">Player Outcomes</h3><ul id="playerOutcomes" class="list"></ul></div>
     <div class="row">
       <button id="nextRound" class="cta">Next Race</button>
       <button id="leavePlayers" class="ghost">Remove Leavers</button>
@@ -261,17 +291,27 @@ var rnd=function(a,b){return Math.random()*(b-a)+a}, rndi=function(a,b){return M
 var fmt=function(n){return Number(n).toLocaleString();};
 var esc=function(s){return s.replace(/[&<>"']/g,function(m){return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'})[m];});};
 var ordinal=function(n){return n===1?'1st':n===2?'2nd':n===3?'3rd':(n+'th');};
-function shuffle(a){for(var i=a.length-1;i>0;i++){var j=rndi(0,i), t=a[i]; a[i]=a[j]; a[j]=t;} return a;}
+function shuffle(a){for(var i=a.length-1;i>0;i--){var j=rndi(0,i), t=a[i]; a[i]=a[j]; a[j]=t;} return a;}
 function groupBy(arr, key){var out={}; for(var i=0;i<arr.length;i++){var o=arr[i], k=o[key]; if(!out[k]) out[k]=[]; out[k].push(o);} return out;}
 function randn(mu,s){var u=0,v=0;while(u===0)u=Math.random();while(v===0)v=Math.random();var z=Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);return mu+z*s;}
 var initials=function(n){return n.split(/\s+/).map(function(w){return w[0]||''}).join('').slice(0,2).toUpperCase();};
 
 /* Constants */
 var PLAYER_COLORS=["#E879F9","#60A5FA","#34D399","#FBBF24","#F87171","#A78BFA"];
+var DEFAULT_NAMES=["James","Mike","Lex","Gord","Colin","Julien"];
 var REAL_NAMES=[ "Secretariat","Man o’ War","Seabiscuit","Citation","War Admiral","Affirmed","Alydar","Spectacular Bid","Sunday Silence","Easy Goer","Northern Dancer","Ruffian","Zenyatta","Black Caviar","Frankel","American Pharoah","Justify","Flightline","Arrogate","Curlin","Ghostzapper","Gun Runner","California Chrome","Winx","Phar Lap","Omaha","Whirlaway","Count Fleet","Gallant Fox","Native Dancer","Bold Ruler","Nashua","Kelso","Buckpasser","Forego","John Henry","Damascus","Dr. Fager","Alysheba","Cigar","Invasor","Peintre Celebre","Dancing Brave","Dubai Millennium","Sea The Stars","Galileo","Montjeu","Deep Impact","Harbinger","Enable","Tiger Roll","Red Rum","Desert Orchid","Kauto Star","Sprinter Sacre","Denman","Big Brown","Smarty Jones","Funny Cide","Barbaro","Rags to Riches","Lady’s Secret","Winning Colors","Genuine Risk","Serena’s Song","Personal Ensign","Beholder","Monomoy Girl","Rachel Alexandra","Havre de Grace","Blind Luck","Songbird","Tepin","Goldikova","Treve","Miesque","Dahlia","Ouija Board","Fantastic Light","Highland Reel","Crystal Ocean","Poet’s Word","Desert Crown","Hurricane Run","Almanzor","Sottsass","Vadeni","Paddington","Ace Impact","City of Troy","Auguste Rodin","Baaeed","Palace Pier","Pinatubo","Too Darn Hot","Blue Point","Lord Kanaloa","Lys Gracieux","Chrono Genesis","Almond Eye","Drefong","Nature Strip","Anamoe","Giga Kick","I Wish I Win","Verry Elleegant","Incentivise","Romantic Warrior","Golden Sixty","Beauty Generation","Able Friend","Silent Witness","Sacred Kingdom","Fairy King Prawn","Lucky Sweynesse","Wellington","Lucky Nine","Pakistan Star","Aerovelocity","Danon Smash","Satono Crown","Kizuna","Real Steel","Victoire Pisa","Just A Way","Orfevre","Buena Vista","Vodka","Daiwa Scarlet","Admire Moon","Heart’s Cry","King Kamehameha","El Condor Pasa","Agnes World","Agnes Digital","Eishin Preston","Stay Gold","Duramente","Contrail","Daring Tact","Loves Only You","Titleholder","Equinox","Liberty Island","Do Deuce","Stars on Earth","Songline","Schnell Meister","Gran Alegria","Indy Champ","Maurice","Harp Star","Gentildonna","Gold Ship","Epiphaneia","Le Vent Se Leve","Chuwa Wizard","T O Keynes","Ushba Tesoro","Panthalassa","Cafe Pharoah","Yoshida","Mind Your Biscuits","Lava Man","Game On Dude","Mucho Macho Man","Paynter","Bayern","Frosted","Honor Code","Tonalist","Palace Malice","Will Take Charge","Shackleford","Dullahan","Hansen","Union Rags","Orb","Palace Episode","Street Sense","Hard Spun","Any Given Saturday","Lawyer Ron","Quality Road","Animal Kingdom","Gio Ponti","Big Drama","Blame","Summer Bird","Mine That Bird","Da’ Tara","Proud Spell","Eight Belles","Dialed In","Always Dreaming","Tapwrit","Essential Quality","Epicenter","Forte","Goldikova II" ];
 
+/* Venues & conditions */
+var VENUES=[
+  "Churchill Downs","Ascot","Epsom Downs","Flemington","Santa Anita Park",
+  "Belmont Park","Longchamp","Meydan","Tokyo Racecourse","Sha Tin",
+  "Happy Valley","Randwick","Saratoga","Keeneland","Del Mar",
+  "York Racecourse","Goodwood","Aintree","Cheltenham","Rosehill Gardens"
+];
+var CONDITIONS=["Fast","Firm","Good","Good to Soft","Soft","Heavy","Yielding","Standard","Muddy","Sloppy","Good (3)","Soft (6)"];
+
 /* State */
-var state={players:[],startBalance:1000,round:1,order:[],horses:[],picks:[],roundDeltas:[],race:{duration:20000,trackDistance:3200,runoff:110,t0:0,raf:0,started:false,finished:false,worldHeight:0,padTop:24,padBot:24,rankCounter:1,sprites:[],results:[]}};
+var state={players:[],startBalance:1000,round:1,order:[],horses:[],picks:[],roundDeltas:[],race:{duration:20000,trackDistance:3200,runoff:110,t0:0,raf:0,started:false,finished:false,worldHeight:0,padTop:24,padBot:24,rankCounter:1,sprites:[],results:[],venue:null,cond:null}};
 var screens={players:$('#screen-players'),select:$('#screen-select'),race:$('#screen-race'),results:$('#screen-results')};
 function show(k){Object.keys(screens).forEach(function(key){screens[key].classList.add('hidden')}); screens[k].classList.remove('hidden');}
 
@@ -279,8 +319,11 @@ function show(k){Object.keys(screens).forEach(function(key){screens[key].classLi
 var startBalanceEl=$('#startBalance'), startBalanceShow=$('#startBalanceShow'), playerName=$('#playerName'), playerList=$('#playerList');
 $('#resetAll').onclick=fullReset;
 $('#addPlayer').onclick=function(){var n=playerName.value.trim(); if(!n) return; addPlayer(n); playerName.value=''; renderPlayers(); _refreshStartButton();};
-$$('.quick').forEach(function(b){ b.onclick=function(){var N=+b.dataset.n; var seeds=["James","Mike","Lex","Gord","Colin","Julien"];
-  while(state.players.length<N){addPlayer(seeds[state.players.length%seeds.length]+(state.players.length>=seeds.length?' '+(state.players.length+1):''));}
+$$('.quick').forEach(function(b){ b.onclick=function(){var N=+b.dataset.n;
+  while(state.players.length<N){
+    var idx = state.players.length % DEFAULT_NAMES.length;
+    addPlayer(DEFAULT_NAMES[idx] + (state.players.length>=DEFAULT_NAMES.length ? ' ' + (state.players.length+1) : ''));
+  }
   renderPlayers(); _refreshStartButton();
 };});
 startBalanceEl.oninput=function(){var v=Math.max(100,+startBalanceEl.value||1000); state.startBalance=v; startBalanceShow.textContent=fmt(v);};
@@ -311,29 +354,37 @@ renderPlayers();
 /* Selection */
 var turnBanner=$('#turnBanner'), currentPlayerName=$('#currentPlayerName'), currentPlayerBalance=$('#currentPlayerBalance');
 var horseGrid=$('#horseGrid'), pickList=$('#pickList'), betAmount=$('#betAmount'), lockPick=$('#lockPick'), beginRace=$('#beginRace');
-var betType='win';
 $('#backToPlayers').onclick=function(){show('players')}; var turnIdx=0, selHorseId=null;
+
+/* helpers for bet type radios */
+function getBetType(){var el=document.querySelector('input[name="betType"]:checked'); return el?el.value:'win';}
+$$('input[name="betType"]').forEach(function(r){ r.addEventListener('change', updatePreview); });
 
 function startRound(){
   state.picks=[];
   state.order=shuffle(state.players.filter(function(p){return p.active;}).map(function(p){return p.id;}));
   state.horses=genHorses(6);
+  /* sort favorite (lowest win odds) to longest shot */
+  state.horses.sort(function(a,b){return a.odds.win - b.odds.win;});
+  /* venue + condition */
+  state.race.venue = VENUES[rndi(0,VENUES.length-1)];
+  state.race.cond = CONDITIONS[rndi(0,CONDITIONS.length-1)];
+  var metaEl=document.getElementById('raceMeta');
+  if(metaEl) metaEl.textContent = state.race.venue + ' • ' + state.race.cond;
   Object.assign(state.race,{finished:false,results:[],rankCounter:1,started:false});
   renderSelect(); show('select'); turnIdx=0; prepTurn();
 }
 function genHorses(n){
   var colors=['var(--lane1)','var(--lane2)','var(--lane3)','var(--lane4)','var(--lane5)','var(--lane6)']; var names=sampleNames(n);
-  var horses=Array.from({length:n},function(_,i){
+  return Array.from({length:n},function(_,i){
     var speed=clamp(randn(0.65,0.15),0.35,1),stamina=clamp(randn(0.65,0.15),0.35,1),burst=clamp(randn(0.65,0.15),0.35,1);
     var q=speed*0.5+stamina*0.3+burst*0.2, base=rnd(19.2,21.5)-(q-0.65)*2.0, finishTime=clamp(base,18.8,22.5)*1000;
     var win=clamp(1.6+(1-q)*2.4+rnd(0,0.4),1.4,4.6), place=clamp(win*rnd(0.5,0.7),1.2,Math.max(1.2,win*0.85));
     return {id:crypto.randomUUID(),name:names[i],color:colors[i],stats:{speed:speed,stamina:stamina,burst:burst,q:q},finishTime:finishTime,odds:{win:win,place:place}};
   });
-  /* Order by favorite (lowest win odds) */
-  horses.sort(function(a,b){return a.odds.win - b.odds.win;});
-  return horses;
 }
 function sampleNames(n){var pool=REAL_NAMES.slice(), out=[]; while(out.length<n&&pool.length){out.push(pool.splice(rndi(0,pool.length-1),1)[0]);} return out.slice(0,n);}
+
 function renderSelect(){
   horseGrid.innerHTML='';
   state.horses.forEach(function(h){
@@ -341,45 +392,36 @@ function renderSelect(){
     c.innerHTML='<div class="row" style="align-items:flex-start;gap:10px">'
       +'<div class="icon" style="width:36px;height:28px;background:'+h.color+';animation:none"></div>'
       +'<div style="flex:1">'
-        +'<div style="font-weight:700">'+esc(h.name)+'</div>'
-        +'<div class="statRow"><span class="statBall s-speed"></span><span class="statLabel">Speed</span><div class="meter"><span style="width:'+Math.round(h.stats.speed*100)+'%"></span></div></div>'
-        +'<div class="statRow"><span class="statBall s-stam"></span><span class="statLabel">Stamina</span><div class="meter stam"><span style="width:'+Math.round(h.stats.stamina*100)+'%"></span></div></div>'
-        +'<div class="statRow"><span class="statBall s-burst"></span><span class="statLabel">Burst</span><div class="meter burst"><span style="width:'+Math.round(h.stats.burst*100)+'%"></span></div></div>'
-        +'<div class="odds"><span class="chip">Win <strong>'+h.odds.win.toFixed(2)+'x</strong></span><span class="chip">Place <strong>'+h.odds.place.toFixed(2)+'x</strong></span></div>'
+      +'<div style="font-weight:700">'+esc(h.name)+'</div>'
+      +'<div class="statRow"><span class="statBall s-speed"></span><span class="statName">Speed</span><div class="meter"><span style="width:'+Math.round(h.stats.speed*100)+'%"></span></div></div>'
+      +'<div class="statRow"><span class="statBall s-stam"></span><span class="statName">Stamina</span><div class="meter stam"><span style="width:'+Math.round(h.stats.stamina*100)+'%"></span></div></div>'
+      +'<div class="statRow"><span class="statBall s-burst"></span><span class="statName">Burst</span><div class="meter burst"><span style="width:'+Math.round(h.stats.burst*100)+'%"></span></div></div>'
+      +'<div class="odds"><span class="chip">Win <strong>'+h.odds.win.toFixed(2)+'x</strong></span><span class="chip">Place <strong>'+h.odds.place.toFixed(2)+'x</strong></span></div>'
       +'</div></div>';
     c.onclick=function(){selectHorse(h.id)}; horseGrid.appendChild(c);
   });
   renderPicks();
 }
-function prepTurn(){
-  if(turnIdx>=state.order.length){beginRace.disabled=false;turnBanner.classList.add('hidden');return;}
+function prepTurn(){ if(turnIdx>=state.order.length){beginRace.disabled=false;turnBanner.classList.add('hidden');return;}
   beginRace.disabled=true; turnBanner.classList.remove('hidden'); selHorseId=null; lockPick.disabled=true;
   var pid=state.order[turnIdx], p=state.players.find(function(x){return x.id===pid;});
   currentPlayerName.textContent=p.name; currentPlayerBalance.textContent=fmt(p.balance);
-  betAmount.value=Math.min(100,p.balance); $('#pickPreview').textContent=''; $$('#horseGrid .card').forEach(function(e){e.style.outline='1px solid #1e3a4a';});
+  betAmount.value=Math.min(100,p.balance); $('#pickPreview').textContent=''; $$('#horseGrid .card').forEach(function(e){e.style.outline='1px solid rgba(255,255,255,.08)';});
 }
-function selectHorse(id){selHorseId=id; $$('#horseGrid .card').forEach(function(e){e.style.outline=(e.dataset.hid===id?'2px solid var(--red)':'1px solid #1e3a4a');}); updatePreview();}
+function selectHorse(id){selHorseId=id; $$('#horseGrid .card').forEach(function(e){e.style.outline=(e.dataset.hid===id?'2px solid var(--accent)':'1px solid rgba(255,255,255,.08)');}); updatePreview();}
 function updatePreview(){
   var pid=state.order[turnIdx], p=state.players.find(function(x){return x.id===pid;}), amt=clamp(+betAmount.value||0,1,p.balance); betAmount.value=amt;
   if(!selHorseId){lockPick.disabled=true; $('#pickPreview').textContent=''; return;}
-  var h=state.horses.find(function(x){return x.id===selHorseId;}), t=betType, m=t==='win'?h.odds.win:h.odds.place;
+  var h=state.horses.find(function(x){return x.id===selHorseId;}), t=getBetType(), m=t==='win'?h.odds.win:h.odds.place;
   $('#pickPreview').textContent=p.name+' → '+h.name+' • '+t.toUpperCase()+' • '+fmt(amt)+' @ '+m.toFixed(2)+'x'; lockPick.disabled=false;
 }
-$('#betWin').onchange=function(){if(this.checked){betType='win'; updatePreview();}}
-$('#betPlace').onchange=function(){if(this.checked){betType='place'; updatePreview();}}
 betAmount.oninput=updatePreview;
-
-lockPick.onclick=function(){
-  var pid=state.order[turnIdx], p=state.players.find(function(x){return x.id===pid;}), amt=clamp(+betAmount.value||0,1,p.balance);
-  if(!selHorseId||amt<1)return;
-  state.picks.push({playerId:p.id,horseId:selHorseId,type:betType,amount:amt}); p.balance-=amt; turnIdx++; renderPicks(); prepTurn();
+lockPick.onclick=function(){var pid=state.order[turnIdx], p=state.players.find(function(x){return x.id===pid;}), amt=clamp(+betAmount.value||0,1,p.balance); if(!selHorseId||amt<1)return;
+  state.picks.push({playerId:p.id,horseId:selHorseId,type:getBetType(),amount:amt}); p.balance-=amt; turnIdx++; renderPicks(); prepTurn();
 };
-function renderPicks(){
-  pickList.innerHTML=''; state.order.forEach(function(pid){
-    var p=state.players.find(function(x){return x.id===pid;}), pick=state.picks.find(function(x){return x.playerId===pid;});
-    var li=document.createElement('li'); li.innerHTML=pick?('<strong>'+esc(p.name)+'</strong> → <span class="pill">'+esc(state.horses.find(function(x){return x.id===pick.horseId;}).name)+'</span> • <span class="badge">'+pick.type.toUpperCase()+'</span> • <span class="money">'+fmt(pick.amount)+'</span>'):('<strong>'+esc(p.name)+'</strong> is choosing…'); pickList.appendChild(li);
-  });
-}
+function renderPicks(){ pickList.innerHTML=''; state.order.forEach(function(pid){var p=state.players.find(function(x){return x.id===pid;}), pick=state.picks.find(function(x){return x.playerId===pid;});
+  var li=document.createElement('li'); li.innerHTML=pick?('<strong>'+esc(p.name)+'</strong> → <span class="pill">'+esc(state.horses.find(function(x){return x.id===pick.horseId;}).name)+'</span> • <span class="badge">'+pick.type.toUpperCase()+'</span> • <span class="money">'+fmt(pick.amount)+'</span>'):('<strong>'+esc(p.name)+'</strong> is choosing…'); pickList.appendChild(li);
+});}
 $('#beginRace').onclick=function(){setupRace(); show('race'); beginCountdown();};
 $('#skipToResults').onclick=function(){endRace(true)};
 
@@ -390,13 +432,13 @@ var toast=$('#toast'), countdownEl=$('#countdown'), countNum=$('#countNum'), con
 function calcLaneGeometry(){
   var inner=document.getElementById('bg').getBoundingClientRect().width;
   var iconW=parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--horse-w'))||44;
-  var minReserve=140;                  // keep space on right for name bars
+  var minReserve=160;                  // keep space on right for name bars
   var minSpacing=iconW*1.05;           // do not overlap icons
-  var maxSpacing=iconW*1.40;           // tighter lanes (less spread)
+  var maxSpacing=iconW*1.40;           // tighter lanes
   var base=(inner - minReserve)/6;
   var spacing = Math.max(minSpacing, Math.min(maxSpacing, base));
   var usable = spacing*6;
-  var reserveRight = Math.max(0, inner - usable); // actual free space on right
+  var reserveRight = Math.max(0, inner - usable);
   var leftPad = 12 + spacing/2;
   return {leftPad:leftPad,laneSpacing:spacing,inner:inner,reserve:reserveRight,iconW:iconW};
 }
@@ -418,66 +460,65 @@ function setupRace(){
   state.race.sprites=state.horses.map(function(h,i){
     var el=document.createElement('div'); el.className='horse'; el.dataset.hid=h.id;
     var x=leftPad+i*laneSpacing - geom.iconW/2; el.style.left=x+'px'; el.style.top=padTop+'px';
-
     var icon=document.createElement('div'); icon.className='icon'; icon.style.background=h.color;
-    var badges=document.createElement('div'); badges.className='iconBadges'; icon.appendChild(badges);
-
+    var pins=document.createElement('div'); pins.className='pins'; icon.appendChild(pins);
     var tag=document.createElement('div'); tag.className='tag';
-    tag.innerHTML='<span class="pos" data-pos>—</span><span class="hName"><span class="nameInner">'+esc(h.name)+'</span></span>';
-    tag.style.transform='translateX(12px)';  // always show tag to the right
-    tag.style.maxWidth = Math.max(120, geom.reserve - 16) + 'px';
-
+    tag.innerHTML='<span class="pos" data-pos>—</span><span class="hName"><span class="hInner">'+esc(h.name)+'</span></span>';
+    tag.style.transform='translateX(12px)';
+    tag.style.maxWidth = Math.max(140, geom.reserve - 16) + 'px';
     el.appendChild(icon); el.appendChild(tag); world.appendChild(el);
 
-    var S={h:h,el:el,icon:icon,iconBadges:badges,tag:tag,y:-startBehind,crossed:false,offtrack:false,crossTime:null,rank:null,
-      posEl:tag.querySelector('[data-pos]'),nameHolder:tag.querySelector('.hName'),nameInner:tag.querySelector('.nameInner'),
-      vBase:TD/(h.finishTime/1000),plan:pacePlan(h),
-      scrollNeeded:false,scrollX:0,scrollDir:-1,scrollPause:0,scrollMax:0
+    var nameWrap = tag.querySelector('.hName'), nameInner = tag.querySelector('.hInner');
+    var S={
+      h:h,el:el,icon:icon,pins:pins,tag:tag,nameWrap:nameWrap,nameInner:nameInner,
+      y:-startBehind,crossed:false,offtrack:false,crossTime:null,rank:null,
+      posEl:tag.querySelector('[data-pos]'),vBase:TD/(h.finishTime/1000),plan:pacePlan(h)
     };
-    el.style.transform='translate(0,'+S.y+'px)'; return S;
+    el.style.transform='translate(0,'+S.y+'px)';
+    return S;
   });
 
-  /* Add player initials ON ICON */
   var byHorse=groupBy(state.picks,'horseId');
   state.race.sprites.forEach(function(S){
-    S.iconBadges.innerHTML='';
-    var picks=byHorse[S.h.id]||[];
-    var toShow=picks.slice(0,3);
-    toShow.forEach(function(pk){
+    S.pins.innerHTML='';
+    var arr=byHorse[S.h.id]||[];
+    arr.slice(0,4).forEach(function(pk){
       var p=state.players.find(function(pp){return pp.id===pk.playerId;});
-      var ic=document.createElement('span'); ic.className='picon onicon'; ic.textContent=initials(p.name); ic.style.background=p.color; S.iconBadges.appendChild(ic);
+      var ic=document.createElement('span'); ic.className='picon'; ic.textContent=initials(p.name); ic.style.background=p.color; S.pins.appendChild(ic);
     });
-    if(picks.length>3){
-      var m=document.createElement('span'); m.className='picon onicon'; m.textContent='+'+(picks.length-3); m.style.background='#b9d3e0'; S.iconBadges.appendChild(m);
-    }
-
-    /* Name marquee setup */
-    var holder=S.nameHolder, inner=S.nameInner;
-    if(holder && inner){
-      // measure after inserted
-      var cw=holder.clientWidth, sw=inner.scrollWidth;
-      if(sw>cw+2){
-        S.scrollNeeded=true; S.scrollX=0; S.scrollDir=-1; S.scrollPause=0.8; S.scrollMax=(sw-cw)+12;
-      } else {
-        S.scrollNeeded=false;
-        inner.style.transform='translateX(0px)';
-      }
+    if(arr.length>4){
+      var m=document.createElement('span'); m.className='picon'; m.textContent='+'+(arr.length-4); m.style.background='#b9d3e0'; S.pins.appendChild(m);
     }
   });
+
+  state.race.sprites.forEach(applyNameScroll);
 
   window.onresize=function(){
     var g=calcLaneGeometry();
     $$('#laneGuides .laneLine').forEach(function(line,idx){ line.style.left=(g.leftPad+idx*g.laneSpacing)+'px'; });
     state.race.sprites.forEach(function(S,i){
       var nx=g.leftPad+i*g.laneSpacing-g.iconW/2; S.el.style.left=nx+'px';
-      S.tag.style.maxWidth = Math.max(120, g.reserve - 16) + 'px';
-      // recompute marquee
-      if(S.nameHolder && S.nameInner){
-        var cw=S.nameHolder.clientWidth, sw=S.nameInner.scrollWidth;
-        if(sw>cw+2){ S.scrollNeeded=true; S.scrollMax=(sw-cw)+12; } else { S.scrollNeeded=false; S.nameInner.style.transform='translateX(0px)'; }
-      }
+      S.tag.style.maxWidth = Math.max(140, g.reserve - 16) + 'px';
+      applyNameScroll(S);
     });
   };
+}
+
+// Measure & apply scrolling only if needed
+function applyNameScroll(S){
+  var wrap=S.nameWrap, inner=S.nameInner;
+  if(!wrap || !inner) return;
+  var cw = wrap.clientWidth, sw = inner.scrollWidth;
+  if(sw > cw){
+    wrap.classList.add('scroll');
+    inner.style.setProperty('--scrollX', (sw - cw + 8) + 'px');
+    var dur = Math.max(6, Math.min(14, (sw/cw)*6));
+    inner.style.setProperty('--dur', dur + 's');
+  }else{
+    wrap.classList.remove('scroll');
+    inner.style.removeProperty('--scrollX');
+    inner.style.removeProperty('--dur');
+  }
 }
 
 function pacePlan(h){
@@ -495,104 +536,135 @@ function beginCountdown(){
   setTimeout(tick,1000);
 }
 
-/* ===== Audio: 8-bit racing style + mute toggle ===== */
-var gallopAudio,cheerAudio,gatesAudio;
-var audioMuted=false;
+/* Audio: 8-bit racing + mute toggle */
+var gallopAudio, cheerAudio, gatesAudio;
+var audioMuted = false;
 
-/* WAV encoder */
-function makeWavBase64FromFloat32(samples,sr,nc){sr=sr||22050; nc=nc||1; var b=new ArrayBuffer(44+samples.length*2),v=new DataView(b);function w(o,s){for(var i=0;i<s.length;i++)v.setUint8(o+i,s.charCodeAt(i));}
- w(0,'RIFF');v.setUint32(4,36+samples.length*2,true);w(8,'WAVE');w(12,'fmt ');v.setUint32(16,16,true);v.setUint16(20,1,true);v.setUint16(22,nc,true);v.setUint32(24,sr,true);v.setUint32(28,sr*nc*2,true);v.setUint16(32,nc*2,true);v.setUint16(34,16,true);w(36,'data');v.setUint32(40,samples.length*2,true);var i=44;for(var j=0;j<samples.length;j++){var s0=samples[j];var s=Math.max(-1,Math.min(1,s0));v.setInt16(i,s<0?s*0x8000:s*0x7FFF,true);i+=2;}var bin='';var bytes=new Uint8Array(b);for(var k=0;k<bytes.length;k++)bin+=String.fromCharCode(bytes[k]);return btoa(bin);}
-
-/* Chip helpers */
-function pulseAt(t,f,duty){ duty = duty||0.25; var ph=(t*f)%1; return (ph<duty)?1:-1; }
-function triAt(t,f){ var ph=t*f; return 2*Math.abs(2*(ph-Math.floor(ph+0.5)))-1; }
-function midiToFreq(m){ return 440*Math.pow(2,(m-69)/12); }
-function LCG(seed){ var s=seed||1; return function(){ s=(s*16807)%2147483647; return (s/2147483647)*2-1; };}
-
-/* Envelope */
-function envADSR(t, t0, a, d, s, r, total){
-  var dt=t-t0; if(dt<0) return 0;
-  if(dt<a) return dt/a;
-  if(dt<a+d) return 1-(1-s)*((dt-a)/d);
-  if(dt<total-r) return s;
-  if(dt<=total) return s*(1-((dt-(total-r))/r));
-  return 0;
+function makeWavBase64FromFloat32(samples,sr,nc){
+  sr=sr||22050; nc=nc||1;
+  var b=new ArrayBuffer(44+samples.length*2),v=new DataView(b);
+  function w(o,s){for(var i=0;i<s.length;i++)v.setUint8(o+i,s.charCodeAt(i));}
+  w(0,'RIFF');v.setUint32(4,36+samples.length*2,true);w(8,'WAVE');w(12,'fmt ');
+  v.setUint32(16,16,true);v.setUint16(20,1,true);v.setUint16(22,nc,true);
+  v.setUint32(24,sr,true);v.setUint32(28,sr*nc*2,true);v.setUint16(32,nc*2,true);v.setUint16(34,16,true);
+  w(36,'data');v.setUint32(40,samples.length*2,true);
+  var i=44;
+  for(var j=0;j<samples.length;j++){
+    var s0=samples[j];var s=Math.max(-1,Math.min(1,s0));
+    v.setInt16(i,s<0?s*0x8000:s*0x7FFF,true);i+=2;
+  }
+  var bin='';var bytes=new Uint8Array(b);for(var k=0;k<bytes.length;k++)bin+=String.fromCharCode(bytes[k]);return btoa(bin);
 }
 
-/* Loop */
+/* Chip helpers */
+function pulseAt(t,f,duty){ duty=duty||0.25; var ph=(t*f)%1; return (ph<duty)?1:-1; }
+function triAt(t,f){ var ph=t*f; return 2*Math.abs(2*(ph-Math.floor(ph+0.5)))-1; }
+function midiToFreq(m){ return 440*Math.pow(2,(m-69)/12); }
+function LCG(seed){ var s=seed||1; return function(){ s=(s*16807)%2147483647; return (s/2147483647)*2-1; }; }
+
+/* 8-bit racing loop (classy pulse/tri, 140 BPM) */
 function buildChipRacingLoop(){
   var sr=22050, bpm=140, beats=8, beatDur=60/bpm, dur=beats*beatDur;
   var N=Math.floor(sr*dur), out=new Float32Array(N);
   var rnd=LCG(1337);
   var chords=[[60,64,67],[55,59,62],[57,60,64],[53,57,60],[60,64,67],[55,59,62],[57,60,64],[53,57,60]];
   var bassRoots=[36,31,33,29,36,31,33,29];
-  var eighths=beats*2;
 
-  for(var e=0;e<eighths;e++){
-    var tStart=e*(beatDur/2), tEnd=tStart+(beatDur/2);
-    var c=chords[Math.floor(e/2)];
-    var pat=[0,1,2,1]; var pIndex=e%4; var tone=c[pat[pIndex]]+12; var fLead=midiToFreq(tone);
-    var aL=0.005,dL=0.06,sL=0.35,rL=0.05, noteLen=(beatDur/2);
+  // eighth-note arpeggio lead + hats
+  for(var e=0;e<beats*2;e++){
+    var tStart=e*(beatDur/2), noteLen=(beatDur/2);
+    var c=chords[Math.floor(e/2)], pat=[0,1,2,1], tone=c[pat[e%4]]+12, fLead=midiToFreq(tone);
+    var aL=0.005,dL=0.06,sL=0.35,rL=0.05;
     var n0=Math.floor(tStart*sr), n1=Math.min(N,Math.floor((tStart+noteLen)*sr));
-    for(var i=n0;i<n1;i++){ var t=i/sr; var amp=envADSR(t,tStart,aL,dL,sL,rL,noteLen); out[i]+=0.22*amp*pulseAt(t,fLead,0.25); }
-    var hatLen=0.03; var h0=Math.floor(tStart*sr), h1=Math.min(N,Math.floor((tStart+hatLen)*sr));
+    for(var i=n0;i<n1;i++){ var t=i/sr, dt=t-tStart;
+      var amp = dt<aL ? dt/aL : dt<aL+dL ? 1-(1-sL)*((dt-aL)/dL) : dt<noteLen-rL ? sL : sL*(1-((dt-(noteLen-rL))/rL));
+      out[i]+=0.22*amp*pulseAt(t,fLead,0.25);
+    }
+    // hat tick
+    var hatLen=0.03, h0=Math.floor(tStart*sr), h1=Math.min(N,Math.floor((tStart+hatLen)*sr));
     for(var j=h0;j<h1;j++){ var th=j/sr, env=1-(th-tStart)/hatLen; out[j]+=0.07*env*(rnd()>0?1:-1); }
   }
+
+  // kicks/snares
   for(var b=0;b<beats;b++){
     var tBeat=b*beatDur;
-    if(b%4===0 || b%4===2){
+    if(b%2===0){ // kick
       var kLen=0.08, k0=Math.floor(tBeat*sr), k1=Math.min(N,Math.floor((tBeat+kLen)*sr));
-      for(var i2=k0;i2<k1;i2++){ var t2=i2/sr, x=(t2-tBeat)/kLen, f=90-60*x, env=1-x; out[i2]+=0.24*env*triAt(t2,f)+0.12*env*Math.sin(2*Math.PI*50*t2); }
-    }
-    if(b%4===1 || b%4===3){
+      for(var i2=k0;i2<k1;i2++){ var t2=i2/sr, x=(t2-tBeat)/kLen, env=1-x, f=90-60*x; out[i2]+=0.24*env*triAt(t2,f)+0.12*env*Math.sin(2*Math.PI*50*t2); }
+    }else{       // snare
       var sLen=0.10, s0=Math.floor(tBeat*sr), s1=Math.min(N,Math.floor((tBeat+sLen)*sr)), r=LCG(99+b*7);
-      for(var i3=s0;i3<s1;i3++){ var t3=i3/sr, x3=(t3-tBeat)/sLen, env3=Math.exp(-12*x3); out[i3]+=0.20*env3*(r()); }
+      for(var i3=s0;i3<s1;i3++){ var t3=i3/sr, x3=(t3-tBeat)/sLen, env3=Math.exp(-12*x3); out[i3]+=0.20*env3*r(); }
     }
   }
+
+  // bass line
   for(var b2=0;b2<beats;b2++){
-    var tB=b2*beatDur, root=bassRoots[b2], fBass=midiToFreq(root);
-    var blen=beatDur*0.9, aB=0.005,dB=0.08,sB=0.5,rB=0.06;
+    var tB=b2*beatDur, fBass=midiToFreq(bassRoots[b2]), blen=beatDur*0.9, aB=0.005,dB=0.08,sB=0.5,rB=0.06;
     var n0b=Math.floor(tB*sr), n1b=Math.min(N,Math.floor((tB+blen)*sr));
-    for(var i4=n0b;i4<n1b;i4++){ var t4=i4/sr, ampB=envADSR(t4,tB,aB,dB,sB,rB,blen); out[i4]+=0.16*ampB*triAt(t4,fBass); }
+    for(var i4=n0b;i4<n1b;i4++){ var t4=i4/sr, dt=t4-tB;
+      var ampB = dt<aB ? dt/aB : dt<aB+dB ? 1-(1-sB)*((dt-aB)/dB) : dt<blen-rB ? sB : sB*(1-((dt-(blen-rB))/rB));
+      out[i4]+=0.16*ampB*triAt(t4,fBass);
+    }
   }
+
+  // normalize
   var max=0; for(var m=0;m<N;m++){ var a=Math.abs(out[m]); if(a>max)max=a; }
   var gain = max>0 ? 0.9/max : 1; for(var g=0;g<N;g++){ out[g]*=gain; }
   var A=new Audio('data:audio/wav;base64,'+makeWavBase64FromFloat32(out,sr,1)); A.loop=true; return A;
 }
+
+/* 8-bit gate drop (pulse + noise) */
 function buildGateSound(){
   var sr=22050,d=0.22,N=Math.floor(sr*d),a=new Float32Array(N), rnd=LCG(42);
-  for(var i=0;i<N;i++){ var t=i/sr, env=Math.exp(-16*t), f=560-420*t*3, sq=pulseAt(t,f,0.125), nz=(rnd()+rnd())*0.5*Math.exp(-24*t); a[i]=env*(0.6*sq + 0.25*nz); }
+  for(var i=0;i<N;i++){ var t=i/sr, env=Math.exp(-16*t), f=560-420*t*3;
+    var sq=pulseAt(t,f,0.125), nz=(rnd()+rnd())*0.5*Math.exp(-24*t);
+    a[i]=env*(0.6*sq + 0.25*nz);
+  }
   return new Audio('data:audio/wav;base64,'+makeWavBase64FromFloat32(a));
 }
-function buildCheer8bit(){
+
+/* 8-bit cheer sting */
+function buildCheer(){
   var sr=22050,d=1.2,N=Math.floor(sr*d),a=new Float32Array(N), rnd=LCG(99);
   var notes=[72,76,79,84];
-  function addBlip(t0, midi, len, amp){
+  function blip(t0,midi,len,amp){
     var f=midiToFreq(midi), n0=Math.floor(t0*sr), n1=Math.min(N,Math.floor((t0+len)*sr));
     for(var i=n0;i<n1;i++){ var t=i/sr, x=(t-t0)/len, e=1-x; a[i]+=amp*e*pulseAt(t,f,0.25); }
   }
-  for(var k=0;k<notes.length;k++){ addBlip(0.08*k, notes[k], 0.10, 0.35); }
+  for(var k=0;k<notes.length;k++){ blip(0.08*k, notes[k], 0.10, 0.35); }
   var tStart=0.45, nLen=0.55, n0=Math.floor(tStart*sr), n1=Math.min(N,Math.floor((tStart+nLen)*sr));
   for(var j=n0;j<n1;j++){ var t=j/sr, x=(t-tStart)/nLen, e=Math.exp(-2.8*x); a[j]+=0.22*e*rnd(); }
-  var max=0; for(var i2=0;i2<N;i2++){ var ab=Math.abs(a[i2]); if(ab>max)max=ab; }
-  var g=max>0?0.98/max:1; for(var i3=0;i3<N;i3++){ a[i3]*=g; }
+  // normalize
+  var mx=0; for(var q=0;q<N;q++){ var v=Math.abs(a[q]); if(v>mx)mx=v; }
+  var g=mx?0.98/mx:1; for(var w=0;w<N;w++){ a[w]*=g; }
   return new Audio('data:audio/wav;base64,'+makeWavBase64FromFloat32(a));
 }
-function ensureAudio(){ if(!gatesAudio) gatesAudio = buildGateSound(); if(!gallopAudio) gallopAudio = buildChipRacingLoop(); if(!cheerAudio) cheerAudio = buildCheer8bit(); }
+
+/* Create on demand */
+function ensureAudio(){
+  if(!gatesAudio) gatesAudio = buildGateSound();
+  if(!gallopAudio) gallopAudio = buildChipRacingLoop();
+  if(!cheerAudio)  cheerAudio  = buildCheer();
+}
+
+/* Respect mute */
 function playGates(){ if(audioMuted) return; ensureAudio(); try{gatesAudio.currentTime=0;gatesAudio.play();}catch(e){} }
 function playGallop(){ if(audioMuted) return; ensureAudio(); try{gallopAudio.currentTime=0;gallopAudio.play();}catch(e){} }
-function stopGallop(){ try{ if(gallopAudio) gallopAudio.pause(); }catch(e){} }
+function stopGallop(){ try{ if(gallopAudio) gallopAudio.pause(); if(gatesAudio) gatesAudio.pause(); if(cheerAudio) cheerAudio.pause(); }catch(e){} }
 function playCheer(){ if(audioMuted) return; ensureAudio(); try{cheerAudio.currentTime=0;cheerAudio.play();}catch(e){} }
 
 /* Mute toggle UI */
 var toggleBtn = document.getElementById('toggleAudio');
-function updateMuteUI(){ toggleBtn.textContent = audioMuted ? '🔇 Music Off' : '🔊 Music On'; }
-toggleBtn.addEventListener('click', function(){
-  audioMuted = !audioMuted; updateMuteUI();
-  if(audioMuted){ stopGallop(); } else { if(state.race.started && !state.race.finished){ playGallop(); } }
-});
+function updateMuteUI(){ if(!toggleBtn) return; toggleBtn.textContent = audioMuted ? '🔇 Music Off' : '🔊 Music On'; }
+if(toggleBtn){
+  toggleBtn.addEventListener('click', function(){
+    audioMuted = !audioMuted; updateMuteUI();
+    if(audioMuted){ stopGallop(); } else { if(state.race.started && !state.race.finished){ playGallop(); } }
+  });
+  updateMuteUI();
+}
 
-/* Race animation (NO ZOOM) + name marquee updates */
+/* Race animation (NO ZOOM) */
 var camY=0,lastTs=0,winnerAnnounced=false,slowMo=false;
 function startRace(){
   updateMuteUI();
@@ -616,30 +688,23 @@ function startRace(){
         if(S.rank===1 && !winnerAnnounced){winnerAnnounced=true; toast.textContent=S.h.name+' hits the line first!'; toast.classList.remove('hidden'); setTimeout(function(){toast.classList.add('hidden')},2200);}}
       if(S.y>=TD+state.race.runoff){S.y=TD+state.race.runoff; S.offtrack=true;} else {allOff=false;}
       S.el.style.transform='translate(0,'+S.y+'px)';
-
-      /* Name marquee per-horse (only name scrolls) */
-      if(S.scrollNeeded){
-        if(S.scrollPause>0){ S.scrollPause-=dt; }
-        else{
-          var speed=30; // px/sec
-          S.scrollX += S.scrollDir * speed * dt;
-          if(S.scrollX < -S.scrollMax){ S.scrollX = -S.scrollMax; S.scrollDir = 1; S.scrollPause = 0.7; }
-          if(S.scrollX > 0){ S.scrollX = 0; S.scrollDir = -1; S.scrollPause = 0.8; }
-          S.nameInner.style.transform='translateX('+S.scrollX+'px)';
-        }
-      }
     }
 
     var live=state.race.sprites.slice().sort(function(a,b){return b.y-a.y;});
-    state.race.sprites.forEach(function(S){S.el.classList.remove('top1','top2','top3');});
-    live.forEach(function(S,i){ if(i===0)S.el.classList.add('top1'); else if(i===1)S.el.classList.add('top2'); else if(i===2)S.el.classList.add('top3'); S.posEl.textContent=ordinal(i+1); });
+    state.race.sprites.forEach(function(S){S.el.classList.remove('top1','top2','top3','leaderGlow');});
+    live.forEach(function(S,i){
+      if(i===0)S.el.classList.add('top1','leaderGlow');
+      else if(i===1)S.el.classList.add('top2');
+      else if(i===2)S.el.classList.add('top3');
+      S.posEl.textContent=ordinal(i+1);
+    });
 
     var leader=live[0]; var leaderWorldY=state.race.padTop+leader.y; var target=clamp(leaderWorldY - vpH*0.60, 0, maxCam);
     camY += (target - camY) * 0.14; var leaderScreenY=leaderWorldY - camY;
     if(leaderScreenY < vpH*0.35) camY = clamp(leaderWorldY - vpH*0.35, 0, maxCam);
     if(leaderScreenY > vpH*0.75) camY = clamp(leaderWorldY - vpH*0.75, 0, maxCam);
 
-    world.style.transform='translateY(' + (-camY) + 'px)';
+    world.style.transform='translateY(' + (-camY) + 'px)'; // no scale
 
     if(allOff || t >= state.race.duration + 4000){ endRace(false); return; }
     state.race.raf=requestAnimationFrame(frame);
@@ -708,8 +773,7 @@ function runConfetti(ms){ms=ms||5000;parts=Array.from({length:220},function(){re
 }
 
 /* Reset */
-function fullReset(){state.players=[];state.round=1;state.order=[];state.horses=[];state.picks=[];state.race={duration:20000,trackDistance:3200,runoff:110,t0:0,raf:0,started:false,finished:false,worldHeight:0,padTop:24,padBot:24,rankCounter:1,sprites:[],results:[]}; renderPlayers(); show('players'); _refreshStartButton();}
+function fullReset(){state.players=[];state.round=1;state.order=[];state.horses=[];state.picks=[];state.race={duration:20000,trackDistance:3200,runoff:110,t0:0,raf:0,started:false,finished:false,worldHeight:0,padTop:24,padBot:24,rankCounter:1,sprites:[],results:[],venue:null,cond:null}; renderPlayers(); show('players'); _refreshStartButton();}
 </script>
 </body>
 </html>
-```0
