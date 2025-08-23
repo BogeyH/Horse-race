@@ -282,20 +282,23 @@
 <canvas id="confetti"></canvas>
 
 <script>
-/* UUID polyfill + Start button guard (ES5) */
-(function(){
-  var g = self || window; if(!g.crypto) g.crypto = g.msCrypto || {};
-  if(!g.crypto.randomUUID){
-    g.crypto.randomUUID = function(){
-      return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,function(c){
-        var r = Math.random()*16|0, v = c==='x'?r:(r&0x3|0x8); return v.toString(16);
-      });
-    };
-  }
-})();
+/* Safe UUID helper – do not mutate window.crypto */
+function uid(){
+  try{
+    if (window.crypto && typeof window.crypto.randomUUID === 'function') {
+      return window.crypto.randomUUID();
+    }
+  }catch(e){}
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,function(c){
+    var r = Math.random()*16|0, v = c==='x'? r : (r&0x3|0x8);
+    return v.toString(16);
+  });
+}
+
+/* Start button guard */
 function _refreshStartButton(){
   var btn=document.getElementById('startGame'); if(!btn) return;
-  var count=(window.state && Array.isArray(state.players)) ? state.players.length : document.querySelectorAll('#playerList li').length;
+  var count=(window.state && Array.isArray(window.state.players)) ? window.state.players.length : document.querySelectorAll('#playerList li').length;
   btn.disabled = count < 2;
 }
 window.addEventListener('DOMContentLoaded', _refreshStartButton);
@@ -349,7 +352,7 @@ $$('.quick').forEach(function(b){ b.onclick=function(){var N=+b.dataset.n;
   renderPlayers(); _refreshStartButton();
 };});
 startBalanceEl.oninput=function(){var v=Math.max(100,+startBalanceEl.value||1000); state.startBalance=v; startBalanceShow.textContent=fmt(v);};
-function addPlayer(name){if(state.players.length>=6)return;var color=PLAYER_COLORS[state.players.length%PLAYER_COLORS.length];state.players.push({id:crypto.randomUUID(),name:name,balance:state.startBalance,active:true,color:color});}
+function addPlayer(name){if(state.players.length>=6)return;var color=PLAYER_COLORS[state.players.length%PLAYER_COLORS.length];state.players.push({id:uid(),name:name,balance:state.startBalance,active:true,color:color});}
 function removePlayer(id){state.players=state.players.filter(function(p){return p.id!==id;});}
 function renderPlayers(){
   playerList.innerHTML='';
@@ -422,7 +425,7 @@ function genHorses(n){
     var speed=clamp(randn(0.65,0.15),0.35,1),stamina=clamp(randn(0.65,0.15),0.35,1),burst=clamp(randn(0.65,0.15),0.35,1);
     var q=speed*0.5+stamina*0.3+burst*0.2, base=rnd(19.2,21.5)-(q-0.65)*2.0, finishTime=clamp(base,18.8,22.5)*1000;
     var win=clamp(1.6+(1-q)*2.4+rnd(0,0.4),1.4,4.6), place=clamp(win*rnd(0.5,0.7),1.2,Math.max(1.2,win*0.85));
-    return {id:crypto.randomUUID(),name:names[i],color:colors[i],stats:{speed:speed,stamina:stamina,burst:burst,q:q},finishTime:finishTime,odds:{win:win,place:place}};
+    return {id:uid(),name:names[i],color:colors[i],stats:{speed:speed,stamina:stamina,burst:burst,q:q},finishTime:finishTime,odds:{win:win,place:place}};
   });
 }
 function sampleNames(n){var pool=REAL_NAMES.slice(), out=[]; while(out.length<n&&pool.length){out.push(pool.splice(rndi(0,pool.length-1),1)[0]);} return out.slice(0,n);}
@@ -601,7 +604,7 @@ var muteBtn = $('#muteBtn');
 function ensureAudio(){
   if(!gatesAudio) gatesAudio = buildGateSound();
   if(!gallopAudio) gallopAudio = buildGallopLoop();
-  if(!cheerAudio)  cheerAudio  = buildCheer();     // fixed from earlier bug
+  if(!cheerAudio)  cheerAudio  = buildCheer();
   syncMuteState();
 }
 function syncMuteState(){
@@ -753,3 +756,4 @@ function fullReset(){state.players=[];state.round=1;state.order=[];state.horses=
 </script>
 </body>
 </html>
+
