@@ -82,7 +82,7 @@
   .odds .chip{background:#123043;border:1px solid #274c5f;border-radius:999px;padding:6px 10px}
 
   .radios{display:flex;gap:10px;align-items:center}
-  .radio-pill{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border:1px solid #2745f;border-radius:999px;cursor:pointer;background:#123043}
+  .radio-pill{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border:1px solid #274c5f;border-radius:999px;cursor:pointer;background:#123043}
   .radio-pill input{accent-color:var(--accent);}
   .betBtns{display:flex;gap:8px;flex-wrap:wrap}
   .betShow{min-width:72px;text-align:center}
@@ -272,7 +272,7 @@
 <canvas id="confetti"></canvas>
 
 <script>
-/* ---------- Constants up top (no early-reference surprises) ---------- */
+/* ---------- Constants ---------- */
 var PLAYER_COLORS=["#E879F9","#60A5FA","#34D399","#FBBF24","#F87171","#A78BFA"];
 var DEFAULT_NAMES=["James","Mike","Lex","Gord","Colin","Julien"];
 var REAL_NAMES=[ "Secretariat","Man o’ War","Seabiscuit","Citation","War Admiral","Affirmed","Alydar","Spectacular Bid","Sunday Silence","Easy Goer","Northern Dancer","Ruffian","Zenyatta","Black Caviar","Frankel","American Pharoah","Justify","Flightline","Arrogate","Curlin","Ghostzapper","Gun Runner","California Chrome","Winx","Phar Lap","Omaha","Whirlaway","Count Fleet","Gallant Fox","Native Dancer","Bold Ruler","Nashua","Kelso","Buckpasser","Forego","John Henry","Damascus","Dr. Fager","Alysheba","Cigar","Invasor","Peintre Celebre","Dancing Brave","Dubai Millennium","Sea The Stars","Galileo","Montjeu","Deep Impact","Harbinger","Enable","Tiger Roll","Red Rum","Desert Orchid","Kauto Star","Sprinter Sacre","Denman","Big Brown","Smarty Jones","Funny Cide","Barbaro","Rags to Riches","Lady’s Secret","Winning Colors","Genuine Risk","Serena’s Song","Personal Ensign","Beholder","Monomoy Girl","Rachel Alexandra","Havre de Grace","Blind Luck","Songbird","Tepin","Goldikova","Treve","Miesque","Dahlia","Ouija Board","Fantastic Light","Highland Reel","Crystal Ocean","Poet’s Word","Desert Crown","Hurricane Run","Almanzor","Sottsass","Vadeni","Paddington","Ace Impact","City of Troy","Auguste Rodin","Baaeed","Palace Pier","Pinatubo","Too Darn Hot","Blue Point","Lord Kanaloa","Lys Gracieux","Chrono Genesis","Almond Eye","Drefong","Nature Strip","Anamoe","Giga Kick","I Wish I Win","Verry Elleegant","Incentivise","Romantic Warrior","Golden Sixty","Beauty Generation","Able Friend","Silent Witness","Sacred Kingdom","Fairy King Prawn","Lucky Sweynesse","Wellington","Lucky Nine","Pakistan Star","Aerovelocity","Danon Smash","Satono Crown","Kizuna","Real Steel","Victoire Pisa","Just A Way","Orfevre","Buena Vista","Vodka","Daiwa Scarlet","Admire Moon","Heart’s Cry","King Kamehameha","El Condor Pasa","Agnes World","Agnes Digital","Eishin Preston","Stay Gold","Duramente","Contrail","Daring Tact","Loves Only You","Titleholder","Equinox","Liberty Island","Do Deuce","Stars on Earth","Songline","Schnell Meister","Gran Alegria","Indy Champ","Maurice","Harp Star","Gentildonna","Gold Ship","Epiphaneia","Le Vent Se Leve","Chuwa Wizard","T O Keynes","Ushba Tesoro","Panthalassa","Cafe Pharoah","Yoshida","Mind Your Biscuits","Lava Man","Game On Dude","Mucho Macho Man","Paynter","Bayern","Frosted","Honor Code","Tonalist","Palace Malice","Will Take Charge","Shackleford","Dullahan","Hansen","Union Rags","Orb","Palace Episode","Street Sense","Hard Spun","Any Given Saturday","Lawyer Ron","Quality Road","Animal Kingdom","Gio Ponti","Big Drama","Blame","Summer Bird","Mine That Bird","Da’ Tara","Proud Spell","Eight Belles","Dialed In","Always Dreaming","Tapwrit","Essential Quality","Epicenter","Forte","Goldikova II" ];
@@ -383,10 +383,11 @@ renderPlayers();
 /* ---------- Selection ---------- */
 var selectMeta=$('#selectMeta');
 var turnBanner=$('#turnBanner'), currentPlayerName=$('#currentPlayerName'), currentPlayerBalance=$('#currentPlayerBalance');
-var horseGrid=$('#horseGrid'), pickList=$('#pickList'), lockPick=$('#lockPick'), beginRace=$('#beginRace'));
+var horseGrid=$('#horseGrid'), pickList=$('#pickList'), lockPick=$('#lockPick'), beginRace=$('#beginRace');
 $('#backToPlayers').onclick=function(){show('players')};
 var turnIdx=0, selHorseId=null;
 
+/* Bet buttons state */
 var betAmountShow=$('#betAmountShow');
 var betAmt=0;
 function setBetAmt(newAmt){
@@ -496,7 +497,7 @@ function renderPicks(){
 $('#beginRace').onclick=function(){setupRace(); show('race'); beginCountdown();};
 $('#skipToResults').onclick=function(){endRace(true)};
 
-/* ---------- Race setup/animation/results (unchanged logic) ---------- */
+/* ---------- Race setup / animation ---------- */
 var viewport=$('#viewport'), world=$('#world'), laneGuides=$('#laneGuides'), splits=$('#splits'), bg=$('#bg'), finishLine=$('#finishLine'), gateEl=$('#gate');
 var toast=$('#toast'), countdownEl=$('#countdown'), countNum=$('#countNum'), confetti=document.getElementById('confetti'), cfx=confetti.getContext('2d');
 
@@ -563,6 +564,8 @@ function setupRace(){
     });
   };
 }
+
+// Measure & apply scrolling only if needed
 function applyNameScroll(S){
   var wrap=S.nameWrap, inner=S.nameInner; if(!wrap || !inner) return;
   var cw = wrap.clientWidth, sw = inner.scrollWidth;
@@ -576,6 +579,7 @@ function applyNameScroll(S){
     inner.style.removeProperty('--scrollX'); inner.style.removeProperty('--dur');
   }
 }
+
 function pacePlan(h, TD, varF){
   var T=h.finishTime;
   var stops=[0,5000,10000,15000,Math.max(18500,T-2500),T];
@@ -590,12 +594,14 @@ function pacePlan(h, TD, varF){
 }
 function seg(stops,t){for(var i=0;i<stops.length-1;i++){if(t>=stops[i]&&t<stops[i+1])return i}return stops.length-2}
 
+/* Countdown */
 function beginCountdown(){
   var c=$('#countdown'), n=$('#countNum'); c.classList.remove('hidden'); n.className='countText'; var k=3; n.textContent=k;
   function tick(){k--; if(k>0){n.textContent=k; setTimeout(tick,1000);} else {n.textContent='GO!'; n.className='countGo'; playGates(); setTimeout(function(){c.classList.add('hidden'); startRace();},320);} }
   setTimeout(tick,1000);
 }
 
+/* Audio */
 var gallopAudio,cheerAudio,gatesAudio;
 function makeWavBase64FromFloat32(samples,sr,nc){sr=sr||22050; nc=nc||1; var b=new ArrayBuffer(44+samples.length*2),v=new DataView(b);function w(o,s){for(var i=0;i<s.length;i++)v.setUint8(o+i,s.charCodeAt(i));}
  w(0,'RIFF');v.setUint32(4,36+samples.length*2,true);w(8,'WAVE');w(12,'fmt ');v.setUint32(16,16,true);v.setUint16(20,1,true);v.setUint16(22,nc,true);v.setUint32(24,sr,true);v.setUint32(28,sr*nc*2,true);v.setUint16(32,nc*2,true);v.setUint16(34,16,true);w(36,'data');v.setUint32(40,samples.length*2,true);var i=44;for(var j=0;j<samples.length;j++){var s0=samples[j];var s=Math.max(-1,Math.min(1,s0));v.setInt16(i,s<0?s*0x8000:s*0x7FFF,true);i+=2;}var bin='';var bytes=new Uint8Array(b);for(var k=0;k<bytes.length;k++)bin+=String.fromCharCode(bytes[k]);return btoa(bin);}
@@ -613,6 +619,7 @@ function playGallop(){ensureAudio();try{gallopAudio.currentTime=0;gallopAudio.pl
 function stopGallop(){try{gallopAudio.pause();}catch(e){}}
 function playCheer(){ensureAudio();try{cheerAudio.currentTime=0;cheerAudio.play();}catch(e){}}
 
+/* Race loop */
 var camY=0,lastTs=0,winnerAnnounced=false,slowMo=false;
 var prevLeaderId=null,lastCheerTime=0;
 var LEAD_CHEER_GAP=48;
@@ -709,6 +716,7 @@ $('#nextRound').onclick=function(){state.round++; startRound();};
 $('#leavePlayers').onclick=function(){state.players=state.players.filter(function(p){return p.active&&p.balance>0;}); if(state.players.length<2){alert('Not enough players.'); fullReset(); return;} state.round++; startRound();};
 $('#fullReset').onclick=fullReset;
 
+/* Results render */
 function renderResults(){
   var ord=state.race.results.slice().sort(function(a,b){return a.rank-b.rank;}), winnerHorse=state.horses.find(function(h){return h.id===ord[0].horseId;});
   var winners=state.roundDeltas.filter(function(r){return r.wonOn.indexOf(winnerHorse.name)!==-1;}), topNet=state.roundDeltas.slice().sort(function(a,b){return b.net-a.net;})[0];
