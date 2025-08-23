@@ -27,7 +27,7 @@
   h1,h2,h3{margin:0 0 .5rem}
   .title{ font-family:"Libre Baskerville", serif; text-align:center; font-size:clamp(32px,4.2vw,56px); letter-spacing:.5px; }
   .raceTitle{ font-family:"Libre Baskerville", serif; text-align:center; font-size:clamp(28px,3.8vw,48px); margin-bottom:4px; }
-  .raceMeta{ text-align:center; color:#c6d7e2; font-size:.95rem; }
+  .raceMeta,.raceMeta2{ text-align:center; color:#c6d7e2; font-size:.95rem; }
   .wrap{max-width:1000px;margin:0 auto;padding:14px 14px 90px}
   .grid{display:grid;gap:12px}
   .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
@@ -128,7 +128,7 @@
   }
   @keyframes popIn{from{transform:scale(.8);opacity:0}to{transform:scale(1);opacity:1}}
 
-  /* Winner modal */
+  /* Modals */
   .modal{position:fixed;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;z-index:50}
   .modal.hidden{display:none}
   .panel{background:#0f2a3a;border:1px solid #2d556a;border-radius:16px;padding:18px;max-width:620px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,.5)}
@@ -224,7 +224,7 @@
   <section id="screen-race" class="grid hidden">
     <div class="card">
       <div class="raceTitle">Race</div>
-      <div id="raceMeta" class="raceMeta">—</div>
+      <div id="raceMeta" class="raceMeta2">—</div>
     </div>
     <div id="raceShell" class="race-shell">
       <div id="toast" class="toast hidden">We have a winner!</div>
@@ -262,9 +262,20 @@
   </section>
 </div>
 
-<!-- Global canvas + system toast -->
+<!-- Confetti + toasts -->
 <canvas id="confetti"></canvas>
 <div id="sysToast" class="toast hidden" style="position:fixed;top:12%;left:50%;transform:translateX(-50%);z-index:60"></div>
+
+<!-- Game Over (elimination) modal -->
+<div id="koModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="koTitle">
+  <div class="panel center">
+    <h2 id="koTitle">❌ Game Over</h2>
+    <div id="koBody" class="small" style="margin-bottom:10px">—</div>
+    <div class="row" style="justify-content:center;gap:10px;margin-top:8px">
+      <button id="koNext" class="cta" type="button">Continue</button>
+    </div>
+  </div>
+</div>
 
 <!-- Last Player Standing modal -->
 <div id="champModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="champTitle">
@@ -279,29 +290,28 @@
 </div>
 
 <script>
-/* ---------- Constants ---------- */
-var PLAYER_COLORS=["#E879F9","#60A5FA","#34D399","#FBBF24","#F87171","#A78BFA"];
-var DEFAULT_NAMES=["James","Mike","Lex","Gord","Colin","Julien"];
-var REAL_NAMES=[ "Secretariat","Man o’ War","Seabiscuit","Citation","War Admiral","Affirmed","Alydar","Spectacular Bid","Sunday Silence","Easy Goer","Northern Dancer","Ruffian","Zenyatta","Black Caviar","Frankel","American Pharoah","Justify","Flightline","Arrogate","Curlin","Ghostzapper","Gun Runner","California Chrome","Winx","Phar Lap","Omaha","Whirlaway","Count Fleet","Gallant Fox","Native Dancer","Bold Ruler","Nashua","Kelso","Buckpasser","Forego","John Henry","Damascus","Dr. Fager","Alysheba","Cigar","Invasor","Peintre Celebre","Dancing Brave","Dubai Millennium","Sea The Stars","Galileo","Montjeu","Deep Impact","Harbinger","Enable","Tiger Roll","Red Rum","Desert Orchid","Kauto Star","Sprinter Sacre","Denman","Big Brown","Smarty Jones","Funny Cide","Barbaro","Rags to Riches","Lady’s Secret","Winning Colors","Genuine Risk","Serena’s Song","Personal Ensign","Beholder","Monomoy Girl","Rachel Alexandra","Havre de Grace","Blind Luck","Songbird","Tepin","Goldikova","Treve","Miesque","Dahlia","Ouija Board","Fantastic Light","Highland Reel","Crystal Ocean","Poet’s Word","Desert Crown","Hurricane Run","Almanzor","Sottsass","Vadeni","Paddington","Ace Impact","City of Troy","Auguste Rodin","Baaeed","Palace Pier","Pinatubo","Too Darn Hot","Blue Point","Lord Kanaloa","Lys Gracieux","Chrono Genesis","Almond Eye","Drefong","Nature Strip","Anamoe","Giga Kick","I Wish I Win","Verry Elleegant","Incentivise","Romantic Warrior","Golden Sixty","Beauty Generation","Able Friend","Silent Witness","Sacred Kingdom","Fairy King Prawn","Lucky Sweynesse","Wellington","Lucky Nine","Pakistan Star","Aerovelocity","Danon Smash","Satono Crown","Kizuna","Real Steel","Victoire Pisa","Just A Way","Orfevre","Buena Vista","Vodka","Daiwa Scarlet","Admire Moon","Heart’s Cry","King Kamehameha","El Condor Pasa","Agnes World","Agnes Digital","Eishin Preston","Stay Gold","Duramente","Contrail","Daring Tact","Loves Only You","Titleholder","Equinox","Liberty Island","Do Deuce","Stars on Earth","Songline","Schnell Meister","Gran Alegria","Indy Champ","Maurice","Harp Star","Gentildonna","Gold Ship","Epiphaneia","Le Vent Se Leve","Chuwa Wizard","T O Keynes","Ushba Tesoro","Panthalassa","Cafe Pharoah","Yoshida","Mind Your Biscuits","Lava Man","Game On Dude","Mucho Macho Man","Paynter","Bayern","Frosted","Honor Code","Tonalist","Palace Malice","Will Take Charge","Shackleford","Dullahan","Hansen","Union Rags","Orb","Palace Episode","Street Sense","Hard Spun","Any Given Saturday","Lawyer Ron","Quality Road","Animal Kingdom","Gio Ponti","Big Drama","Blame","Summer Bird","Mine That Bird","Da’ Tara","Proud Spell","Eight Belles","Dialed In","Always Dreaming","Tapwrit","Essential Quality","Epicenter","Forte","Goldikova II" ];
-
-/* ---------- Helpers ---------- */
+/* ===== Helpers ===== */
 function uid(){
   try{ if (window.crypto && typeof window.crypto.randomUUID==='function') return window.crypto.randomUUID(); }catch(e){}
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,function(c){var r=Math.random()*16|0,v=c==='x'?r:(r&0x3|0x8);return v.toString(16);});
 }
-var $=function(s){return document.querySelector(s)}, $$=function(s){return Array.prototype.slice.call(document.querySelectorAll(s));};
-var clamp=function(v,a,b){return Math.min(b,Math.max(a,v));};
-var rnd=function(a,b){return Math.random()*(b-a)+a}, rndi=function(a,b){return Math.floor(rnd(a,b+1));};
-var fmt=function(n){return Number(n).toLocaleString();};
-var esc=function(s){return s.replace(/[&<>"']/g,function(m){return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'})[m];});};
-var ordinal=function(n){return n===1?'1st':n===2?'2nd':n===3?'3rd':(n+'th');};
-function shuffle(a){for(var i=a.length-1;i>0;i--){var j=rndi(0,i), t=a[i]; a[i]=a[j]; a[j]=t;} return a;}
-function groupBy(arr, key){var out={}; for(var i=0;i<arr.length;i++){var o=arr[i], k=o[key]; if(!out[k]) out[k]=[]; out[k].push(o);} return out;}
-function randn(mu,s){var u=0,v=0;while(u===0)u=Math.random();while(v===0)v=Math.random();var z=Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);return mu+z*s;}
-var initials=function(n){return n.split(/\s+/).map(function(w){return w[0]||''}).join('').slice(0,2).toUpperCase();};
-var lerp=function(a,b,t){return a+(b-a)*t;};
+var $=s=>document.querySelector(s), $$=s=>Array.prototype.slice.call(document.querySelectorAll(s));
+var clamp=(v,a,b)=>Math.min(b,Math.max(a,v));
+var rnd=(a,b)=>Math.random()*(b-a)+a, rndi=(a,b)=>Math.floor(rnd(a,b+1));
+var fmt=n=>Number(n).toLocaleString();
+var esc=s=>s.replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'})[m]);
+var ordinal=n=>n===1?'1st':n===2?'2nd':n===3?'3rd':(n+'th');
+function shuffle(a){for(let i=a.length-1;i>0;i--){let j=rndi(0,i),t=a[i];a[i]=a[j];a[j]=t;}return a;}
+function groupBy(arr,key){let out={}; for(let o of arr){let k=o[key]; (out[k]||(out[k]=[])).push(o);} return out;}
+function randn(mu,s){let u=0,v=0;while(u===0)u=Math.random();while(v===0)v=Math.random();let z=Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);return mu+z*s;}
+var initials=n=>n.split(/\s+/).map(w=>w[0]||'').join('').slice(0,2).toUpperCase();
+var lerp=(a,b,t)=>a+(b-a)*t;
 
-/* ---------- Venue/Condition model ---------- */
+/* ===== Data ===== */
+var PLAYER_COLORS=["#E879F9","#60A5FA","#34D399","#FBBF24","#F87171","#A78BFA"];
+var DEFAULT_NAMES=["James","Mike","Lex","Gord","Colin","Julien"];
+var REAL_NAMES=[ "Secretariat","Man o’ War","Seabiscuit","Citation","War Admiral","Affirmed","Alydar","Spectacular Bid","Sunday Silence","Easy Goer","Northern Dancer","Ruffian","Zenyatta","Black Caviar","Frankel","American Pharoah","Justify","Flightline","Arrogate","Curlin","Ghostzapper","Gun Runner","California Chrome","Winx","Phar Lap","Omaha","Whirlaway","Count Fleet","Gallant Fox","Native Dancer","Bold Ruler","Nashua","Kelso","Buckpasser","Forego","John Henry","Damascus","Dr. Fager","Alysheba","Cigar","Invasor","Peintre Celebre","Dancing Brave","Dubai Millennium","Sea The Stars","Galileo","Montjeu","Deep Impact","Harbinger","Enable","Tiger Roll","Red Rum","Desert Orchid","Kauto Star","Sprinter Sacre","Denman","Big Brown","Smarty Jones","Funny Cide","Barbaro","Rags to Riches","Lady’s Secret","Winning Colors","Genuine Risk","Serena’s Song","Personal Ensign","Beholder","Monomoy Girl","Rachel Alexandra","Havre de Grace","Blind Luck","Songbird","Tepin","Goldikova","Treve","Miesque","Dahlia","Ouija Board","Fantastic Light","Highland Reel","Crystal Ocean","Poet’s Word","Desert Crown","Hurricane Run","Almanzor","Sottsass","Vadeni","Paddington","Ace Impact","City of Troy","Auguste Rodin","Baaeed","Palace Pier","Pinatubo","Too Darn Hot","Blue Point","Lord Kanaloa","Lys Gracieux","Chrono Genesis","Almond Eye","Drefong","Nature Strip","Anamoe","Giga Kick","I Wish I Win","Verry Elleegant","Incentivise","Romantic Warrior","Golden Sixty","Beauty Generation","Able Friend","Silent Witness","Sacred Kingdom","Fairy King Prawn","Lucky Sweynesse","Wellington","Lucky Nine","Pakistan Star","Aerovelocity","Danon Smash","Satono Crown","Kizuna","Real Steel","Victoire Pisa","Just A Way","Orfevre","Buena Vista","Vodka","Daiwa Scarlet","Admire Moon","Heart’s Cry","King Kamehameha","El Condor Pasa","Agnes World","Agnes Digital","Eishin Preston","Stay Gold","Duramente","Contrail","Daring Tact","Loves Only You","Titleholder","Equinox","Liberty Island","Do Deuce","Stars on Earth","Songline","Schnell Meister","Gran Alegria","Indy Champ","Maurice","Harp Star","Gentildonna","Gold Ship","Epiphaneia","Le Vent Se Leve","Chuwa Wizard","T O Keynes","Ushba Tesoro","Panthalassa","Cafe Pharoah","Yoshida","Mind Your Biscuits","Lava Man","Game On Dude","Mucho Macho Man","Paynter","Bayern","Frosted","Honor Code","Tonalist","Palace Malice","Will Take Charge","Shackleford","Dullahan","Hansen","Union Rags","Orb","Palace Episode","Street Sense","Hard Spun","Any Given Saturday","Lawyer Ron","Quality Road","Animal Kingdom","Gio Ponti","Big Drama","Blame","Summer Bird","Mine That Bird","Da’ Tara","Proud Spell","Eight Belles","Dialed In","Always Dreaming","Tapwrit","Essential Quality","Epicenter","Forte","Goldikova II" ];
+
 var VENUE_DATA=[
   {name:"Churchill Downs", dist:2800},{name:"Ascot", dist:3600},{name:"Epsom Downs", dist:3000},{name:"Flemington", dist:3200},
   {name:"Santa Anita Park", dist:2600},{name:"Belmont Park", dist:3000},{name:"Longchamp", dist:2400},{name:"Meydan", dist:2800},
@@ -310,6 +320,8 @@ var VENUE_DATA=[
   {name:"Goodwood", dist:2800},{name:"Aintree", dist:4200},{name:"Cheltenham", dist:3800},{name:"Rosehill Gardens", dist:3000}
 ];
 var CONDITIONS=["Fast","Firm","Good","Good to Soft","Soft","Heavy","Yielding","Standard","Muddy","Sloppy","Good (3)","Soft (6)"];
+
+/* ===== Effects of venue & condition ===== */
 function conditionVariance(cond){
   switch(cond){
     case "Fast": case "Firm": return 0.75;
@@ -329,29 +341,26 @@ function distanceWeights(TD){
 }
 function biasLabel(TD){ if(TD<=2700) return "sprinter-favoring (short)"; if(TD>=3600) return "stamina-favoring (long)"; return "balanced (mid)"; }
 
-/* ---------- State ---------- */
+/* ===== State ===== */
 var state={
   players:[],startBalance:1000,round:1,order:[],horses:[],picks:[],roundDeltas:[],
   race:{duration:20000,trackDistance:3200,runoff:110,t0:0,raf:0,started:false,finished:false,worldHeight:0,padTop:24,padBot:24,rankCounter:1,sprites:[],results:[],venue:null,cond:null,varF:1.0},
   eliminatedLastRound:[]
 };
 var screens={players:$('#screen-players'),select:$('#screen-select'),race:$('#screen-race'),results:$('#screen-results')};
-function show(k){Object.keys(screens).forEach(function(key){screens[key].classList.add('hidden')}); screens[k].classList.remove('hidden');}
+function show(k){Object.keys(screens).forEach(key=>screens[key].classList.add('hidden')); screens[k].classList.remove('hidden');}
 
-/* ---------- Players UI ---------- */
+/* ===== Players UI ===== */
 var startBalanceEl=$('#startBalance'), startBalanceShow=$('#startBalanceShow'), playerName=$('#playerName'), playerList=$('#playerList');
-function updateStartEnabled(){ var btn=$('#startGame'); if(btn){ btn.disabled = (state.players.filter(function(p){return p.active;}).length < 2); } }
+function updateStartEnabled(){ $('#startGame').disabled = (state.players.filter(p=>p.active).length < 2); }
 $('#resetAll').onclick=fullReset;
-$('#addPlayer').onclick=function(){ addFromInput(); };
-playerName.addEventListener('keydown', function(e){ if(e.key==='Enter'){ addFromInput(); }});
+$('#addPlayer').onclick=()=>addFromInput();
+playerName.addEventListener('keydown', e=>{ if(e.key==='Enter') addFromInput(); });
 function addFromInput(){
   var n=(playerName.value||'').trim(); if(!n) return;
-  addPlayer(n);
-  playerName.value='';
-  renderPlayers();
-  updateStartEnabled();
+  addPlayer(n); playerName.value=''; renderPlayers(); updateStartEnabled();
 }
-$$('.quick').forEach(function(b){
+$$('.quick').forEach(b=>{
   b.onclick=function(){
     var N=+b.dataset.n;
     while(state.players.length<N){
@@ -367,7 +376,7 @@ function addPlayer(name){
   var color=PLAYER_COLORS[state.players.length%PLAYER_COLORS.length];
   state.players.push({id:uid(),name:name,balance:state.startBalance,initialBalance:state.startBalance,active:true,color:color});
 }
-function removePlayer(id){ state.players=state.players.filter(function(p){return p.id!==id;}); }
+function removePlayer(id){ state.players=state.players.filter(p=>p.id!==id); }
 function renderPlayers(){
   playerList.innerHTML='';
   state.players.forEach(function(p){
@@ -382,24 +391,24 @@ function renderPlayers(){
       +'</div>';
     playerList.appendChild(li);
   });
-  $$('#playerList .rmv').forEach(function(b){ b.onclick=function(){ removePlayer(b.dataset.id); renderPlayers(); updateStartEnabled(); }; });
+  $$('#playerList .rmv').forEach(b=>b.onclick=()=>{ removePlayer(b.dataset.id); renderPlayers(); updateStartEnabled(); });
   updateStartEnabled();
 }
 $('#startGame').onclick=function(){ state.round=1; startRound(); };
 renderPlayers();
 
-/* ---------- Selection ---------- */
+/* ===== Selection ===== */
 var selectMeta=$('#selectMeta');
 var turnBanner=$('#turnBanner'), currentPlayerName=$('#currentPlayerName'), currentPlayerBalance=$('#currentPlayerBalance');
 var horseGrid=$('#horseGrid'), pickList=$('#pickList'), lockPick=$('#lockPick'), beginRace=$('#beginRace');
 $('#backToPlayers').onclick=function(){show('players')};
 var turnIdx=0, selHorseId=null;
 
-/* Bet buttons state */
+/* Bet buttons */
 var betAmountShow=$('#betAmountShow');
 var betAmt=0;
 function setBetAmt(newAmt){
-  var pid=state.order[turnIdx], p=state.players.find(function(x){return x.id===pid;});
+  var pid=state.order[turnIdx], p=state.players.find(x=>x.id===pid);
   var max=(p?p.balance:0);
   betAmt=clamp(newAmt,0,max);
   betAmountShow.textContent=fmt(betAmt);
@@ -407,37 +416,37 @@ function setBetAmt(newAmt){
 }
 $('#betPlus50').onclick=function(){ setBetAmt(betAmt+50); };
 $('#betPlus100').onclick=function(){ setBetAmt(betAmt+100); };
-$('#betAllIn').onclick=function(){ var pid=state.order[turnIdx], p=state.players.find(function(x){return x.id===pid;}); setBetAmt(p?p.balance:0); };
+$('#betAllIn').onclick=function(){ var pid=state.order[turnIdx], p=state.players.find(x=>x.id===pid); setBetAmt(p?p.balance:0); };
 $('#betReset').onclick=function(){ setBetAmt(0); };
 function getBetType(){var el=document.querySelector('input[name="betType"]:checked'); return el?el.value:'win';}
-$$('input[name="betType"]').forEach(function(r){ r.addEventListener('change', updatePreview); });
+$$('input[name="betType"]').forEach(r=>r.addEventListener('change', updatePreview));
 
 function startRound(){
-  // venue + cond
+  state.picks=[];
+
+  // venue + condition
   var v = VENUE_DATA[rndi(0, VENUE_DATA.length-1)];
   state.race.venue = v.name;
   state.race.trackDistance = v.dist;
   state.race.cond = CONDITIONS[rndi(0, CONDITIONS.length-1)];
   state.race.varF = conditionVariance(state.race.cond);
 
-  state.picks=[];
-  state.order=shuffle(state.players.filter(function(p){return p.active;}).map(function(p){return p.id;}));
+  state.order=shuffle(state.players.filter(p=>p.active).map(p=>p.id));
   state.horses=genHorses(6, state.race.trackDistance, state.race.varF);
-  state.horses.sort(function(a,b){return a.odds.win - b.odds.win;});
+  state.horses.sort((a,b)=>a.odds.win - b.odds.win);
 
   var metaSel = state.race.venue + ' • ' + state.race.cond + ' • ' + state.race.trackDistance + 'm — ' + biasLabel(state.race.trackDistance);
   if(selectMeta) selectMeta.textContent = metaSel;
-  var metaRace=document.getElementById('raceMeta');
+  var metaRace=$('#raceMeta');
   if(metaRace) metaRace.textContent = state.race.venue + ' • ' + state.race.cond + ' • ' + state.race.trackDistance + 'm';
 
   Object.assign(state.race,{finished:false,results:[],rankCounter:1,started:false});
   renderSelect(); show('select'); turnIdx=0; prepTurn();
 }
-
 function genHorses(n, TD, varF){
   var colors=['var(--lane1)','var(--lane2)','var(--lane3)','var(--lane4)','var(--lane5)','var(--lane6)']; var names=sampleNames(n);
   var w = distanceWeights(TD);
-  return Array.from({length:n},function(_,i){
+  return Array.from({length:n},(_,i)=>{
     var speed=clamp(randn(0.65,0.15),0.35,1),
         stamina=clamp(randn(0.65,0.15),0.35,1),
         burst=clamp(randn(0.65,0.15),0.35,1);
@@ -471,26 +480,24 @@ function renderSelect(){
   });
   renderPicks();
 }
-
 function prepTurn(){
   if(turnIdx>=state.order.length){beginRace.disabled=false;turnBanner.classList.add('hidden');return;}
   beginRace.disabled=true; turnBanner.classList.remove('hidden'); selHorseId=null; lockPick.disabled=true;
-  var pid=state.order[turnIdx], p=state.players.find(function(x){return x.id===pid;});
+  var pid=state.order[turnIdx], p=state.players.find(x=>x.id===pid);
   currentPlayerName.textContent=p.name; currentPlayerBalance.textContent=fmt(p.balance);
-  setBetAmt(0);
-  $('#pickPreview').textContent='';
-  $$('#horseGrid .card').forEach(function(e){e.style.outline='1px solid rgba(255,255,255,.08)';});
+  setBetAmt(0); $('#pickPreview').textContent='';
+  $$('#horseGrid .card').forEach(e=>e.style.outline='1px solid rgba(255,255,255,.08)');
 }
-function selectHorse(id){selHorseId=id; $$('#horseGrid .card').forEach(function(e){e.style.outline=(e.dataset.hid===id?'2px solid var(--accent)':'1px solid rgba(255,255,255,.08)');}); updatePreview();}
+function selectHorse(id){selHorseId=id; $$('#horseGrid .card').forEach(e=>e.style.outline=(e.dataset.hid===id?'2px solid var(--accent)':'1px solid rgba(255,255,255,.08)')); updatePreview();}
 function updatePreview(){
-  var pid=state.order[turnIdx], p=state.players.find(function(x){return x.id===pid;});
+  var pid=state.order[turnIdx], p=state.players.find(x=>x.id===pid);
   if(!selHorseId || !p){lockPick.disabled=true; $('#pickPreview').textContent=''; return;}
-  var h=state.horses.find(function(x){return x.id===selHorseId;}), t=getBetType(), m=t==='win'?h.odds.win:h.odds.place;
+  var h=state.horses.find(x=>x.id===selHorseId), t=getBetType(), m=t==='win'?h.odds.win:h.odds.place;
   $('#pickPreview').textContent=p.name+' → '+h.name+' • '+t.toUpperCase()+' • '+fmt(betAmt)+' @ '+m.toFixed(2)+'x';
   lockPick.disabled = !(betAmt>=1 && !!selHorseId);
 }
 lockPick.onclick=function(){
-  var pid=state.order[turnIdx], p=state.players.find(function(x){return x.id===pid;});
+  var pid=state.order[turnIdx], p=state.players.find(x=>x.id===pid);
   if(!selHorseId||betAmt<1||!p)return;
   state.picks.push({playerId:p.id,horseId:selHorseId,type:getBetType(),amount:betAmt});
   p.balance-=betAmt;
@@ -499,14 +506,14 @@ lockPick.onclick=function(){
 function renderPicks(){
   pickList.innerHTML='';
   state.order.forEach(function(pid){
-    var p=state.players.find(function(x){return x.id===pid;}), pick=state.picks.find(function(x){return x.playerId===pid;});
-    var li=document.createElement('li'); li.innerHTML=pick?('<strong>'+esc(p.name)+'</strong> → <span class="pill">'+esc(state.horses.find(function(x){return x.id===pick.horseId;}).name)+'</span> • <span class="badge">'+pick.type.toUpperCase()+'</span> • <span class="money">'+fmt(pick.amount)+'</span>'):('<strong>'+esc(p.name)+'</strong> is choosing…'); pickList.appendChild(li);
+    var p=state.players.find(x=>x.id===pid), pick=state.picks.find(x=>x.playerId===pid);
+    var li=document.createElement('li'); li.innerHTML=pick?('<strong>'+esc(p.name)+'</strong> → <span class="pill">'+esc(state.horses.find(x=>x.id===pick.horseId).name)+'</span> • <span class="badge">'+pick.type.toUpperCase()+'</span> • <span class="money">'+fmt(pick.amount)+'</span>'):('<strong>'+esc(p.name)+'</strong> is choosing…'); pickList.appendChild(li);
   });
 }
 $('#beginRace').onclick=function(){setupRace(); show('race'); beginCountdown();};
 $('#skipToResults').onclick=function(){endRace(true)};
 
-/* ---------- Race setup / animation ---------- */
+/* ===== Race Setup & Loop ===== */
 var viewport=$('#viewport'), world=$('#world'), laneGuides=$('#laneGuides'), splits=$('#splits'), bg=$('#bg'), finishLine=$('#finishLine'), gateEl=$('#gate');
 var toast=$('#toast'), countdownEl=$('#countdown'), countNum=$('#countNum'), confetti=document.getElementById('confetti'), cfx=confetti.getContext('2d');
 
@@ -555,7 +562,7 @@ function setupRace(){
     S.pins.innerHTML='';
     var arr=byHorse[S.h.id]||[];
     arr.slice(0,4).forEach(function(pk){
-      var p=state.players.find(function(pp){return pp.id===pk.playerId;});
+      var p=state.players.find(pp=>pp.id===pk.playerId);
       var ic=document.createElement('span'); ic.className='picon'; ic.textContent=initials(p.name); ic.style.background=p.color; S.pins.appendChild(ic);
     });
     if(arr.length>4){
@@ -565,7 +572,7 @@ function setupRace(){
   state.race.sprites.forEach(applyNameScroll);
   window.onresize=function(){
     var g=calcLaneGeometry();
-    $$('#laneGuides .laneLine').forEach(function(line,idx){ line.style.left=(g.leftPad+idx*g.laneSpacing)+'px'; });
+    $$('#laneGuides .laneLine').forEach((line,idx)=>{ line.style.left=(g.leftPad+idx*g.laneSpacing)+'px'; });
     state.race.sprites.forEach(function(S,i){
       var nx=g.leftPad+i*g.laneSpacing-g.iconW/2; S.el.style.left=nx+'px';
       S.tag.style.maxWidth = Math.max(140, g.reserve - 16) + 'px';
@@ -573,8 +580,6 @@ function setupRace(){
     });
   };
 }
-
-// Measure & apply scrolling only if needed
 function applyNameScroll(S){
   var wrap=S.nameWrap, inner=S.nameInner; if(!wrap || !inner) return;
   var cw = wrap.clientWidth, sw = inner.scrollWidth;
@@ -588,12 +593,11 @@ function applyNameScroll(S){
     inner.style.removeProperty('--scrollX'); inner.style.removeProperty('--dur');
   }
 }
-
 function pacePlan(h, TD, varF){
   var T=h.finishTime;
   var stops=[0,5000,10000,15000,Math.max(18500,T-2500),T];
   var spread = 0.06 * varF;
-  var mul=Array(stops.length-1).fill(0).map(function(){return rnd(1-spread,1+spread)});
+  var mul=Array(stops.length-1).fill(0).map(()=>rnd(1-spread,1+spread));
   var isShort = TD<=2700, isLong = TD>=3600;
   var a = isShort ? rndi(1,2) : isLong ? rndi(2,4) : rndi(1,3);
   var b = isShort ? rndi(1,3) : isLong ? rndi(3,4) : rndi(2,4);
@@ -603,14 +607,7 @@ function pacePlan(h, TD, varF){
 }
 function seg(stops,t){for(var i=0;i<stops.length-1;i++){if(t>=stops[i]&&t<stops[i+1])return i}return stops.length-2}
 
-/* Countdown */
-function beginCountdown(){
-  var c=$('#countdown'), n=$('#countNum'); c.classList.remove('hidden'); n.className='countText'; var k=3; n.textContent=k;
-  function tick(){k--; if(k>0){n.textContent=k; setTimeout(tick,1000);} else {n.textContent='GO!'; n.className='countGo'; playGates(); setTimeout(function(){c.classList.add('hidden'); startRace();},320);} }
-  setTimeout(tick,1000);
-}
-
-/* Audio */
+/* ===== Countdown / Audio ===== */
 var gallopAudio,cheerAudio,gatesAudio;
 function makeWavBase64FromFloat32(samples,sr,nc){sr=sr||22050; nc=nc||1; var b=new ArrayBuffer(44+samples.length*2),v=new DataView(b);function w(o,s){for(var i=0;i<s.length;i++)v.setUint8(o+i,s.charCodeAt(i));}
  w(0,'RIFF');v.setUint32(4,36+samples.length*2,true);w(8,'WAVE');w(12,'fmt ');v.setUint32(16,16,true);v.setUint16(20,1,true);v.setUint16(22,nc,true);v.setUint32(24,sr,true);v.setUint32(28,sr*nc*2,true);v.setUint16(32,nc*2,true);v.setUint16(34,16,true);w(36,'data');v.setUint32(40,samples.length*2,true);var i=44;for(var j=0;j<samples.length;j++){var s0=samples[j];var s=Math.max(-1,Math.min(1,s0));v.setInt16(i,s<0?s*0x8000:s*0x7FFF,true);i+=2;}var bin='';var bytes=new Uint8Array(b);for(var k=0;k<bytes.length;k++)bin+=String.fromCharCode(bytes[k]);return btoa(bin);}
@@ -620,44 +617,49 @@ function buildCheer(){var sr=22050,d=1.8,N=Math.floor(sr*d),a=new Float32Array(N
 var audioMuted = (localStorage.getItem('pf_mute')==='1');
 var muteBtn = $('#muteBtn');
 function ensureAudio(){ if(!gatesAudio) gatesAudio = buildGateSound(); if(!gallopAudio) gallopAudio = buildGallopLoop(); if(!cheerAudio)  cheerAudio  = buildCheer(); syncMuteState(); }
-function syncMuteState(){ [gallopAudio,gatesAudio,cheerAudio].forEach(function(a){ if(a){ a.muted = !!audioMuted; }}); muteBtn.setAttribute('aria-pressed', audioMuted?'true':'false'); muteBtn.textContent = audioMuted ? '🔇 Muted' : '🔊 Sound'; }
+function syncMuteState(){ [gallopAudio,gatesAudio,cheerAudio].forEach(a=>{ if(a){ a.muted = !!audioMuted; }}); muteBtn.setAttribute('aria-pressed', audioMuted?'true':'false'); muteBtn.textContent = audioMuted ? '🔇 Muted' : '🔊 Sound'; }
 muteBtn.onclick=function(){ ensureAudio(); audioMuted = !audioMuted; localStorage.setItem('pf_mute', audioMuted?'1':'0'); syncMuteState(); try{ if(audioMuted&&gallopAudio) gallopAudio.pause(); }catch(e){} };
 window.addEventListener('DOMContentLoaded', function(){ ensureAudio(); syncMuteState(); });
+
+function beginCountdown(){
+  var c=$('#countdown'), n=$('#countNum'); c.classList.remove('hidden'); n.className='countText'; var k=3; n.textContent=k;
+  function tick(){k--; if(k>0){n.textContent=k; setTimeout(tick,1000);} else {n.textContent='GO!'; n.className='countGo'; playGates(); setTimeout(function(){c.classList.add('hidden'); startRace();},320);} }
+  setTimeout(tick,1000);
+}
 function playGates(){ensureAudio();try{gatesAudio.currentTime=0;gatesAudio.play();}catch(e){}}
 function playGallop(){ensureAudio();try{gallopAudio.currentTime=0;gallopAudio.play();}catch(e){}}
 function stopGallop(){try{gallopAudio.pause();}catch(e){}}
 function playCheer(){ensureAudio();try{cheerAudio.currentTime=0;cheerAudio.play();}catch(e){}}
 
-/* Race loop */
+/* ===== Race loop ===== */
 var camY=0,lastTs=0,winnerAnnounced=false,slowMo=false;
 var prevLeaderId=null,lastCheerTime=0;
 var LEAD_CHEER_GAP=48;
 var CHEER_COOLDOWN=1500;
 
 function startRace(){
-  gateEl.classList.add('open'); state.race.t0=performance.now(); state.race.finished=false; state.race.started=true; winnerAnnounced=false; slowMo=false; playGallop();
+  $('#gate').classList.add('open'); state.race.t0=performance.now(); state.race.finished=false; state.race.started=true; winnerAnnounced=false; slowMo=false; playGallop();
   var vpH=viewport.clientHeight; camY=0; world.style.transform='translateY(' + (-camY) + 'px)'; lastTs=state.race.t0;
   function frame(now){
     var t=now-state.race.t0; var dt=(now-lastTs)/1000; if(dt>0.06)dt=0.06; lastTs=now;
-    var TD=state.race.trackDistance; var leaderDist=Math.max.apply(null,state.race.sprites.map(function(S){return S.y;}));
-    var pack=state.race.sprites.slice().sort(function(a,b){return b.y-a.y;});
+    var TD=state.race.trackDistance; var leaderDist=Math.max.apply(null,state.race.sprites.map(S=>S.y));
+    var pack=state.race.sprites.slice().sort((a,b)=>b.y-a.y);
     if(!slowMo && leaderDist>TD*0.92){var d12=(pack[0]?pack[0].y:0)-(pack[1]?pack[1].y:0); if(d12<45){slowMo=true;}}
     if(slowMo) dt*=0.35;
 
     var allOff=true;
-    for(var si=0; si<state.race.sprites.length; si++){
-      var S=state.race.sprites[si];
+    for(var S of state.race.sprites){
       if(S.offtrack) continue;
       var segIdx=seg(S.plan.stops,t); var v=S.vBase*S.plan.mul[segIdx]; v*=(1+0.02*Math.sin((t/1000)*(1.2+S.h.stats.burst*1.6))); S.y+=v*dt;
       var lastI=S.plan.stops.length-2; if(segIdx===lastI){var rt=(S.h.finishTime-t)/1000, rd=TD-S.y; if(rt>0){v=v*0.5+(rd/rt)*0.5; S.y+=v*dt;}}
       if(!S.crossed && S.y>=TD){S.crossed=true; S.crossTime=t; S.rank=state.race.rankCounter++; state.race.results.push({horseId:S.h.id,finishTime:S.crossTime,rank:S.rank});
-        if(S.rank===1 && !winnerAnnounced){winnerAnnounced=true; toast.textContent=S.h.name+' hits the line first!'; toast.classList.remove('hidden'); setTimeout(function(){toast.classList.add('hidden')},2200);}}
+        if(S.rank===1 && !winnerAnnounced){winnerAnnounced=true; toast.textContent=S.h.name+' hits the line first!'; toast.classList.remove('hidden'); setTimeout(()=>toast.classList.add('hidden'),2200);}}
       if(S.y>=TD+state.race.runoff){S.y=TD+state.race.runoff; S.offtrack=true;} else {allOff=false;}
       S.el.style.transform='translate(0,'+S.y+'px)';
     }
 
-    var live=state.race.sprites.slice().sort(function(a,b){return b.y-a.y;});
-    state.race.sprites.forEach(function(S){S.el.classList.remove('top1','top2','top3','leaderGlow');});
+    var live=state.race.sprites.slice().sort((a,b)=>b.y-a.y);
+    state.race.sprites.forEach(S=>S.el.classList.remove('top1','top2','top3','leaderGlow'));
     live.forEach(function(S,i){
       if(i===0)S.el.classList.add('top1','leaderGlow');
       else if(i===1)S.el.classList.add('top2');
@@ -688,44 +690,41 @@ function startRace(){
   state.race.raf=requestAnimationFrame(frame);
 }
 
-/* ---------- End / settle / results ---------- */
+/* ===== End / settle / results ===== */
 var roundBanner=$('#roundBanner'), podium=$('#podium'), orderList=$('#orderList'), playerOutcomes=$('#playerOutcomes');
 function endRace(skip){
   if(state.race.finished) return; state.race.finished=true; if(state.race.raf) cancelAnimationFrame(state.race.raf); stopGallop();
   var TD=state.race.trackDistance;
   if(skip){
-    var order=state.race.sprites.slice().sort(function(a,b){return b.y-a.y;});
+    var order=state.race.sprites.slice().sort((a,b)=>b.y-a.y);
     order.forEach(function(S,i){if(!S.crossed){S.crossed=true;S.crossTime=20000+i*100;S.rank=state.race.rankCounter++;state.race.results.push({horseId:S.h.id,finishTime:S.crossTime,rank:S.rank});}
       S.y=TD+state.race.runoff; S.offtrack=true; S.el.style.transform='translate(0,'+S.y+'px)';});
   } else {
-    var remain=state.race.sprites.filter(function(s){return !s.crossed;}).sort(function(a,b){return b.y-a.y;});
+    var remain=state.race.sprites.filter(s=>!s.crossed).sort((a,b)=>b.y-a.y);
     if(remain.length){
       var lastRec = state.race.results.length ? state.race.results[state.race.results.length-1] : null;
       var base=(lastRec && lastRec.finishTime) ? lastRec.finishTime : 20000;
       remain.forEach(function(S,i){S.crossed=true;S.crossTime=base+100+i*50;S.rank=state.race.rankCounter++;state.race.results.push({horseId:S.h.id,finishTime:S.crossTime,rank:S.rank});S.y=TD+state.race.runoff;S.offtrack=true;S.el.style.transform='translate(0,'+S.y+'px)';});
     }
   }
-  document.getElementById('raceShell').classList.add('fadeTrack');
+  $('#raceShell').classList.add('fadeTrack');
   settle();
   renderResults();
-  var sortedRes = state.race.results.slice().sort(function(a,b){return a.rank-b.rank;});
-  var winnerId=sortedRes[0].horseId; var someBacked=state.picks.some(function(pk){return pk.horseId===winnerId&&(pk.type==='win'||pk.type==='place');});
-  if(someBacked){ runConfetti(5000); }
   show('results');
 }
 
 function settle(){
-  // outcomes
-  var order=state.race.results.slice().sort(function(a,b){return a.rank-b.rank;}).map(function(r){return r.horseId;});
+  var order=state.race.results.slice().sort((a,b)=>a.rank-b.rank).map(r=>r.horseId);
   var first=order[0], top3=new Set(order.slice(0,3));
-  state.roundDeltas=state.players.map(function(p){return {playerId:p.id,name:p.name,color:p.color,won:0,staked:0,net:0,wonOn:[]};});
+  state.roundDeltas=state.players.map(p=>({playerId:p.id,name:p.name,color:p.color,won:0,staked:0,net:0,wonOn:[]}));
   state.picks.forEach(function(pk){
-    var h=state.horses.find(function(x){return x.id===pk.horseId;}), p=state.players.find(function(x){return x.id===pk.playerId;}), rec=state.roundDeltas.find(function(r){return r.playerId===p.id;});
+    var h=state.horses.find(x=>x.id===pk.horseId), p=state.players.find(x=>x.id===pk.playerId), rec=state.roundDeltas.find(r=>r.playerId===p.id);
     rec.staked+=pk.amount; var win=0; if(pk.type==='win'&&pk.horseId===first){win=pk.amount*h.odds.win;rec.wonOn.push(h.name);} else if(pk.type==='place'&&top3.has(pk.horseId)){win=pk.amount*h.odds.place;rec.wonOn.push(h.name);}
     if(win>0){var w=Math.floor(win); p.balance+=w; rec.won+=w;} pk.win=Math.floor(win); pk.result=win>0?'WIN':'LOSE';
-  }); state.roundDeltas.forEach(function(r){r.net=r.won-r.staked;});
+  });
+  state.roundDeltas.forEach(r=>r.net=r.won-r.staked);
 
-  // eliminations
+  // mark eliminations (AFTER race is settled)
   var elim=[];
   state.players.forEach(function(p){
     if(p.active && p.balance<=0){
@@ -738,33 +737,32 @@ function settle(){
 }
 
 $('#nextRound').onclick=function(){ state.round++; startRound(); };
-$('#leavePlayers').onclick=function(){ state.players=state.players.filter(function(p){return p.balance>0;}); if(state.players.filter(function(p){return p.active;}).length<2){alert('Not enough players.'); fullReset(); return;} state.round++; startRound(); };
+$('#leavePlayers').onclick=function(){ state.players=state.players.filter(p=>p.balance>0); if(state.players.filter(p=>p.active).length<2){alert('Not enough players.'); fullReset(); return;} state.round++; startRound(); };
 $('#fullReset').onclick=fullReset;
 
-/* Results render */
 function renderResults(){
-  var ord=state.race.results.slice().sort(function(a,b){return a.rank-b.rank;}), winnerHorse=state.horses.find(function(h){return h.id===ord[0].horseId;});
-  var winners=state.roundDeltas.filter(function(r){return r.wonOn.indexOf(winnerHorse.name)!==-1;}), topNet=state.roundDeltas.slice().sort(function(a,b){return b.net-a.net;})[0];
+  var ord=state.race.results.slice().sort((a,b)=>a.rank-b.rank), winnerHorse=state.horses.find(h=>h.id===ord[0].horseId);
+  var winners=state.roundDeltas.filter(r=>r.wonOn.indexOf(winnerHorse.name)!==-1), topNet=state.roundDeltas.slice().sort((a,b)=>b.net-a.net)[0];
 
   roundBanner.classList.remove('hidden');
-  var elimText = state.eliminatedLastRound.length ? (' <span class="lossBadge">Eliminated: '+state.eliminatedLastRound.map(function(p){return esc(p.name);}).join(', ')+'</span>') : '';
+  var elimText = state.eliminatedLastRound.length ? (' <span class="lossBadge">Eliminated: '+state.eliminatedLastRound.map(p=>esc(p.name)).join(', ')+'</span>') : '';
   roundBanner.innerHTML='<span class="winBadge">Winner: '+esc(winnerHorse.name)+'</span>'
-    +(winners.length?winners.map(function(w){return '<span class="winBadge" style="background:#1f6b3c;border-color:#2da760">+'+fmt(w.net>0?w.net:w.won)+' '+esc(w.name)+'</span>';}).join(''):'<span class="lossBadge">No winning tickets</span>')
+    +(winners.length?winners.map(w=>'<span class="winBadge" style="background:#1f6b3c;border-color:#2da760">+'+(w.net>0?fmt(w.net):fmt(w.won))+' '+esc(w.name)+'</span>').join(''):'<span class="lossBadge">No winning tickets</span>')
     +' <span class="'+(topNet.net>=0?'winBadge':'lossBadge')+'">Top net: '+esc(topNet.name)+' '+(topNet.net>=0?'+':'')+fmt(topNet.net)+'</span>'
     + elimText;
 
   var medals=['🥇','🥈','🥉']; podium.innerHTML='';
-  ord.slice(0,3).forEach(function(o,i){var h=state.horses.find(function(x){return x.id===o.horseId;}); var d=document.createElement('div'); d.className='kpi';
+  ord.slice(0,3).forEach(function(o,i){var h=state.horses.find(x=>x.id===o.horseId); var d=document.createElement('div'); d.className='kpi';
     d.innerHTML='<div class="row" style="gap:8px"><span style="font-size:1.25rem">'+medals[i]+'</span><div class="icon" style="width:18px;height:14px;background:'+h.color+';animation:none"></div><strong>'+esc(h.name)+'</strong></div><div class="small">Time: '+(o.finishTime/1000).toFixed(2)+'s</div>'; podium.appendChild(d);});
 
-  orderList.innerHTML=''; ord.forEach(function(o){var h=state.horses.find(function(x){return x.id===o.horseId;}); var bettors=state.picks.filter(function(pk){return pk.horseId===o.horseId;}).map(function(pk){return state.players.find(function(p){return p.id===pk.playerId;}).name;});
+  orderList.innerHTML=''; ord.forEach(function(o){var h=state.horses.find(x=>x.id===o.horseId); var bettors=state.picks.filter(pk=>pk.horseId===o.horseId).map(pk=>state.players.find(p=>p.id===pk.playerId).name);
     var li=document.createElement('li'); li.innerHTML='<div class="row" style="justify-content:space-between"><div class="row" style="gap:8px"><div class="badge">#'+o.rank+'</div><div class="icon" style="width:18px;height:14px;background:'+h.color+';animation:none"></div><strong>'+esc(h.name)+'</strong></div><div class="small">'+(bettors.length?('Picked by: '+bettors.map(esc).join(', ')):'No picks')+'</div></div>'; orderList.appendChild(li);});
 
   playerOutcomes.innerHTML='';
   var by=groupBy(state.picks,'playerId');
   state.players.forEach(function(p){
-    var arr=by[p.id]||[], delta=state.roundDeltas.find(function(d){return d.playerId===p.id;})||{net:0};
-    var rows=arr.length?arr.map(function(pk){var h=state.horses.find(function(x){return x.id===pk.horseId;}); return '<div class="row" style="justify-content:space-between"><div>'+pk.type.toUpperCase()+' • <span class="pill">'+esc(h.name)+'</span> • <span class="small">'+fmt(pk.amount)+' bet</span></div><div class="'+(pk.win>0?'money':'')+'">'+pk.result+' '+(pk.win>0?('+ '+fmt(pk.win)):' ')+'</div></div>';}).join(''):'<div class="small">No bets this round.</div>';
+    var arr=by[p.id]||[], delta=state.roundDeltas.find(d=>d.playerId===p.id)||{net:0};
+    var rows=arr.length?arr.map(function(pk){var h=state.horses.find(x=>x.id===pk.horseId); return '<div class="row" style="justify-content:space-between"><div>'+pk.type.toUpperCase()+' • <span class="pill">'+esc(h.name)+'</span> • <span class="small">'+fmt(pk.amount)+' bet</span></div><div class="'+(pk.win>0?'money':'')+'">'+pk.result+' '+(pk.win>0?('+ '+fmt(pk.win)):' ')+'</div></div>';}).join(''):'<div class="small">No bets this round.</div>';
     var li2=document.createElement('li');
     li2.dataset.pid=p.id;
     li2.className = (p.active?'':'eliminated');
@@ -772,22 +770,39 @@ function renderResults(){
     playerOutcomes.appendChild(li2);
   });
 
-  // Quick elimination toast loop
-  if(state.eliminatedLastRound.length){
-    var sys=$('#sysToast'); var i=0;
-    function showNext(){
-      if(i>=state.eliminatedLastRound.length){ sys.classList.add('hidden'); return; }
-      sys.textContent=state.eliminatedLastRound[i].name+' is out!';
-      sys.classList.remove('hidden');
-      setTimeout(function(){ sys.classList.add('hidden'); i++; setTimeout(showNext,200); }, 1400);
-    }
-    showNext();
-  }
+  // Kick off elimination sequence (blocks until finished), then maybe show champion
+  runEliminationFlow();
+}
 
-  // Check for last player standing and stop the loop if so
-  var alive = state.players.filter(function(p){return p.active;});
+/* ===== Elimination sequence (after race only) ===== */
+function runEliminationFlow(){
+  var elim = state.eliminatedLastRound.slice();
+  if(!elim.length){ checkChampion(true); return; }
+
+  // lock buttons until sequence completes
+  $('#nextRound').disabled=true; $('#leavePlayers').disabled=true;
+
+  var modal=$('#koModal'), body=$('#koBody'), btn=$('#koNext');
+  var i=0;
+  function showOne(){
+    if(i>=elim.length){
+      modal.classList.add('hidden');
+      state.eliminatedLastRound=[];
+      checkChampion(true);
+      return;
+    }
+    var p=elim[i];
+    body.innerHTML='<div style="font-size:1.1rem;margin-bottom:6px"><strong>'+esc(p.name)+'</strong></div>'
+                  +'<div class="small">Balance: 0</div>'
+                  +'<div style="margin-top:6px">Game over — you’re out.</div>';
+    modal.classList.remove('hidden');
+    btn.onclick=function(){ modal.classList.add('hidden'); i++; setTimeout(showOne,200); };
+  }
+  showOne();
+}
+function checkChampion(reenableButtons){
+  var alive = state.players.filter(p=>p.active);
   if(alive.length<=1){
-    // disable progression buttons
     $('#nextRound').disabled=true; $('#leavePlayers').disabled=true;
     var bodyText;
     if(alive.length===1){
@@ -797,16 +812,17 @@ function renderResults(){
                 +'<div class="money" style="font-size:1.15rem">Day’s Winnings: '+(winnings>=0?'+':'')+fmt(winnings)+'</div>';
       runConfetti(6000);
     }else{
-      bodyText = '<div>No players remain. Tough crowd.</div>';
+      bodyText = '<div>No players remain.</div>';
     }
     $('#champBody').innerHTML = bodyText;
     $('#champModal').classList.remove('hidden');
+  }else if(reenableButtons){
+    $('#nextRound').disabled=false; $('#leavePlayers').disabled=false;
   }
 }
 
-// Modal actions
+/* Buttons in champion modal */
 $('#btnPlayAgain').onclick=function(){
-  // Reset balances, reactivate everyone, same roster
   state.players.forEach(function(p){
     p.balance=state.startBalance;
     p.initialBalance=state.startBalance;
@@ -816,19 +832,16 @@ $('#btnPlayAgain').onclick=function(){
   $('#champModal').classList.add('hidden');
   show('select'); startRound();
 };
-$('#btnBackStart').onclick=function(){
-  $('#champModal').classList.add('hidden');
-  fullReset();
-};
+$('#btnBackStart').onclick=function(){ $('#champModal').classList.add('hidden'); fullReset(); };
 
-/* ---------- Confetti ---------- */
+/* ===== Confetti ===== */
 var confettiTimer=null, confettiAnim=null, parts=[];
-function runConfetti(ms){ms=ms||5000;parts=Array.from({length:220},function(){return{x:Math.random()*confetti.width,y:Math.random()*-confetti.height,r:Math.random()*6+3,vy:Math.random()*2+2,vx:(Math.random()-0.5)*1.2,a:Math.random()*360,va:(Math.random()-0.5)*8,color:'hsl('+(Math.random()*360)+',100%,50%)'};}); confetti.classList.add('show');
-  function step(){var ctx=cfx; ctx.clearRect(0,0,confetti.width,confetti.height); for(var i=0;i<parts.length;i++){var p=parts[i]; p.x+=p.vx;p.y+=p.vy;p.a+=p.va;if(p.y>confetti.height+20){p.y=-10;p.x=Math.random()*confetti.width;} ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.a*Math.PI/180); ctx.fillStyle=p.color; ctx.fillRect(-p.r/2,-p.r/2,p.r,p.r); ctx.restore();} confettiAnim=requestAnimationFrame(step);}
+function runConfetti(ms){ms=ms||5000;parts=Array.from({length:220},()=>({x:Math.random()*confetti.width,y:Math.random()*-confetti.height,r:Math.random()*6+3,vy:Math.random()*2+2,vx:(Math.random()-0.5)*1.2,a:Math.random()*360,va:(Math.random()-0.5)*8,color:'hsl('+(Math.random()*360)+',100%,50%)'})); confetti.classList.add('show');
+  function step(){var ctx=cfx; ctx.clearRect(0,0,confetti.width,confetti.height); for(var p of parts){p.x+=p.vx;p.y+=p.vy;p.a+=p.va;if(p.y>confetti.height+20){p.y=-10;p.x=Math.random()*confetti.width;} ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.a*Math.PI/180); ctx.fillStyle=p.color; ctx.fillRect(-p.r/2,-p.r/2,p.r,p.r); ctx.restore();} confettiAnim=requestAnimationFrame(step);}
   step(); clearTimeout(confettiTimer); confettiTimer=setTimeout(function(){confetti.classList.remove('show'); if(confettiAnim) cancelAnimationFrame(confettiAnim);},ms);
 }
 
-/* ---------- Reset ---------- */
+/* ===== Reset ===== */
 function fullReset(){
   state.players=[];state.round=1;state.order=[];state.horses=[];state.picks=[];state.roundDeltas=[];state.eliminatedLastRound=[];
   state.race={duration:20000,trackDistance:3200,runoff:110,t0:0,raf:0,started:false,finished:false,worldHeight:0,padTop:24,padBot:24,rankCounter:1,sprites:[],results:[],venue:null,cond:null,varF:1.0};
