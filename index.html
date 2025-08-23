@@ -22,7 +22,7 @@
     --track:#052334;         /* deep navy for track field */
     --accent:var(--red);
     --lane1:#FF9999; --lane2:#99CCFF; --lane3:#99FF99; --lane4:#FFCC99; --lane5:#CCCCFF; --lane6:#FFFF99;
-    --horse-w:44px; --horse-h:36px; --label-gap:6px; /* smaller gap so names fit better */
+    --horse-w:44px; --horse-h:36px; --label-gap:6px;
   }
   *{box-sizing:border-box}
   html,body{height:100%}
@@ -110,16 +110,16 @@
   .icon{width:var(--horse-w);height:var(--horse-h);border-radius:6px;box-shadow:0 0 0 2px rgba(0,0,0,.25) inset;animation:gallop .3s ease-in-out infinite alternate;position:relative}
   @keyframes gallop{from{transform:translateY(0)}to{transform:translateY(-3px)}}
 
-  /* Player initials ON the icon */
+  /* Player initials */
   .pins{position:absolute;left:1px;right:1px;bottom:1px;display:flex;gap:2px;justify-content:center;flex-wrap:wrap;pointer-events:none}
   .picon{width:16px;height:16px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;
          font-size:.6rem;color:#0e1b23;font-weight:900;border:1px solid rgba(0,0,0,.35)}
 
-  /* Name tag + smaller text for better fit */
+  /* Name tag */
   .tag{
     background:#0f2a3a;border:1px solid #2b4d60;color:var(--ink);
     padding:4px 7px;border-radius:10px;font-weight:600;white-space:nowrap;display:flex;align-items:center;gap:6px;
-    max-width:240px;overflow:hidden;font-size:.9rem; /* smaller text */
+    max-width:240px;overflow:hidden;font-size:.9rem;
   }
   .pos{min-width:30px;text-align:center;border-radius:8px;background:#173448;border:1px solid #31576a;padding:2px 5px;font-weight:800}
   .hName{display:inline-block;overflow:hidden}
@@ -150,7 +150,7 @@
   #confetti{position:fixed;inset:0;pointer-events:none;opacity:0;transition:opacity .5s ease}
   #confetti.show{opacity:1}
 
-  /* Bigger current player in selection */
+  /* Bigger current player */
   #currentPlayerName{font-size:1.35rem;font-weight:800;letter-spacing:.2px}
 </style>
 </head>
@@ -195,11 +195,11 @@
   <section id="screen-select" class="grid hidden">
     <div class="card grid">
       <h2 style="font-family:'Libre Baskerville',serif;font-size:1.6rem">Horse Selection</h2>
+      <div id="selectMeta" class="raceMeta">—</div>
       <div id="turnBanner" class="kpi">
         <div><div class="label">Now selecting</div><div id="currentPlayerName" style="font-weight:800"></div></div>
         <div class="money">Balance: <span id="currentPlayerBalance">0</span></div>
       </div>
-      <!-- legend removed -->
     </div>
 
     <div class="card grid">
@@ -318,24 +318,66 @@ function shuffle(a){for(var i=a.length-1;i>0;i--){var j=rndi(0,i), t=a[i]; a[i]=
 function groupBy(arr, key){var out={}; for(var i=0;i<arr.length;i++){var o=arr[i], k=o[key]; if(!out[k]) out[k]=[]; out[k].push(o);} return out;}
 function randn(mu,s){var u=0,v=0;while(u===0)u=Math.random();while(v===0)v=Math.random();var z=Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);return mu+z*s;}
 var initials=function(n){return n.split(/\s+/).map(function(w){return w[0]||''}).join('').slice(0,2).toUpperCase();};
+var lerp=function(a,b,t){return a+(b-a)*t;};
 
-/* Constants */
-var PLAYER_COLORS=["#E879F9","#60A5FA","#34D399","#FBBF24","#F87171","#A78BFA"];
-var DEFAULT_NAMES=["James","Mike","Lex","Gord","Colin","Julien"];
-var REAL_NAMES=[ "Secretariat","Man o’ War","Seabiscuit","Citation","War Admiral","Affirmed","Alydar","Spectacular Bid","Sunday Silence","Easy Goer","Northern Dancer","Ruffian","Zenyatta","Black Caviar","Frankel","American Pharoah","Justify","Flightline","Arrogate","Curlin","Ghostzapper","Gun Runner","California Chrome","Winx","Phar Lap","Omaha","Whirlaway","Count Fleet","Gallant Fox","Native Dancer","Bold Ruler","Nashua","Kelso","Buckpasser","Forego","John Henry","Damascus","Dr. Fager","Alysheba","Cigar","Invasor","Peintre Celebre","Dancing Brave","Dubai Millennium","Sea The Stars","Galileo","Montjeu","Deep Impact","Harbinger","Enable","Tiger Roll","Red Rum","Desert Orchid","Kauto Star","Sprinter Sacre","Denman","Big Brown","Smarty Jones","Funny Cide","Barbaro","Rags to Riches","Lady’s Secret","Winning Colors","Genuine Risk","Serena’s Song","Personal Ensign","Beholder","Monomoy Girl","Rachel Alexandra","Havre de Grace","Blind Luck","Songbird","Tepin","Goldikova","Treve","Miesque","Dahlia","Ouija Board","Fantastic Light","Highland Reel","Crystal Ocean","Poet’s Word","Desert Crown","Hurricane Run","Almanzor","Sottsass","Vadeni","Paddington","Ace Impact","City of Troy","Auguste Rodin","Baaeed","Palace Pier","Pinatubo","Too Darn Hot","Blue Point","Lord Kanaloa","Lys Gracieux","Chrono Genesis","Almond Eye","Drefong","Nature Strip","Anamoe","Giga Kick","I Wish I Win","Verry Elleegant","Incentivise","Romantic Warrior","Golden Sixty","Beauty Generation","Able Friend","Silent Witness","Sacred Kingdom","Fairy King Prawn","Lucky Sweynesse","Wellington","Lucky Nine","Pakistan Star","Aerovelocity","Danon Smash","Satono Crown","Kizuna","Real Steel","Victoire Pisa","Just A Way","Orfevre","Buena Vista","Vodka","Daiwa Scarlet","Admire Moon","Heart’s Cry","King Kamehameha","El Condor Pasa","Agnes World","Agnes Digital","Eishin Preston","Stay Gold","Duramente","Contrail","Daring Tact","Loves Only You","Titleholder","Equinox","Liberty Island","Do Deuce","Stars on Earth","Songline","Schnell Meister","Gran Alegria","Indy Champ","Maurice","Harp Star","Gentildonna","Gold Ship","Epiphaneia","Le Vent Se Leve","Chuwa Wizard","T O Keynes","Ushba Tesoro","Panthalassa","Cafe Pharoah","Yoshida","Mind Your Biscuits","Lava Man","Game On Dude","Mucho Macho Man","Paynter","Bayern","Frosted","Honor Code","Tonalist","Palace Malice","Will Take Charge","Shackleford","Dullahan","Hansen","Union Rags","Orb","Palace Episode","Street Sense","Hard Spun","Any Given Saturday","Lawyer Ron","Quality Road","Animal Kingdom","Gio Ponti","Big Drama","Blame","Summer Bird","Mine That Bird","Da’ Tara","Proud Spell","Eight Belles","Dialed In","Always Dreaming","Tapwrit","Essential Quality","Epicenter","Forte","Goldikova II" ];
-/* Venues & conditions */
-var VENUES=[
-  "Churchill Downs","Ascot","Epsom Downs","Flemington","Santa Anita Park",
-  "Belmont Park","Longchamp","Meydan","Tokyo Racecourse","Sha Tin",
-  "Happy Valley","Randwick","Saratoga","Keeneland","Del Mar",
-  "York Racecourse","Goodwood","Aintree","Cheltenham","Rosehill Gardens"
+/* Venue + condition data */
+var VENUE_DATA=[
+  {name:"Churchill Downs", dist:2800},
+  {name:"Ascot", dist:3600},
+  {name:"Epsom Downs", dist:3000},
+  {name:"Flemington", dist:3200},
+  {name:"Santa Anita Park", dist:2600},
+  {name:"Belmont Park", dist:3000},
+  {name:"Longchamp", dist:2400},
+  {name:"Meydan", dist:2800},
+  {name:"Tokyo Racecourse", dist:3400},
+  {name:"Sha Tin", dist:2600},
+  {name:"Happy Valley", dist:2400},
+  {name:"Randwick", dist:3200},
+  {name:"Saratoga", dist:2800},
+  {name:"Keeneland", dist:3000},
+  {name:"Del Mar", dist:2600},
+  {name:"York Racecourse", dist:3400},
+  {name:"Goodwood", dist:2800},
+  {name:"Aintree", dist:4200},
+  {name:"Cheltenham", dist:3800},
+  {name:"Rosehill Gardens", dist:3000}
 ];
 var CONDITIONS=["Fast","Firm","Good","Good to Soft","Soft","Heavy","Yielding","Standard","Muddy","Sloppy","Good (3)","Soft (6)"];
+
+function conditionVariance(cond){
+  switch(cond){
+    case "Fast": case "Firm": return 0.75;         // low randomness
+    case "Good": case "Good (3)": case "Standard": return 0.9;
+    case "Good to Soft": case "Yielding": return 1.1;
+    case "Soft": case "Soft (6)": return 1.2;
+    case "Muddy": case "Sloppy": return 1.3;
+    case "Heavy": return 1.45;                      // highest randomness
+    default: return 1.0;
+  }
+}
+function distanceWeights(TD){
+  // Interpolate weights based on distance.
+  // Short (~<=2700): speed/burst heavy. Long (~>=3600): stamina heavy.
+  var t = clamp((TD - 2700) / (3600 - 2700), 0, 1);
+  var shortW = {speed:0.62, stamina:0.13, burst:0.25};
+  var longW  = {speed:0.35, stamina:0.50, burst:0.15};
+  return {
+    speed:  lerp(shortW.speed,  longW.speed,  t),
+    stamina:lerp(shortW.stamina,longW.stamina,t),
+    burst:  lerp(shortW.burst,  longW.burst,  t)
+  };
+}
+function biasLabel(TD){
+  if(TD<=2700) return "sprinter-favoring (short)";
+  if(TD>=3600) return "stamina-favoring (long)";
+  return "balanced (mid)";
+}
 
 /* State */
 var state={
   players:[],startBalance:1000,round:1,order:[],horses:[],picks:[],roundDeltas:[],
-  race:{duration:20000,trackDistance:3200,runoff:110,t0:0,raf:0,started:false,finished:false,worldHeight:0,padTop:24,padBot:24,rankCounter:1,sprites:[],results:[],venue:null,cond:null}
+  race:{duration:20000,trackDistance:3200,runoff:110,t0:0,raf:0,started:false,finished:false,worldHeight:0,padTop:24,padBot:24,rankCounter:1,sprites:[],results:[],venue:null,cond:null,varF:1.0}
 };
 var screens={players:$('#screen-players'),select:$('#screen-select'),race:$('#screen-race'),results:$('#screen-results')};
 function show(k){Object.keys(screens).forEach(function(key){screens[key].classList.add('hidden')}); screens[k].classList.remove('hidden');}
@@ -377,8 +419,9 @@ $('#startGame').onclick=function(){ state.round=1; startRound(); };
 renderPlayers();
 
 /* Selection */
+var selectMeta=$('#selectMeta');
 var turnBanner=$('#turnBanner'), currentPlayerName=$('#currentPlayerName'), currentPlayerBalance=$('#currentPlayerBalance');
-var horseGrid=$('#horseGrid'), pickList=$('#pickList'), lockPick=$('#lockPick'), beginRace=$('#beginRace']);
+var horseGrid=$('#horseGrid'), pickList=$('#pickList'), lockPick=$('#lockPick'), beginRace=$('#beginRace'));
 $('#backToPlayers').onclick=function(){show('players')};
 var turnIdx=0, selHorseId=null;
 
@@ -405,26 +448,54 @@ function getBetType(){var el=document.querySelector('input[name="betType"]:check
 $$('input[name="betType"]').forEach(function(r){ r.addEventListener('change', updatePreview); });
 
 function startRound(){
+  // Set venue, condition, distance, variance
+  var v = VENUE_DATA[rndi(0, VENUE_DATA.length-1)];
+  state.race.venue = v.name;
+  state.race.trackDistance = v.dist;
+  state.race.cond = CONDITIONS[rndi(0, CONDITIONS.length-1)];
+  state.race.varF = conditionVariance(state.race.cond);
+
+  // Order and horses (horses are generated with distance + condition effects)
   state.picks=[];
   state.order=shuffle(state.players.filter(function(p){return p.active;}).map(function(p){return p.id;}));
-  state.horses=genHorses(6);
+  state.horses=genHorses(6, state.race.trackDistance, state.race.varF);
+
   /* sort favorite (lowest win odds) to longest shot */
   state.horses.sort(function(a,b){return a.odds.win - b.odds.win;});
-  /* venue + condition */
-  state.race.venue = VENUES[rndi(0,VENUES.length-1)];
-  state.race.cond = CONDITIONS[rndi(0,CONDITIONS.length-1)];
-  var metaEl=document.getElementById('raceMeta');
-  if(metaEl) metaEl.textContent = state.race.venue + ' • ' + state.race.cond;
+
+  /* Meta labels on selection and race screens (include distance) */
+  var metaSel = state.race.venue + ' • ' + state.race.cond + ' • ' + state.race.trackDistance + 'm — ' + biasLabel(state.race.trackDistance);
+  if(selectMeta) selectMeta.textContent = metaSel;
+  var metaRace=document.getElementById('raceMeta');
+  if(metaRace) metaRace.textContent = state.race.venue + ' • ' + state.race.cond + ' • ' + state.race.trackDistance + 'm';
+
   Object.assign(state.race,{finished:false,results:[],rankCounter:1,started:false});
   renderSelect(); show('select'); turnIdx=0; prepTurn();
 }
 
-function genHorses(n){
+function genHorses(n, TD, varF){
   var colors=['var(--lane1)','var(--lane2)','var(--lane3)','var(--lane4)','var(--lane5)','var(--lane6)']; var names=sampleNames(n);
+  var w = distanceWeights(TD);
   return Array.from({length:n},function(_,i){
-    var speed=clamp(randn(0.65,0.15),0.35,1),stamina=clamp(randn(0.65,0.15),0.35,1),burst=clamp(randn(0.65,0.15),0.35,1);
-    var q=speed*0.5+stamina*0.3+burst*0.2, base=rnd(19.2,21.5)-(q-0.65)*2.0, finishTime=clamp(base,18.8,22.5)*1000;
-    var win=clamp(1.6+(1-q)*2.4+rnd(0,0.4),1.4,4.6), place=clamp(win*rnd(0.5,0.7),1.2,Math.max(1.2,win*0.85));
+    var speed=clamp(randn(0.65,0.15),0.35,1),
+        stamina=clamp(randn(0.65,0.15),0.35,1),
+        burst=clamp(randn(0.65,0.15),0.35,1);
+
+    // Quality weighted by distance bias
+    var q = speed*w.speed + stamina*w.stamina + burst*w.burst;
+
+    // Base time scaled by distance; add a touch of variance from conditions
+    var baseSec = rnd(19.2,21.5) - (q-0.65)*2.0;
+    baseSec *= (TD/3200);                         // longer track -> longer time
+    baseSec += (varF-1) * rnd(-0.6,0.6);          // sloppy/heavy -> more noise
+
+    var minT = 16.8*(TD/3200), maxT = 25.5*(TD/3200);
+    var finishTime = clamp(baseSec, minT, maxT)*1000;
+
+    // Odds respond to quality; roughening under worse conditions
+    var win = clamp(1.6 + (1-q)*2.4 + rnd(0,0.4)*(0.7 + 0.6*(varF-0.9)), 1.4, 4.8);
+    var place = clamp(win*rnd(0.5,0.7), 1.2, Math.max(1.2, win*0.88));
+
     return {id:uid(),name:names[i],color:colors[i],stats:{speed:speed,stamina:stamina,burst:burst,q:q},finishTime:finishTime,odds:{win:win,place:place}};
   });
 }
@@ -453,7 +524,7 @@ function prepTurn(){
   beginRace.disabled=true; turnBanner.classList.remove('hidden'); selHorseId=null; lockPick.disabled=true;
   var pid=state.order[turnIdx], p=state.players.find(function(x){return x.id===pid;});
   currentPlayerName.textContent=p.name; currentPlayerBalance.textContent=fmt(p.balance);
-  setBetAmt(0); // start from zero using the new buttons
+  setBetAmt(0);
   $('#pickPreview').textContent='';
   $$('#horseGrid .card').forEach(function(e){e.style.outline='1px solid rgba(255,255,255,.08)';});
 }
@@ -494,9 +565,9 @@ var toast=$('#toast'), countdownEl=$('#countdown'), countNum=$('#countNum'), con
 function calcLaneGeometry(){
   var inner=document.getElementById('bg').getBoundingClientRect().width;
   var iconW=parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--horse-w'))||44;
-  var minReserve=160;                  // keep space on right for name bars
-  var minSpacing=iconW*1.05;           // do not overlap icons
-  var maxSpacing=iconW*1.40;           // tighter lanes
+  var minReserve=160;
+  var minSpacing=iconW*1.05;
+  var maxSpacing=iconW*1.40;
   var base=(inner - minReserve)/6;
   var spacing = Math.max(minSpacing, Math.min(maxSpacing, base));
   var usable = spacing*6;
@@ -529,7 +600,7 @@ function setupRace(){
     var S={
       h:h,el:el,icon:icon,pins:pins,tag:tag,nameWrap:nameWrap,nameInner:nameInner,
       y:-startBehind,crossed:false,offtrack:false,crossTime:null,rank:null,
-      posEl:tag.querySelector('[data-pos]'),vBase:TD/(h.finishTime/1000),plan:pacePlan(h)
+      posEl:tag.querySelector('[data-pos]'),vBase:TD/(h.finishTime/1000),plan:pacePlan(h, TD, state.race.varF)
     };
     el.style.transform='translate(0,'+S.y+'px)';
     return S;
@@ -575,10 +646,25 @@ function applyNameScroll(S){
   }
 }
 
-function pacePlan(h){
-  var T=h.finishTime,stops=[0,5000,10000,15000,Math.max(18500,T-2500),T];
-  var mul=Array(stops.length-1).fill(0).map(function(){return rnd(0.94,1.06)});
-  var a=rndi(1,3),b=rndi(2,4); mul[a]*=rnd(1.10,1.22); mul[b]*=rnd(1.08,1.18); mul[2]*=(0.94+h.stats.stamina*0.12);
+function pacePlan(h, TD, varF){
+  var T=h.finishTime;
+  // Stop points over the race time; skew selection windows based on distance
+  var stops=[0,5000,10000,15000,Math.max(18500,T-2500),T];
+
+  // Condition-driven variability
+  var spread = 0.06 * varF;
+  var mul=Array(stops.length-1).fill(0).map(function(){return rnd(1-spread,1+spread)});
+
+  // Segment emphasis: earlier segments on short tracks, later on long tracks
+  var isShort = TD<=2700, isLong = TD>=3600;
+  var a = isShort ? rndi(1,2) : isLong ? rndi(2,4) : rndi(1,3);
+  var b = isShort ? rndi(1,3) : isLong ? rndi(3,4) : rndi(2,4);
+  mul[a]*=rnd(1.10,1.22);
+  mul[b]*=rnd(1.08,1.18);
+
+  // Stamina helps sustain mid-late pace
+  mul[2]*=(0.94+h.stats.stamina*0.12);
+
   return {stops:stops,mul:mul};
 }
 function seg(stops,t){for(var i=0;i<stops.length-1;i++){if(t>=stops[i]&&t<stops[i+1])return i}return stops.length-2}
@@ -634,7 +720,7 @@ var CHEER_COOLDOWN=1500;    // ms between cheers
 
 function startRace(){
   gateEl.classList.add('open'); state.race.t0=performance.now(); state.race.finished=false; state.race.started=true; winnerAnnounced=false; slowMo=false; playGallop();
-  var vpH=viewport.clientHeight, maxCam=Math.max(0,state.race.worldHeight-vpH); camY=0; world.style.transform='translateY(' + (-camY) + 'px)'; lastTs=state.race.t0;
+  var vpH=viewport.clientHeight; camY=0; world.style.transform='translateY(' + (-camY) + 'px)'; lastTs=state.race.t0;
   function frame(now){
     var t=now-state.race.t0; var dt=(now-lastTs)/1000; if(dt>0.06)dt=0.06; lastTs=now;
     var TD=state.race.trackDistance; var leaderDist=Math.max.apply(null,state.race.sprites.map(function(S){return S.y;}));
@@ -681,7 +767,7 @@ function startRace(){
     camY += (target - camY) * 0.14; var leaderScreenY=leaderWorldY - camY;
     if(leaderScreenY < vpH2*0.35) camY = clamp(leaderWorldY - vpH2*0.35, 0, maxCam);
     if(leaderScreenY > vpH2*0.75) camY = clamp(leaderWorldY - vpH2*0.75, 0, maxCam);
-    world.style.transform='translateY(' + (-camY) + 'px)'; // no scale
+    world.style.transform='translateY(' + (-camY) + 'px)';
 
     if(allOff || t >= state.race.duration + 4000){ endRace(false); return; }
     state.race.raf=requestAnimationFrame(frame);
@@ -709,7 +795,7 @@ function endRace(skip){
   document.getElementById('raceShell').classList.add('fadeTrack'); settle(); renderResults();
   var sortedRes = state.race.results.slice().sort(function(a,b){return a.rank-b.rank;});
   var winnerId=sortedRes[0].horseId; var someBacked=state.picks.some(function(pk){return pk.horseId===winnerId&&(pk.type==='win'||pk.type==='place');});
-  if(someBacked){ runConfetti(5000); }  // confetti burst only if someone picked the winner
+  if(someBacked){ runConfetti(5000); }
   show('results');
 }
 
@@ -751,8 +837,17 @@ function runConfetti(ms){ms=ms||5000;parts=Array.from({length:220},function(){re
   step(); clearTimeout(confettiTimer); confettiTimer=setTimeout(function(){confetti.classList.remove('show'); if(confettiAnim) cancelAnimationFrame(confettiAnim);},ms);
 }
 
+/* Constants (kept last to keep file short above) */
+var PLAYER_COLORS=["#E879F9","#60A5FA","#34D399","#FBBF24","#F87171","#A78BFA"];
+var DEFAULT_NAMES=["James","Mike","Lex","Gord","Colin","Julien"];
+var REAL_NAMES=[ "Secretariat","Man o’ War","Seabiscuit","Citation","War Admiral","Affirmed","Alydar","Spectacular Bid","Sunday Silence","Easy Goer","Northern Dancer","Ruffian","Zenyatta","Black Caviar","Frankel","American Pharoah","Justify","Flightline","Arrogate","Curlin","Ghostzapper","Gun Runner","California Chrome","Winx","Phar Lap","Omaha","Whirlaway","Count Fleet","Gallant Fox","Native Dancer","Bold Ruler","Nashua","Kelso","Buckpasser","Forego","John Henry","Damascus","Dr. Fager","Alysheba","Cigar","Invasor","Peintre Celebre","Dancing Brave","Dubai Millennium","Sea The Stars","Galileo","Montjeu","Deep Impact","Harbinger","Enable","Tiger Roll","Red Rum","Desert Orchid","Kauto Star","Sprinter Sacre","Denman","Big Brown","Smarty Jones","Funny Cide","Barbaro","Rags to Riches","Lady’s Secret","Winning Colors","Genuine Risk","Serena’s Song","Personal Ensign","Beholder","Monomoy Girl","Rachel Alexandra","Havre de Grace","Blind Luck","Songbird","Tepin","Goldikova","Treve","Miesque","Dahlia","Ouija Board","Fantastic Light","Highland Reel","Crystal Ocean","Poet’s Word","Desert Crown","Hurricane Run","Almanzor","Sottsass","Vadeni","Paddington","Ace Impact","City of Troy","Auguste Rodin","Baaeed","Palace Pier","Pinatubo","Too Darn Hot","Blue Point","Lord Kanaloa","Lys Gracieux","Chrono Genesis","Almond Eye","Drefong","Nature Strip","Anamoe","Giga Kick","I Wish I Win","Verry Elleegant","Incentivise","Romantic Warrior","Golden Sixty","Beauty Generation","Able Friend","Silent Witness","Sacred Kingdom","Fairy King Prawn","Lucky Sweynesse","Wellington","Lucky Nine","Pakistan Star","Aerovelocity","Danon Smash","Satono Crown","Kizuna","Real Steel","Victoire Pisa","Just A Way","Orfevre","Buena Vista","Vodka","Daiwa Scarlet","Admire Moon","Heart’s Cry","King Kamehameha","El Condor Pasa","Agnes World","Agnes Digital","Eishin Preston","Stay Gold","Duramente","Contrail","Daring Tact","Loves Only You","Titleholder","Equinox","Liberty Island","Do Deuce","Stars on Earth","Songline","Schnell Meister","Gran Alegria","Indy Champ","Maurice","Harp Star","Gentildonna","Gold Ship","Epiphaneia","Le Vent Se Leve","Chuwa Wizard","T O Keynes","Ushba Tesoro","Panthalassa","Cafe Pharoah","Yoshida","Mind Your Biscuits","Lava Man","Game On Dude","Mucho Macho Man","Paynter","Bayern","Frosted","Honor Code","Tonalist","Palace Malice","Will Take Charge","Shackleford","Dullahan","Hansen","Union Rags","Orb","Palace Episode","Street Sense","Hard Spun","Any Given Saturday","Lawyer Ron","Quality Road","Animal Kingdom","Gio Ponti","Big Drama","Blame","Summer Bird","Mine That Bird","Da’ Tara","Proud Spell","Eight Belles","Dialed In","Always Dreaming","Tapwrit","Essential Quality","Epicenter","Forte","Goldikova II" ];
+
 /* Reset */
-function fullReset(){state.players=[];state.round=1;state.order=[];state.horses=[];state.picks=[];state.race={duration:20000,trackDistance:3200,runoff:110,t0:0,raf:0,started:false,finished:false,worldHeight:0,padTop:24,padBot:24,rankCounter:1,sprites:[],results:[],venue:null,cond:null}; renderPlayers(); show('players'); _refreshStartButton();}
+function fullReset(){
+  state.players=[];state.round=1;state.order=[];state.horses=[];state.picks=[];
+  state.race={duration:20000,trackDistance:3200,runoff:110,t0:0,raf:0,started:false,finished:false,worldHeight:0,padTop:24,padBot:24,rankCounter:1,sprites:[],results:[],venue:null,cond:null,varF:1.0};
+  renderPlayers(); show('players'); _refreshStartButton();
+}
 </script>
 </body>
 </html>
