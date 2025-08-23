@@ -7,7 +7,6 @@
 <meta http-equiv="Expires" content="0" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <title>Photo Finish — Horse Race Multiplayer Betting</title>
-<!-- Fonts -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@700&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
@@ -24,31 +23,11 @@
   }
   *{box-sizing:border-box}
   html,body{height:100%}
-  body{
-    margin:0;
-    font-family:"Space Grotesk",system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
-    background:var(--bg);
-    color:var(--ink);
-    overflow-x:hidden
-  }
+  body{ margin:0; font-family:"Space Grotesk",system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif; background:var(--bg); color:var(--ink); overflow-x:hidden }
   h1,h2,h3{margin:0 0 .5rem}
-  .title{
-    font-family:"Libre Baskerville", serif;
-    text-align:center;
-    font-size:clamp(32px,4.2vw,56px);
-    letter-spacing:.5px;
-  }
-  .raceTitle{
-    font-family:"Libre Baskerville", serif;
-    text-align:center;
-    font-size:clamp(28px,3.8vw,48px);
-    margin-bottom:4px;
-  }
-  .raceMeta{
-    text-align:center;
-    color:#c6d7e2;
-    font-size:.95rem;
-  }
+  .title{ font-family:"Libre Baskerville", serif; text-align:center; font-size:clamp(32px,4.2vw,56px); letter-spacing:.5px; }
+  .raceTitle{ font-family:"Libre Baskerville", serif; text-align:center; font-size:clamp(28px,3.8vw,48px); margin-bottom:4px; }
+  .raceMeta{ text-align:center; color:#c6d7e2; font-size:.95rem; }
   .wrap{max-width:1000px;margin:0 auto;padding:14px 14px 90px}
   .grid{display:grid;gap:12px}
   .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
@@ -105,14 +84,9 @@
   @keyframes gallop{from{transform:translateY(0)}to{transform:translateY(-3px)}}
 
   .pins{position:absolute;left:1px;right:1px;bottom:1px;display:flex;gap:2px;justify-content:center;flex-wrap:wrap;pointer-events:none}
-  .picon{width:16px;height:16px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;
-         font-size:.6rem;color:#0e1b23;font-weight:900;border:1px solid rgba(0,0,0,.35)}
+  .picon{width:16px;height:16px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:.6rem;color:#0e1b23;font-weight:900;border:1px solid rgba(0,0,0,.35)}
 
-  .tag{
-    background:#0f2a3a;border:1px solid #2b4d60;color:var(--ink);
-    padding:4px 7px;border-radius:10px;font-weight:600;white-space:nowrap;display:flex;align-items:center;gap:6px;
-    max-width:240px;overflow:hidden;font-size:.9rem;
-  }
+  .tag{ background:#0f2a3a;border:1px solid #2b4d60;color:var(--ink); padding:4px 7px;border-radius:10px;font-weight:600;white-space:nowrap;display:flex;align-items:center;gap:6px; max-width:240px;overflow:hidden;font-size:.9rem; }
   .pos{min-width:30px;text-align:center;border-radius:8px;background:#173448;border:1px solid #31576a;padding:2px 5px;font-weight:800}
   .hName{display:inline-block;overflow:hidden}
   .hName .hInner{display:inline-block;white-space:nowrap;will-change:transform}
@@ -142,6 +116,24 @@
   #confetti.show{opacity:1}
 
   #currentPlayerName{font-size:1.35rem;font-weight:800;letter-spacing:.2px}
+
+  /* Eliminated visual */
+  .eliminated{opacity:.65;filter:grayscale(1);position:relative}
+  .eliminated::after{
+    content:"ELIMINATED";
+    position:absolute; right:12px; top:-8px;
+    background:#5b1b1b; border:1px solid #a33131; color:#ffe4e4;
+    padding:4px 8px; border-radius:10px; font-weight:800; font-size:.8rem;
+    animation:popIn .35s ease;
+  }
+  @keyframes popIn{from{transform:scale(.8);opacity:0}to{transform:scale(1);opacity:1}}
+
+  /* Winner modal */
+  .modal{position:fixed;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;z-index:50}
+  .modal.hidden{display:none}
+  .panel{background:#0f2a3a;border:1px solid #2d556a;border-radius:16px;padding:18px;max-width:620px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+  .panel h2{font-family:"Libre Baskerville",serif;margin-bottom:8px}
+  .center{text-align:center}
 </style>
 </head>
 <body>
@@ -269,7 +261,22 @@
     </div>
   </section>
 </div>
+
+<!-- Global canvas + system toast -->
 <canvas id="confetti"></canvas>
+<div id="sysToast" class="toast hidden" style="position:fixed;top:12%;left:50%;transform:translateX(-50%);z-index:60"></div>
+
+<!-- Last Player Standing modal -->
+<div id="champModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="champTitle">
+  <div class="panel center">
+    <h2 id="champTitle">🏆 Last Player Standing</h2>
+    <div id="champBody" class="small" style="margin-bottom:10px">—</div>
+    <div class="row" style="justify-content:center;gap:10px;margin-top:8px">
+      <button id="btnPlayAgain" class="cta" type="button">Play Again</button>
+      <button id="btnBackStart" class="ghost" type="button">Back to Start</button>
+    </div>
+  </div>
+</div>
 
 <script>
 /* ---------- Constants ---------- */
@@ -325,7 +332,8 @@ function biasLabel(TD){ if(TD<=2700) return "sprinter-favoring (short)"; if(TD>=
 /* ---------- State ---------- */
 var state={
   players:[],startBalance:1000,round:1,order:[],horses:[],picks:[],roundDeltas:[],
-  race:{duration:20000,trackDistance:3200,runoff:110,t0:0,raf:0,started:false,finished:false,worldHeight:0,padTop:24,padBot:24,rankCounter:1,sprites:[],results:[],venue:null,cond:null,varF:1.0}
+  race:{duration:20000,trackDistance:3200,runoff:110,t0:0,raf:0,started:false,finished:false,worldHeight:0,padTop:24,padBot:24,rankCounter:1,sprites:[],results:[],venue:null,cond:null,varF:1.0},
+  eliminatedLastRound:[]
 };
 var screens={players:$('#screen-players'),select:$('#screen-select'),race:$('#screen-race'),results:$('#screen-results')};
 function show(k){Object.keys(screens).forEach(function(key){screens[key].classList.add('hidden')}); screens[k].classList.remove('hidden');}
@@ -357,7 +365,7 @@ startBalanceEl.oninput=function(){var v=Math.max(100,+startBalanceEl.value||1000
 function addPlayer(name){
   if(state.players.length>=6)return;
   var color=PLAYER_COLORS[state.players.length%PLAYER_COLORS.length];
-  state.players.push({id:uid(),name:name,balance:state.startBalance,active:true,color:color});
+  state.players.push({id:uid(),name:name,balance:state.startBalance,initialBalance:state.startBalance,active:true,color:color});
 }
 function removePlayer(id){ state.players=state.players.filter(function(p){return p.id!==id;}); }
 function renderPlayers(){
@@ -405,6 +413,7 @@ function getBetType(){var el=document.querySelector('input[name="betType"]:check
 $$('input[name="betType"]').forEach(function(r){ r.addEventListener('change', updatePreview); });
 
 function startRound(){
+  // venue + cond
   var v = VENUE_DATA[rndi(0, VENUE_DATA.length-1)];
   state.race.venue = v.name;
   state.race.trackDistance = v.dist;
@@ -696,13 +705,17 @@ function endRace(skip){
       remain.forEach(function(S,i){S.crossed=true;S.crossTime=base+100+i*50;S.rank=state.race.rankCounter++;state.race.results.push({horseId:S.h.id,finishTime:S.crossTime,rank:S.rank});S.y=TD+state.race.runoff;S.offtrack=true;S.el.style.transform='translate(0,'+S.y+'px)';});
     }
   }
-  document.getElementById('raceShell').classList.add('fadeTrack'); settle(); renderResults();
+  document.getElementById('raceShell').classList.add('fadeTrack');
+  settle();
+  renderResults();
   var sortedRes = state.race.results.slice().sort(function(a,b){return a.rank-b.rank;});
   var winnerId=sortedRes[0].horseId; var someBacked=state.picks.some(function(pk){return pk.horseId===winnerId&&(pk.type==='win'||pk.type==='place');});
   if(someBacked){ runConfetti(5000); }
   show('results');
 }
+
 function settle(){
+  // outcomes
   var order=state.race.results.slice().sort(function(a,b){return a.rank-b.rank;}).map(function(r){return r.horseId;});
   var first=order[0], top3=new Set(order.slice(0,3));
   state.roundDeltas=state.players.map(function(p){return {playerId:p.id,name:p.name,color:p.color,won:0,staked:0,net:0,wonOn:[]};});
@@ -711,27 +724,102 @@ function settle(){
     rec.staked+=pk.amount; var win=0; if(pk.type==='win'&&pk.horseId===first){win=pk.amount*h.odds.win;rec.wonOn.push(h.name);} else if(pk.type==='place'&&top3.has(pk.horseId)){win=pk.amount*h.odds.place;rec.wonOn.push(h.name);}
     if(win>0){var w=Math.floor(win); p.balance+=w; rec.won+=w;} pk.win=Math.floor(win); pk.result=win>0?'WIN':'LOSE';
   }); state.roundDeltas.forEach(function(r){r.net=r.won-r.staked;});
+
+  // eliminations
+  var elim=[];
+  state.players.forEach(function(p){
+    if(p.active && p.balance<=0){
+      p.balance=0;
+      p.active=false;
+      elim.push(p);
+    }
+  });
+  state.eliminatedLastRound = elim;
 }
-$('#nextRound').onclick=function(){state.round++; startRound();};
-$('#leavePlayers').onclick=function(){state.players=state.players.filter(function(p){return p.active&&p.balance>0;}); if(state.players.length<2){alert('Not enough players.'); fullReset(); return;} state.round++; startRound();};
+
+$('#nextRound').onclick=function(){ state.round++; startRound(); };
+$('#leavePlayers').onclick=function(){ state.players=state.players.filter(function(p){return p.balance>0;}); if(state.players.filter(function(p){return p.active;}).length<2){alert('Not enough players.'); fullReset(); return;} state.round++; startRound(); };
 $('#fullReset').onclick=fullReset;
 
 /* Results render */
 function renderResults(){
   var ord=state.race.results.slice().sort(function(a,b){return a.rank-b.rank;}), winnerHorse=state.horses.find(function(h){return h.id===ord[0].horseId;});
   var winners=state.roundDeltas.filter(function(r){return r.wonOn.indexOf(winnerHorse.name)!==-1;}), topNet=state.roundDeltas.slice().sort(function(a,b){return b.net-a.net;})[0];
+
   roundBanner.classList.remove('hidden');
-  roundBanner.innerHTML='<span class="winBadge">Winner: '+esc(winnerHorse.name)+'</span>'+(winners.length?winners.map(function(w){return '<span class="winBadge" style="background:#1f6b3c;border-color:#2da760">+'+fmt(w.net>0?w.net:w.won)+' '+esc(w.name)+'</span>';}).join(''):'<span class="lossBadge">No winning tickets</span>')
-    +' <span class="'+(topNet.net>=0?'winBadge':'lossBadge')+'">Top net: '+esc(topNet.name)+' '+(topNet.net>=0?'+':'')+fmt(topNet.net)+'</span>';
+  var elimText = state.eliminatedLastRound.length ? (' <span class="lossBadge">Eliminated: '+state.eliminatedLastRound.map(function(p){return esc(p.name);}).join(', ')+'</span>') : '';
+  roundBanner.innerHTML='<span class="winBadge">Winner: '+esc(winnerHorse.name)+'</span>'
+    +(winners.length?winners.map(function(w){return '<span class="winBadge" style="background:#1f6b3c;border-color:#2da760">+'+fmt(w.net>0?w.net:w.won)+' '+esc(w.name)+'</span>';}).join(''):'<span class="lossBadge">No winning tickets</span>')
+    +' <span class="'+(topNet.net>=0?'winBadge':'lossBadge')+'">Top net: '+esc(topNet.name)+' '+(topNet.net>=0?'+':'')+fmt(topNet.net)+'</span>'
+    + elimText;
+
   var medals=['🥇','🥈','🥉']; podium.innerHTML='';
   ord.slice(0,3).forEach(function(o,i){var h=state.horses.find(function(x){return x.id===o.horseId;}); var d=document.createElement('div'); d.className='kpi';
     d.innerHTML='<div class="row" style="gap:8px"><span style="font-size:1.25rem">'+medals[i]+'</span><div class="icon" style="width:18px;height:14px;background:'+h.color+';animation:none"></div><strong>'+esc(h.name)+'</strong></div><div class="small">Time: '+(o.finishTime/1000).toFixed(2)+'s</div>'; podium.appendChild(d);});
+
   orderList.innerHTML=''; ord.forEach(function(o){var h=state.horses.find(function(x){return x.id===o.horseId;}); var bettors=state.picks.filter(function(pk){return pk.horseId===o.horseId;}).map(function(pk){return state.players.find(function(p){return p.id===pk.playerId;}).name;});
     var li=document.createElement('li'); li.innerHTML='<div class="row" style="justify-content:space-between"><div class="row" style="gap:8px"><div class="badge">#'+o.rank+'</div><div class="icon" style="width:18px;height:14px;background:'+h.color+';animation:none"></div><strong>'+esc(h.name)+'</strong></div><div class="small">'+(bettors.length?('Picked by: '+bettors.map(esc).join(', ')):'No picks')+'</div></div>'; orderList.appendChild(li);});
-  playerOutcomes.innerHTML=''; var by=groupBy(state.picks,'playerId'); state.players.forEach(function(p){var arr=by[p.id]||[], delta=state.roundDeltas.find(function(d){return d.playerId===p.id;})||{net:0};
+
+  playerOutcomes.innerHTML='';
+  var by=groupBy(state.picks,'playerId');
+  state.players.forEach(function(p){
+    var arr=by[p.id]||[], delta=state.roundDeltas.find(function(d){return d.playerId===p.id;})||{net:0};
     var rows=arr.length?arr.map(function(pk){var h=state.horses.find(function(x){return x.id===pk.horseId;}); return '<div class="row" style="justify-content:space-between"><div>'+pk.type.toUpperCase()+' • <span class="pill">'+esc(h.name)+'</span> • <span class="small">'+fmt(pk.amount)+' bet</span></div><div class="'+(pk.win>0?'money':'')+'">'+pk.result+' '+(pk.win>0?('+ '+fmt(pk.win)):' ')+'</div></div>';}).join(''):'<div class="small">No bets this round.</div>';
-    var li2=document.createElement('li'); li2.innerHTML='<div class="row" style="justify-content:space-between"><div class="row" style="gap:8px"><span style="width:14px;height:14px;border-radius:50%;display:inline-block;background:'+p.color+';border:1px solid rgba(0,0,0,.35)"></span><strong>'+esc(p.name)+'</strong></div><div>Balance: <span class="money">'+fmt(p.balance)+'</span> <span class="'+(delta.net>=0?'winBadge':'lossBadge')+'" style="margin-left:6px">'+(delta.net>=0?'+':'')+fmt(delta.net)+'</span></div></div><div class="card" style="margin-top:8px">'+rows+'</div>'; playerOutcomes.appendChild(li2);});
+    var li2=document.createElement('li');
+    li2.dataset.pid=p.id;
+    li2.className = (p.active?'':'eliminated');
+    li2.innerHTML='<div class="row" style="justify-content:space-between"><div class="row" style="gap:8px"><span style="width:14px;height:14px;border-radius:50%;display:inline-block;background:'+p.color+';border:1px solid rgba(0,0,0,.35)"></span><strong>'+esc(p.name)+'</strong></div><div>Balance: <span class="money">'+fmt(p.balance)+'</span> <span class="'+(delta.net>=0?'winBadge':'lossBadge')+'" style="margin-left:6px">'+(delta.net>=0?'+':'')+fmt(delta.net)+'</span></div></div><div class="card" style="margin-top:8px">'+rows+'</div>';
+    playerOutcomes.appendChild(li2);
+  });
+
+  // Quick elimination toast loop
+  if(state.eliminatedLastRound.length){
+    var sys=$('#sysToast'); var i=0;
+    function showNext(){
+      if(i>=state.eliminatedLastRound.length){ sys.classList.add('hidden'); return; }
+      sys.textContent=state.eliminatedLastRound[i].name+' is out!';
+      sys.classList.remove('hidden');
+      setTimeout(function(){ sys.classList.add('hidden'); i++; setTimeout(showNext,200); }, 1400);
+    }
+    showNext();
+  }
+
+  // Check for last player standing and stop the loop if so
+  var alive = state.players.filter(function(p){return p.active;});
+  if(alive.length<=1){
+    // disable progression buttons
+    $('#nextRound').disabled=true; $('#leavePlayers').disabled=true;
+    var bodyText;
+    if(alive.length===1){
+      var champ=alive[0];
+      var winnings = champ.balance - (champ.initialBalance||state.startBalance);
+      bodyText = '<div style="font-size:1.1rem;margin-bottom:6px"><strong>'+esc(champ.name)+'</strong></div>'
+                +'<div class="money" style="font-size:1.15rem">Day’s Winnings: '+(winnings>=0?'+':'')+fmt(winnings)+'</div>';
+      runConfetti(6000);
+    }else{
+      bodyText = '<div>No players remain. Tough crowd.</div>';
+    }
+    $('#champBody').innerHTML = bodyText;
+    $('#champModal').classList.remove('hidden');
+  }
 }
+
+// Modal actions
+$('#btnPlayAgain').onclick=function(){
+  // Reset balances, reactivate everyone, same roster
+  state.players.forEach(function(p){
+    p.balance=state.startBalance;
+    p.initialBalance=state.startBalance;
+    p.active=true;
+  });
+  state.round=1; state.order=[]; state.horses=[]; state.picks=[]; state.roundDeltas=[]; state.eliminatedLastRound=[];
+  $('#champModal').classList.add('hidden');
+  show('select'); startRound();
+};
+$('#btnBackStart').onclick=function(){
+  $('#champModal').classList.add('hidden');
+  fullReset();
+};
 
 /* ---------- Confetti ---------- */
 var confettiTimer=null, confettiAnim=null, parts=[];
@@ -742,7 +830,7 @@ function runConfetti(ms){ms=ms||5000;parts=Array.from({length:220},function(){re
 
 /* ---------- Reset ---------- */
 function fullReset(){
-  state.players=[];state.round=1;state.order=[];state.horses=[];state.picks=[];
+  state.players=[];state.round=1;state.order=[];state.horses=[];state.picks=[];state.roundDeltas=[];state.eliminatedLastRound=[];
   state.race={duration:20000,trackDistance:3200,runoff:110,t0:0,raf:0,started:false,finished:false,worldHeight:0,padTop:24,padBot:24,rankCounter:1,sprites:[],results:[],venue:null,cond:null,varF:1.0};
   renderPlayers(); show('players'); updateStartEnabled();
 }
